@@ -1,0 +1,8 @@
+[{
+    "polygons":[["0","1"]],
+    "chords":[["4","5"]],
+    "point_lables": {"_001": "starting point", "_010": "maps to _100"},
+    "point_colors": {"*": "blue", "_001": "red"},
+    "points": [],
+    "radix": 6
+}]
