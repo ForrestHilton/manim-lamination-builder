@@ -116,6 +116,9 @@ class RenderLamination(Scene):
         b = NaryFraction.from_string(lamination.radix, cord[1])
         theta1 = min(a.to_angle(), b.to_angle())
         theta2 = max(a.to_angle(), b.to_angle())
+        if abs(theta1-theta2) - pi < 1e-8:
+            # 2.2250738585072014e-308 is the smallest positive number
+            theta1 += 1e-7
         kapa1 = pi / 2 + theta2
         # wraping edge case:
         if theta2 - theta1 > pi:
