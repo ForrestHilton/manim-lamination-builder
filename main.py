@@ -2,7 +2,7 @@
 from functools import reduce
 from typing import Type
 from manim import (
-        Union,
+    Union,
     BLACK,
     BLUE,
     RED,
@@ -117,6 +117,9 @@ class RenderLamination(Scene):
         theta1 = min(a.to_angle(), b.to_angle())
         theta2 = max(a.to_angle(), b.to_angle())
         kapa1 = pi / 2 + theta2
+        # wraping edge case:
+        if theta2 - theta1 > pi:
+            theta1, theta2 = theta1 + pi, theta2 + pi
         delta_angle = pi - abs(theta1 - theta2)
         alpha = (theta1 + theta2) / 2
         r = tan(alpha - theta1)
