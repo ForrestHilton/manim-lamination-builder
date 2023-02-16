@@ -29,4 +29,4 @@ Follow the manim installation steps.
 Feature requests will be entertained. I have yet to see a need for any of the following features: mapping forward, pull backs, automatically placing descriptions or tittles at the top. This is intended to be used in combination with other tools like latex and your own python scripts. I hope this is a reasonable API.
 
 Copyright Forrest M Hilton 2023; 
-Some rights reserved: licensed to you under AGPL-3.0-or-later.
+License TBD until then, All Rights Reserved
