@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "manim_lamination_builder"
+version = "0.1.0"
+authors = [
+  { name="Forrest Hilton", email="forrestmhilton@gmail.com" },
+]
+description = "a replacement to lamination builder that uses manim instead of the browser"
+readme = "README.md"
+requires-python = ">=3.7"
+# license="AGPL-3.0-only"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "manim"
+]
+[project.urls]
+# "Homepage" = "https://github.com/pypa/sampleproject"
+# "Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
