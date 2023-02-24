@@ -4,7 +4,7 @@ The input format is as follows: A list of laminations to be placed in the figure
 
 Each lamination may have of the following fields: polygons, chords (must be a list of lists of length two), point_lables, point_colors ("*" for default color which defaults to red), and points. Omissions in each field will be filled based on the fields that proceed it in the list above. Each lamination must have a "radix" which is the base.
 
-Example:
+# Example:
 ```
 [
   {
@@ -20,7 +20,7 @@ Example:
   }
 ]
 ```
-Usage: 
+# Usage: 
 commandline TODO
 
 Installation:
@@ -28,5 +28,10 @@ Follow the manim installation steps.
 
 Feature requests will be entertained. I have yet to see a need for any of the following features: mapping forward, pull backs, automatically placing descriptions or tittles at the top. This is intended to be used in combination with other tools like latex and your own python scripts. I hope this is a reasonable API.
 
-Copyright Forrest M Hilton 2023; 
-License TBD until then, All Rights Reserved
+
+
+# License
+Licensed under the The AGPLv3 License (AGPLv3)
+Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.

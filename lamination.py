@@ -1,3 +1,7 @@
+# Licensed under the The AGPLv3 License (AGPLv3)
+# Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import List, Optional, Any, TypeVar, Callable, Type, cast
 
 

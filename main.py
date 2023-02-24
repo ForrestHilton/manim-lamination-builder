@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
+# Licensed under the The AGPLv3 License (AGPLv3)
+# Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from functools import reduce
 from typing import List, Type
 from manim import (
     Group,
+    MovingCameraScene,
     Union,
     BLACK,
     BLUE,
@@ -25,8 +30,10 @@ import sys
 import os
 import json
 
+from manim.utils.file_ops import config
+
 from points import NaryFraction
-from Lamination import Lamination, laminations_from_dict
+from lamination import Lamination, laminations_from_dict
 import numpy as np
 from math import pi, tan, sqrt, cos, sin
 
@@ -145,15 +152,21 @@ class Main(Scene):
         super().__init__()
 
     def construct(self):
-        group = Group(*[build_lamination(lamination) for lamination in laminations])
+        group = Group(
+            *[build_lamination(lamination) for lamination in self.laminations]
+        )
         group = group.arrange_in_grid()
+        group.scale(
+            1
+            / max(group.width / config.frame_width, group.height / config.frame_height)
+        )
         self.add(group)
 
 
-if True:
+if __name__ == "__main__":
     file = sys.argv[-1]
     if len(sys.argv) == 1:
-        path = "/home/forrest/Desktop/MA498/python-lamination-builder/test.json"
+        path = "/home/forrest/Desktop/manim_lamination_builder/test.json"
     else:
         path = os.path.join(os.getcwd(), file)
     with open(path) as f:
