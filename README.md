@@ -1,3 +1,7 @@
+# WORK IN PROGRESS
+# example output from my reasearch
+![please enable images](https://github.com/ForrestHilton/python-lamination-builder/blob/main/example.png "Example Output from my Reasearch")
+
 This is a re-implementation of [lamination-builder](https://csfalcione.github.io/lamination-builder/) that runs in python without dependencies on a browser and focusing on convenient generation of figures. Instead it uses [Manim](https://github.com/ManimCommunity/manim/), and which has several dependencies. 
 
 The input format is as follows: A list of laminations to be placed in the figure (tilling is a best effort left to righ and top to bottom Placemen based on a 16:9 screen). The blank lamination is permited.
@@ -20,11 +24,13 @@ Each lamination may have of the following fields: polygons, chords (must be a li
   }
 ]
 ```
-# Usage: 
-commandline TODO
 
-Installation:
-Follow the manim installation steps.
+# Installation:
+Clone the repo, and install manim. Add the project to you PYTHONPATH, if you wish to import the python files.
+
+# Usage: 
+/path/to/python-lamination-builder/main.py file.json
+
 
 Feature requests will be entertained. I have yet to see a need for any of the following features: mapping forward, pull backs, automatically placing descriptions or tittles at the top. This is intended to be used in combination with other tools like latex and your own python scripts. I hope this is a reasonable API.
 
