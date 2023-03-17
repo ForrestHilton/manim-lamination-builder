@@ -9,6 +9,7 @@ from math import cos, pi, sin
 
 class NaryFraction:
     def __init__(self, base: int, exact: List[int], repeating: List[int]):
+        assert base != 1
         self.base = base
         self.exact = exact
         self.repeating = repeating

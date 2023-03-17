@@ -3,28 +3,24 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from functools import reduce
-from typing import List, Type
+from typing import List
 from manim import (
     Group,
-    MovingCameraScene,
     Union,
     BLACK,
     BLUE,
     RED,
     WHITE,
     Arc,
-    ArcPolygonFromArcs,
     Difference,
     Dot,
     Intersection,
     Mobject,
     Scene,
     Circle,
-    Create,
-    VGroup,
     tempconfig,
-    Point,
 )
 import sys
 import os
@@ -58,11 +54,12 @@ def cord_builder(cord, radix, needs_circle) -> Mobject:
     r = tan(alpha - theta1)
     centerToCenter = sqrt(1 + r**2)
     center = [cos(alpha) * centerToCenter, sin(alpha) * centerToCenter, 0]
-    # print(
-    #     "Arc({}, {}, {}, arc_center=np.array({}))".format(
-    #         r, kapa1, delta_angle, center
-    #     )
-    # )
+    print(
+        "Arc({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, delta_angle, center)
+    )
+    print(
+        "Circle({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, 2 * pi, center)
+    )
     if needs_circle:
         c = Circle(r)
         c.move_to(center)
@@ -92,6 +89,8 @@ def build_lamination(lamination):
                 lamination.chords.append(cord)
 
             boundaries.append(cord_builder(cord, lamination.radix, needs_circle=True))
+        if len(polygon) < 3:
+            continue
 
         ccw_convex = []
         cw_convex = []
@@ -109,7 +108,7 @@ def build_lamination(lamination):
             if distance_ccw > pi:
                 ccw_convex.append(i)
 
-        difference_subject = Circle(1)
+        difference_subject = unit_circle
         if len(cw_convex) == 0 or len(ccw_convex) == 0:
             pass
         elif len(ccw_convex) == 1:
@@ -121,13 +120,16 @@ def build_lamination(lamination):
             difference_subject = Intersection(
                 difference_subject, boundaries.pop(cw_convex[0])
             )
-        clip = reduce(Union, boundaries)
         ret.add(
-            Difference(
+            reduce(
+                lambda a, b: Difference(
+                    a,
+                    b,
+                    color=BLUE,
+                    fill_opacity=1,
+                ),
+                boundaries,
                 difference_subject,
-                clip,
-                color=BLUE,
-                fill_opacity=1,
             )
         )
 
@@ -141,7 +143,9 @@ def build_lamination(lamination):
 
     for point in lamination.points:
         coordinates = NaryFraction.from_string(lamination.radix, point).to_cartesian()
-        ret.add(Dot(np.array([coordinates[0], coordinates[1], 0]), color=RED))
+        ret.add(
+            Dot(np.array([coordinates[0], coordinates[1], 0]), color=RED, radius=0.03)
+        )
 
     return ret
 
