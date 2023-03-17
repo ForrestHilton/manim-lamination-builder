@@ -1,0 +1,6 @@
+UNKNOWN.egg-info/
+__pycache__/
+dist/
+manim_lamination_builder.egg-info/
+media/
+test.py
