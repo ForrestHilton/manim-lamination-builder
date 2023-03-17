@@ -8,7 +8,6 @@ from functools import reduce
 from typing import List
 from manim import (
     Group,
-    Union,
     BLACK,
     BLUE,
     RED,
@@ -54,12 +53,12 @@ def cord_builder(cord, radix, needs_circle) -> Mobject:
     r = tan(alpha - theta1)
     centerToCenter = sqrt(1 + r**2)
     center = [cos(alpha) * centerToCenter, sin(alpha) * centerToCenter, 0]
-    print(
-        "Arc({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, delta_angle, center)
-    )
-    print(
-        "Circle({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, 2 * pi, center)
-    )
+    # print(
+    #     "Arc({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, delta_angle, center)
+    # )
+    # print(
+    #     "Circle({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, 2 * pi, center)
+    # )
     if needs_circle:
         c = Circle(r)
         c.move_to(center)
@@ -108,30 +107,29 @@ def build_lamination(lamination):
             if distance_ccw > pi:
                 ccw_convex.append(i)
 
-        difference_subject = unit_circle
-        if len(cw_convex) == 0 or len(ccw_convex) == 0:
+        # using workaround documented here https://github.com/ManimCommunity/manim/issues/3167
+        convex_boundary = None
+        if len(cw_convex) == 0 or len(cw_convex) == 0:
             pass
         elif len(ccw_convex) == 1:
-            difference_subject = Intersection(
-                difference_subject, boundaries.pop(ccw_convex[0])
-            )
+            convex_boundary = boundaries.pop(ccw_convex[0])
         else:
             assert len(cw_convex) == 1
-            difference_subject = Intersection(
-                difference_subject, boundaries.pop(cw_convex[0])
-            )
-        ret.add(
-            reduce(
-                lambda a, b: Difference(
-                    a,
-                    b,
-                    color=BLUE,
-                    fill_opacity=1,
-                ),
-                boundaries,
-                difference_subject,
-            )
+            convex_boundary = boundaries.pop(cw_convex[0])
+        shape = reduce(
+            lambda a, b: Difference(
+                a,
+                b,
+                color=BLUE,
+                fill_opacity=1,
+            ),
+            boundaries,
+            unit_circle,
         )
+
+        if convex_boundary is not None:
+            shape = Intersection(shape, convex_boundary, color=BLUE, fill_opacity=1)
+        ret.add(shape)
 
     for cord in lamination.chords:
         if len(cord) != 2:
