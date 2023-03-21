@@ -5,6 +5,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from functools import reduce
+from custom_json import CustomDecoder
 from typing import List
 from manim import (
     Group,
@@ -28,7 +29,7 @@ import json
 from manim.utils.file_ops import config
 
 from points import NaryFraction
-from lamination import Lamination, laminations_from_dict
+from lamination import Lamination
 import numpy as np
 from math import pi, tan, sqrt, cos, sin
 
@@ -37,8 +38,8 @@ background = BLACK
 
 
 def cord_builder(cord, radix, needs_circle) -> Mobject:
-    a = NaryFraction.from_string(radix, cord[0])
-    b = NaryFraction.from_string(radix, cord[1])
+    a = cord[0]
+    b = cord[1]
     theta1 = min(a.to_angle(), b.to_angle())
     theta2 = max(a.to_angle(), b.to_angle())
     if abs(theta1 - theta2) - pi < 1e-8:
@@ -53,12 +54,8 @@ def cord_builder(cord, radix, needs_circle) -> Mobject:
     r = tan(alpha - theta1)
     centerToCenter = sqrt(1 + r**2)
     center = [cos(alpha) * centerToCenter, sin(alpha) * centerToCenter, 0]
-    # print(
-    #     "Arc({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, delta_angle, center)
-    # )
-    # print(
-    #     "Circle({}, {}, {}, arc_center=np.array({}))".format(r, kapa1, 2 * pi, center)
-    # )
+    # print("Circle({})".format(r))
+    # print(".move_to({})".format(center))
     if needs_circle:
         c = Circle(r)
         c.move_to(center)
@@ -95,8 +92,8 @@ def build_lamination(lamination):
         cw_convex = []
         for i, cord in enumerate(cords):
             # copies from cord builder function
-            a = NaryFraction.from_string(lamination.radix, cord[0])
-            b = NaryFraction.from_string(lamination.radix, cord[1])
+            a = cord[0]
+            b = cord[1]
             theta1 = a.to_angle()
             theta2 = b.to_angle()
 
@@ -140,7 +137,7 @@ def build_lamination(lamination):
         ret.add(cord_builder(cord, lamination.radix, needs_circle=False))
 
     for point in lamination.points:
-        coordinates = NaryFraction.from_string(lamination.radix, point).to_cartesian()
+        coordinates = point.to_cartesian()
         ret.add(
             Dot(np.array([coordinates[0], coordinates[1], 0]), color=RED, radius=0.03)
         )
@@ -172,8 +169,8 @@ if __name__ == "__main__":
     else:
         path = os.path.join(os.getcwd(), file)
     with open(path) as f:
-        data = json.load(f)
-    laminations = laminations_from_dict(data)
+        data = json.load(f, cls=CustomDecoder)
+    laminations = data
 
     with tempconfig({"quality": "medium_quality", "preview": True}):
         scene = Main(laminations)
