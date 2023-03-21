@@ -6,7 +6,7 @@
 
 from functools import reduce
 from custom_json import CustomDecoder
-from typing import List
+from typing import List, Tuple
 from manim import (
     Group,
     BLACK,
@@ -29,7 +29,7 @@ import json
 from manim.utils.file_ops import config
 
 from points import NaryFraction
-from lamination import Lamination
+from lamination import Lamination, Chord
 import numpy as np
 from math import pi, tan, sqrt, cos, sin
 
@@ -37,7 +37,7 @@ from math import pi, tan, sqrt, cos, sin
 background = BLACK
 
 
-def cord_builder(cord, radix, needs_circle) -> Mobject:
+def cord_builder(cord, needs_circle) -> Mobject:
     a = cord[0]
     b = cord[1]
     theta1 = min(a.to_angle(), b.to_angle())
@@ -63,7 +63,7 @@ def cord_builder(cord, radix, needs_circle) -> Mobject:
     return Arc(r, kapa1, delta_angle, arc_center=np.array(center))
 
 
-def build_lamination(lamination):
+def build_lamination(lamination: Lamination):
     ret = Mobject()
     unit_circle = Circle()  # create a circle
     unit_circle.set_stroke(WHITE, opacity=1)
@@ -84,7 +84,7 @@ def build_lamination(lamination):
             ):
                 lamination.chords.append(cord)
 
-            boundaries.append(cord_builder(cord, lamination.radix, needs_circle=True))
+            boundaries.append(cord_builder(cord, needs_circle=True))
         if len(polygon) < 3:
             continue
 
@@ -134,7 +134,7 @@ def build_lamination(lamination):
         for point in cord:
             if point not in lamination.points:
                 lamination.points.append(point)
-        ret.add(cord_builder(cord, lamination.radix, needs_circle=False))
+        ret.add(cord_builder(cord, needs_circle=False))
 
     for point in lamination.points:
         coordinates = point.to_cartesian()

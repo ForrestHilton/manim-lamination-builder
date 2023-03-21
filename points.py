@@ -6,6 +6,8 @@ from typing import List
 
 from math import cos, pi, sin
 
+from manim.animation.animation import deepcopy
+
 
 class NaryFraction:
     def __init__(self, base: int, exact: List[int], repeating: List[int]):
@@ -44,13 +46,21 @@ class NaryFraction:
 
         return exact_string + repeating_string
 
-    def sigma(self):
+    def after_sigma(self) -> "NaryFraction":
+        after = deepcopy(self)
         # multiply the exact part by base
-        carry = self.repeating.pop(0)
-        self.repeating.append(carry)
-        self.exact.append(carry)
-        self.exact.pop(0)
-        return self
+        carry = after.repeating.pop(0)
+        after.repeating.append(carry)
+        after.exact.append(carry)
+        after.exact.pop(0)
+        return after
+
+    def siblings(self) -> List["NaryFraction"]:
+        assert len(self.exact) == 0 or self.to_float() == 0
+        return [
+            NaryFraction(self.base, [digit], self.repeating)
+            for digit in range(self.base)
+        ]
 
     def to_float(self) -> float:
         value = sum([n / self.base ** (i + 1) for i, n in enumerate(self.exact)])
@@ -81,7 +91,7 @@ assert NaryFraction(2, [1], []).to_string() == "1"
 assert NaryFraction.from_string(3, "1_101") == NaryFraction(3, [1], [1, 0, 1])
 assert NaryFraction.from_string(2, "1") == NaryFraction(2, [1], [])
 
-assert NaryFraction.from_string(3, "_101").sigma().to_string() == "_011"
+assert NaryFraction.from_string(3, "_101").after_sigma().to_string() == "_011"
 assert (
     NaryFraction.from_string(10, "_33").to_float()
     == NaryFraction.from_string(3, "1").to_float()
