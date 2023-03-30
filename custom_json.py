@@ -2,6 +2,8 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from typing import List
+from chord import Chord
 from lamination import Lamination
 from points import NaryFraction
 import json
@@ -13,6 +15,8 @@ class CustomEncoder(json.JSONEncoder):
         vtype = type(v).__name__
         if vtype == "Lamination":
             return v.__dict__
+        if vtype == "Chord":
+            return list(v.__dict__.values())
         if vtype in types:
             return types[type(v).__name__](v)
         else:
@@ -31,19 +35,11 @@ class CustomDecoder(json.JSONDecoder):
                 return NaryFraction.from_string(radix, s)
 
             def list_handler(list):
+                assert isinstance(list, List)
                 return [*map(string_handler, list)]
 
-            if "polygons" in dct:
-                polygons = [*map(list_handler, dct["polygons"])]
-            else:
-                polygons = None
-            if "chords" in dct:
-                chords = [*map(list_handler, dct["chords"])]
-            else:
-                chords = None
-            if "points" in dct:
-                points = list_handler(dct["points"])
-            else:
-                points = None
+            polygons = [*map(list_handler, dct.get("polygons", []))]
+            chords = [*map(lambda list: Chord(list[0], list[1]), dct.get("chords", []))]
+            points = list_handler(dct.get("points", []))
             return Lamination(polygons, chords, points, radix)
         return dct
