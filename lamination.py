@@ -4,16 +4,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from functools import reduce
 from typing import List
 from manim import (
     BLUE,
     RED,
-    WHITE,
     BLACK,
-    Difference,
     Dot,
-    Intersection,
     Mobject,
     VMobject,
     Circle,
@@ -21,8 +17,6 @@ from manim import (
 
 from points import NaryFraction
 from chord import Chord
-import numpy as np
-from math import pi
 
 
 background = BLACK
@@ -48,9 +42,7 @@ class Lamination:
 
     def build(self) -> Mobject:
         ret = Mobject()
-        unit_circle = Circle()  # create a circle
-        unit_circle.set_stroke(WHITE, opacity=1)
-        unit_circle.set_fill(background, opacity=0)
+        unit_circle = Circle(color=BLACK)  # create a circle
         ret.add(unit_circle)  # show the circle on screen
 
         for polygon in self.polygons:

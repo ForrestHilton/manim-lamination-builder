@@ -7,6 +7,7 @@
 from custom_json import CustomDecoder
 from typing import List
 from manim import (
+    WHITE,
     Scene,
     Group,
     tempconfig,
@@ -28,6 +29,7 @@ class Main(Scene):
         super().__init__()
 
     def construct(self):
+        self.camera.background_color = WHITE
         group = Group(*[lamination.build() for lamination in self.laminations])
         group = group.arrange_in_grid()
         group.scale(

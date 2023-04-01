@@ -5,6 +5,7 @@
 
 
 from manim import (
+    BLACK,
     Arc,
     Mobject,
     VMobject,
@@ -71,7 +72,7 @@ class Chord:
 
     def build(self) -> Mobject:
         # https://pomax.github.io/bezierinfo/#circles_cubic
-        ret = VMobject()
+        ret = VMobject(color=BLACK)
         a = self.max.to_cartesian()
         b = self.min.to_cartesian()
         ret.points = np.array(
