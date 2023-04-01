@@ -39,7 +39,7 @@ class CustomDecoder(json.JSONDecoder):
                 return [*map(string_handler, list)]
 
             polygons = [*map(list_handler, dct.get("polygons", []))]
-            chords = [*map(lambda list: Chord(list[0], list[1]), dct.get("chords", []))]
+            chords = [*map(lambda list: Chord(string_handler(list[0]), string_handler(list[1])), dct.get("chords", []))]
             points = list_handler(dct.get("points", []))
             return Lamination(polygons, chords, points, radix)
         return dct
