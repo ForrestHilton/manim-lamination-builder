@@ -15,6 +15,7 @@ from manim import (
     Dot,
     Intersection,
     Mobject,
+    VMobject,
     Circle,
 )
 
@@ -54,55 +55,22 @@ class Lamination:
 
         for polygon in self.polygons:
             # TODO: check if pollygon is valid
-            boundaries = []
-            chords = []
+            shape = VMobject(BLUE, 1)
             for i in range(len(polygon)):
-                chord = Chord(polygon[i], polygon[(i + 1) % len(polygon)])
-                ordered_chord = [polygon[i], polygon[(i + 1) % len(polygon)]]
-                chords.append(ordered_chord)
+                a = polygon[i]
+                b = polygon[(i + 1) % len(polygon)]
+                chord = Chord(a, b)
+                shape.add_cubic_bezier_curve(
+                    a.to_cartesian(),
+                    a.to_cartesian() * (1 - chord.handle_length()),
+                    b.to_cartesian() * (1 - chord.handle_length()),
+                    b.to_cartesian(),
+                )
                 if not (chord in self.chords):
                     self.chords.append(chord)
 
-                boundaries.append(chord.circle())
-            if len(polygon) < 3:
-                continue
-
-            ccw_convex = []
-            cw_convex = []
-            for i, ordered_chord in enumerate(chords):
-                # copies from cord builder function
-                theta1 = ordered_chord[0].to_angle()
-                theta2 = ordered_chord[1].to_angle()
-
-                distance_ccw = (theta1 - theta2) % (2 * pi)
-                distance_cw = (theta2 - theta1) % (2 * pi)
-                if distance_cw > pi:
-                    cw_convex.append(i)
-                if distance_ccw > pi:
-                    ccw_convex.append(i)
-
-            # using workaround documented here https://github.com/ManimCommunity/manim/issues/3167
-            convex_boundary = None
-            if len(cw_convex) == 0 or len(ccw_convex) == 0:
-                pass
-            elif len(ccw_convex) == 1:
-                convex_boundary = boundaries.pop(ccw_convex[0])
-            else:
-                assert len(cw_convex) == 1
-                convex_boundary = boundaries.pop(cw_convex[0])
-            shape = reduce(
-                lambda a, b: Difference(
-                    a,
-                    b,
-                    color=BLUE,
-                    fill_opacity=1,
-                ),
-                boundaries,
-                unit_circle,
-            )
-            if convex_boundary is not None:
-                shape = Intersection(shape, convex_boundary, color=BLUE, fill_opacity=1)
-            ret.add(shape)
+            if len(polygon) > 2:
+                ret.add(shape)
 
         for chord in self.chords:
             for point in [chord.min, chord.max]:
@@ -111,10 +79,9 @@ class Lamination:
             ret.add(chord.build())
 
         for point in self.points:
-            coordinates = point.to_cartesian()
             ret.add(
                 Dot(
-                    np.array([coordinates[0], coordinates[1], 0]),
+                    point.to_cartesian(),
                     color=RED,
                     radius=0.04,
                 )

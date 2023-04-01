@@ -8,6 +8,8 @@ from math import cos, pi, sin
 
 from manim.animation.animation import deepcopy
 
+import numpy as np
+
 
 class NaryFraction:
     def __init__(self, base: int, exact: List[int], repeating: List[int]):
@@ -82,7 +84,7 @@ class NaryFraction:
 
     def to_cartesian(self):
         angle = self.to_angle()
-        return (cos(angle), sin(angle))
+        return np.array([cos(angle), sin(angle), 0])
 
 
 assert NaryFraction(3, [1], [1, 0, 1]).to_string() == "1_101"

@@ -7,6 +7,7 @@
 from manim import (
     Arc,
     Mobject,
+    VMobject,
     Circle,
     tuplify,
 )
@@ -28,7 +29,7 @@ class Chord:
             self.min = b
             self.max = a
 
-    def crosses(self, other) -> bool:
+    def crosses(self, other: "Chord") -> bool:
         if (
             self.max.to_float() <= other.min.to_float()
             or self.min.to_float() >= other.max.to_float()
@@ -63,9 +64,21 @@ class Chord:
         # print("Circle({})".format(r))
         # print(".move_to({})".format(center))
 
-    def build(self) -> Mobject:
+    def handle_length(self) -> float:
         (r, kapa1, delta_angle, center) = self._graphical_description()
-        return Arc(r, kapa1, delta_angle, arc_center=np.array(center))
+        k = 4 / 3 * tan(delta_angle / 4)
+        return r * k
+
+    def build(self) -> Mobject:
+        # https://pomax.github.io/bezierinfo/#circles_cubic
+        ret = VMobject()
+        a = self.max.to_cartesian()
+        b = self.min.to_cartesian()
+        ret.points = np.array(
+            [a, a * (1 - self.handle_length()), b * (1 - self.handle_length()), b]
+        )
+
+        return ret
 
     def circle(self) -> Mobject:
         (r, _, _, center) = self._graphical_description()
@@ -73,7 +86,7 @@ class Chord:
         c.move_to(center)
         return c
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Chord"):
         if isinstance(other, Chord):
             return self.min == other.min and self.max == other.max
         return False
@@ -86,4 +99,6 @@ assert not Chord(a, b).crosses(Chord(c, d))
 assert Chord(b, d).crosses(Chord(a, c))
 assert not Chord(c, d).crosses(Chord(a, b))
 assert NaryFraction.from_string(4, "0_0") == NaryFraction.from_string(4, "0_0")
-assert Chord(NaryFraction.from_string(4, "0_0"), b) in [Chord(NaryFraction.from_string(4, "0_0"), b)]
+assert Chord(NaryFraction.from_string(4, "0_0"), b) in [
+    Chord(NaryFraction.from_string(4, "0_0"), b)
+]
