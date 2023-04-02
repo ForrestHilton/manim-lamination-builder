@@ -29,10 +29,18 @@ Each lamination may have of the following fields: polygons, chords (must be a li
 ```
 
 # Installation: (correct python packaging is on the TODO list)
-Clone the repo, and install manim. Add the project to you PYTHONPATH, if you wish to import the python files.
+Please refer to [to manim's installation instructions](https://docs.manim.community/en/stable/installation.html). It and its dependencies are required, with the possible exception of tex.
+```
+pip install manim json json5
+git clone https://github.com/ForrestHilton/python-lamination-builder
+```
+
+Add the project to you PYTHONPATH in a settings file, if you wish to import the python files.
 
 # Usage: 
+```
 /path/to/python-lamination-builder/main.py file.json
+```
 
 
 Feature requests will be entertained. I have yet to see a need for any of the following features: mapping forward, pull backs, automatically placing descriptions or tittles at the top. This is intended to be used in combination with other tools like latex and your own python scripts. I hope this is a reasonable API.
