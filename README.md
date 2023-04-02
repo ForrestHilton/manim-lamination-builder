@@ -27,6 +27,7 @@ Each lamination may have of the following fields: polygons, chords (must be a li
   { radix: 4}
 ]
 ```
+![please enable images](https://github.com/ForrestHilton/python-lamination-builder/blob/main/contrived_example.png "Render of json above")
 
 # Installation: (correct python packaging is on the TODO list)
 Please refer to [to manim's installation instructions](https://docs.manim.community/en/stable/installation.html). It and its dependencies are required, with the possible exception of tex.
