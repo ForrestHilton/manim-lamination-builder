@@ -4,7 +4,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from custom_json import CustomDecoder
+from custom_json import custom_dump, read_file_to_laminations
 from typing import List
 from manim import (
     WHITE,
@@ -14,7 +14,6 @@ from manim import (
 )
 import sys
 import os
-import json
 
 from manim.utils.file_ops import config
 
@@ -42,12 +41,10 @@ class Main(Scene):
 if __name__ == "__main__":
     file = sys.argv[-1]
     if len(sys.argv) == 1:
-        path = "/home/forrest/Desktop/manim_lamination_builder/test.json"
+        path = "/home/forrest/Desktop/manim_lamination_builder/test.json5"
     else:
         path = os.path.join(os.getcwd(), file)
-    with open(path) as f:
-        data = json.load(f, cls=CustomDecoder)
-    laminations = data
+    laminations = read_file_to_laminations(path)
 
     with tempconfig({"quality": "medium_quality", "preview": True}):
         scene = Main(laminations)

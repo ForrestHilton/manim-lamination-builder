@@ -7,6 +7,7 @@ from chord import Chord
 from lamination import Lamination
 from points import NaryFraction
 import json
+import json5
 
 
 class CustomEncoder(json.JSONEncoder):
@@ -39,7 +40,30 @@ class CustomDecoder(json.JSONDecoder):
                 return [*map(string_handler, list)]
 
             polygons = [*map(list_handler, dct.get("polygons", []))]
-            chords = [*map(lambda list: Chord(string_handler(list[0]), string_handler(list[1])), dct.get("chords", []))]
+            chords = [
+                *map(
+                    lambda list: Chord(
+                        string_handler(list[0]), string_handler(list[1])
+                    ),
+                    dct.get("chords", []),
+                )
+            ]
             points = list_handler(dct.get("points", []))
             return Lamination(polygons, chords, points, radix)
         return dct
+
+
+def preprocess_for_json5(json5_str: str) -> str:
+    obj = json5.loads(json5_str)
+    json_str = json.dumps(obj)
+    return json_str
+
+
+def read_file_to_laminations(path) -> List[Lamination]:
+    with open(path) as f:
+        json_str = preprocess_for_json5(f.read())
+        return json.loads(json_str, cls=CustomDecoder)
+
+
+def custom_dump(data_of_a_type_defined_in_this_project) -> str:
+    return json.dumps(data_of_a_type_defined_in_this_project, cls=CustomEncoder)
