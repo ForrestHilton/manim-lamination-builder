@@ -83,8 +83,15 @@ class NaryFraction:
         return self.to_float() * 2 * pi
 
     def to_cartesian(self):
-        angle = self.to_angle()
-        return np.array([cos(angle), sin(angle), 0])
+        return angle_to_cartesian(self.to_angle())
+
+    def cartesian_lerp(self, other: "NaryFraction", alpha: float):
+        angle = (1 - alpha) * self.to_angle() + alpha * other.to_angle()
+        return angle_to_cartesian(angle)
+
+
+def angle_to_cartesian(angle: float):
+    return np.array([cos(angle), sin(angle), 0])
 
 
 assert NaryFraction(3, [1], [1, 0, 1]).to_string() == "1_101"

@@ -4,18 +4,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from typing import Union
 from manim import (
     BLACK,
-    Arc,
     Mobject,
     VMobject,
-    Circle,
+    bezier,
     tuplify,
 )
 
-from points import NaryFraction
+from points import NaryFraction, angle_to_cartesian
 import numpy as np
-from math import pi, tan, sqrt, cos, sin
+from math import pi, tan
 
 
 class Chord:
@@ -46,51 +46,62 @@ class Chord:
             return True
         return False
 
-    def _graphical_description(self):
+    def handle_length(self) -> float:
         theta1 = self.min.to_angle()
         theta2 = self.max.to_angle()
-        if abs(theta1 - theta2) - pi < 1e-8:
-            # 2.2250738585072014e-308 is the smallest positive number
-            theta1 += 1e-7
-        kapa1 = pi / 2 + theta2
-        # wraping edge case:
-        if theta2 - theta1 > pi:
-            theta1, theta2 = theta1 + pi, theta2 + pi
-        delta_angle = pi - abs(theta1 - theta2)
-        alpha = (theta1 + theta2) / 2
-        r = tan(alpha - theta1)
-        centerToCenter = sqrt(1 + r**2)
-        center = [cos(alpha) * centerToCenter, sin(alpha) * centerToCenter, 0]
-        return (r, kapa1, delta_angle, center)
-        # print("Circle({})".format(r))
-        # print(".move_to({})".format(center))
-
-    def handle_length(self) -> float:
-        (r, kapa1, delta_angle, center) = self._graphical_description()
-        k = 4 / 3 * tan(delta_angle / 4)
-        return r * k
+        return handle_length(theta1, theta2)
 
     def build(self) -> Mobject:
         # https://pomax.github.io/bezierinfo/#circles_cubic
         ret = VMobject(color=BLACK)
-        a = self.max.to_cartesian()
-        b = self.min.to_cartesian()
-        ret.points = np.array(
-            [a, a * (1 - self.handle_length()), b * (1 - self.handle_length()), b]
-        )
-
+        make_and_append_bezier(ret, self.min, self.max)
         return ret
-
-    def circle(self) -> Mobject:
-        (r, _, _, center) = self._graphical_description()
-        c = Circle(r)
-        c.move_to(center)
-        return c
 
     def __eq__(self, other: "Chord"):
         if isinstance(other, Chord):
             return self.min == other.min and self.max == other.max
         return False
+
+
+def make_and_append_bezier(
+    vmob: VMobject,
+    theta1: Union[NaryFraction, float],
+    theta2: Union[NaryFraction, float],
+):
+    """Add a cubic Bezier curve to a VMobject using given angles or NaryFractions."""
+
+    a = (
+        theta1.to_cartesian()
+        if isinstance(theta1, NaryFraction)
+        else angle_to_cartesian(theta1)
+    )
+    b = (
+        theta2.to_cartesian()
+        if isinstance(theta2, NaryFraction)
+        else angle_to_cartesian(theta2)
+    )
+
+    handle_len = handle_length(
+        theta1.to_angle() if isinstance(theta1, NaryFraction) else theta1,
+        theta2.to_angle() if isinstance(theta2, NaryFraction) else theta2,
+    )
+    vmob.add_cubic_bezier_curve(a, a * (1 - handle_len), b * (1 - handle_len), b)
+
+
+def handle_length(theta1: float, theta2: float) -> float:
+    if theta1 > theta2:
+        theta1, theta2 = theta2, theta1
+    if abs(theta1 - theta2) - pi < 1e-8:
+        # 2.2250738585072014e-308 is the smallest positive number
+        theta1 += 1e-7
+    # wraping edge case:
+    if theta2 - theta1 > pi:
+        theta1, theta2 = theta1 + pi, theta2 + pi
+    delta_angle = pi - abs(theta1 - theta2)
+    alpha = (theta1 + theta2) / 2
+    r = tan(alpha - theta1)
+    k = 4 / 3 * tan(delta_angle / 4)
+    return r * k
 
 
 a, b, c, d = tuplify(NaryFraction.from_string(4, "0_0").siblings())

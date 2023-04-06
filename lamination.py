@@ -16,7 +16,7 @@ from manim import (
 )
 
 from points import NaryFraction
-from chord import Chord
+from chord import Chord, make_and_append_bezier
 
 
 background = BLACK
@@ -52,12 +52,8 @@ class Lamination:
                 a = polygon[i]
                 b = polygon[(i + 1) % len(polygon)]
                 chord = Chord(a, b)
-                shape.add_cubic_bezier_curve(
-                    a.to_cartesian(),
-                    a.to_cartesian() * (1 - chord.handle_length()),
-                    b.to_cartesian() * (1 - chord.handle_length()),
-                    b.to_cartesian(),
-                )
+                make_and_append_bezier(shape, a, b)
+
                 if not (chord in self.chords):
                     self.chords.append(chord)
 
