@@ -67,3 +67,8 @@ def read_file_to_laminations(path) -> List[Lamination]:
 
 def custom_dump(data_of_a_type_defined_in_this_project) -> str:
     return json.dumps(data_of_a_type_defined_in_this_project, cls=CustomEncoder)
+
+
+def custom_parse(string: str) -> List[Lamination]:
+    json_str = preprocess_for_json5(string)
+    return json.loads(json_str, cls=CustomDecoder)
