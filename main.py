@@ -5,7 +5,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from custom_json import custom_dump, read_file_to_laminations
-from typing import List
+from typing import Callable, List
 from manim import (
     WHITE,
     Scene,

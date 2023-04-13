@@ -7,14 +7,13 @@
 from typing import Union
 from manim import (
     BLACK,
+    TAU,
     Mobject,
     VMobject,
-    bezier,
     tuplify,
 )
 
 from points import NaryFraction, angle_to_cartesian
-import numpy as np
 from math import pi, tan
 
 
@@ -89,6 +88,7 @@ def make_and_append_bezier(
 
 
 def handle_length(theta1: float, theta2: float) -> float:
+    theta1, theta2 = theta1 % TAU, theta2 % TAU
     if theta1 > theta2:
         theta1, theta2 = theta2, theta1
     if abs(theta1 - theta2) - pi < 1e-8:
@@ -104,7 +104,7 @@ def handle_length(theta1: float, theta2: float) -> float:
     return r * k
 
 
-a, b, c, d = tuplify(NaryFraction.from_string(4, "0_0").siblings())
+a, b, c, d = tuplify(NaryFraction.from_string(4, "0_0").pre_images())
 
 assert Chord(a, c).crosses(Chord(b, d))
 assert not Chord(a, b).crosses(Chord(c, d))

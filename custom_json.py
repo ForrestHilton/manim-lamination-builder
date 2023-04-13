@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from typing import List
+from typing import List, Union
 from chord import Chord
 from lamination import Lamination
 from points import NaryFraction
@@ -15,7 +15,9 @@ class CustomEncoder(json.JSONEncoder):
         types = {"NaryFraction": lambda v: v.to_string()}
         vtype = type(v).__name__
         if vtype == "Lamination":
-            return v.__dict__
+            ret = v.__dict__.copy()
+            ret.pop("colorizer")
+            return ret
         if vtype == "Chord":
             return list(v.__dict__.values())
         if vtype in types:
@@ -69,6 +71,6 @@ def custom_dump(data_of_a_type_defined_in_this_project) -> str:
     return json.dumps(data_of_a_type_defined_in_this_project, cls=CustomEncoder)
 
 
-def custom_parse(string: str) -> List[Lamination]:
+def custom_parse(string: str) -> Union[Lamination, List[Lamination]]:
     json_str = preprocess_for_json5(string)
     return json.loads(json_str, cls=CustomDecoder)

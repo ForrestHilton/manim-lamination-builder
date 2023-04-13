@@ -1,6 +1,6 @@
-from manim import WHITE, Animation, Scene, tempconfig, Arc, Dot, RED, VMobject
+from manim import WHITE, Animation, Scene, tempconfig, Arc, Dot, RED, VMobject, Mobject
 from chord import Chord, make_and_append_bezier
-from custom_json import custom_parse
+from custom_json import custom_dump, custom_parse
 from lamination import Lamination
 from points import NaryFraction, angle_to_cartesian
 
@@ -19,12 +19,14 @@ class AnimateLamination(Animation):
         self,
         initial: Lamination,
         final: Lamination,
+        start_mobject: Mobject = None,
         # included_regions: List[OrientedChord],
-        **kwargs,
+        ** kwargs,
     ) -> None:
-        super().__init__(initial.build(), **kwargs)
+        super().__init__(start_mobject or initial.build(), **kwargs)
         self.initial = initial
         self.final = final
+        # TODO: check if laminations are compatible in terms of same length of properys
 
     def interpolate(self, alpha: float) -> None:
         # lamination_radius = 1
@@ -54,7 +56,7 @@ class AnimateLamination(Animation):
                     polygon_final = self.final.polygons[index_in_list_of_vmobjects]
 
                     submobject.reset_points()
-                    for i in range(3):
+                    for i in range(len(polygon_final)):
                         a = lerp(
                             polygon_initial[i].to_angle(),
                             polygon_final[i].to_angle(),
@@ -90,8 +92,7 @@ class MyScene(Scene):
         initial = custom_parse(
             """
  {
-    "polygons": [["1.0_003", "3.0_030", "3.0_300"]],
-    "points":["0_003", "0_030", "0_300"],
+    "polygons": [["_300","_003", "_030"]],
     "radix": 4
   }
                      """
@@ -100,13 +101,18 @@ class MyScene(Scene):
         final = custom_parse(
             """
  {
-    "polygons": [["1_003", "3_030", "3_300"]],
-    "points":["1_003", "3_030", "3_300"],
+    "polygons": [["_003","_030", "_300"]],
     "radix": 4
   }
                      """
         )
-        self.play(AnimateLamination(final, initial, run_time=5))
+        initial.auto_populate()
+        final.auto_populate()
+        # initial.polygons.pop(0)
+        # final.polygons.pop(0)
+        print(custom_dump(initial))
+        print(custom_dump(final))
+        self.play(AnimateLamination(initial, final, run_time=5))
 
 
 if __name__ == "__main__":
