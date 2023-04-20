@@ -19,8 +19,16 @@ from manim.utils.file_ops import config
 
 from points import NaryFraction
 from chord import Chord
-from lamination import Lamination, Chord
+from lamination import Lamination
 
+def group(laminations: List[Lamination]):
+    group = Group(*[lamination.build() for lamination in laminations])
+    group = group.arrange_in_grid()
+    group.scale(
+        1
+        / max(group.width / config.frame_width, group.height / config.frame_height)
+    )
+    return group
 
 class Main(Scene):
     def __init__(self, laminations: List[Lamination]):
@@ -29,13 +37,7 @@ class Main(Scene):
 
     def construct(self):
         self.camera.background_color = WHITE
-        group = Group(*[lamination.build() for lamination in self.laminations])
-        group = group.arrange_in_grid()
-        group.scale(
-            1
-            / max(group.width / config.frame_width, group.height / config.frame_height)
-        )
-        self.add(group)
+        self.add(group(self.laminations))
 
 
 if __name__ == "__main__":
@@ -45,6 +47,8 @@ if __name__ == "__main__":
     else:
         path = os.path.join(os.getcwd(), file)
     laminations = read_file_to_laminations(path)
+    for lamination in laminations:
+        lamination.auto_populate()
 
     with tempconfig({"quality": "medium_quality", "preview": True}):
         scene = Main(laminations)

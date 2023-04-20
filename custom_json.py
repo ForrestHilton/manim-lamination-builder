@@ -3,7 +3,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import List, Union
-from chord import Chord
 from lamination import Lamination
 from points import NaryFraction
 import json
@@ -42,16 +41,8 @@ class CustomDecoder(json.JSONDecoder):
                 return [*map(string_handler, list)]
 
             polygons = [*map(list_handler, dct.get("polygons", []))]
-            chords = [
-                *map(
-                    lambda list: Chord(
-                        string_handler(list[0]), string_handler(list[1])
-                    ),
-                    dct.get("chords", []),
-                )
-            ]
             points = list_handler(dct.get("points", []))
-            return Lamination(polygons, chords, points, radix)
+            return Lamination(polygons, points, radix)
         return dct
 
 

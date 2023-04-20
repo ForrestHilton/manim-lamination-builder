@@ -19,7 +19,7 @@ class NaryFraction:
         self.repeating = repeating
         self.overflow = overflow
 
-    def clear(self) -> "NaryFraction":
+    def cleared(self) -> "NaryFraction":
         return NaryFraction(self.base, self.exact, self.repeating)
 
     def __eq__(self, other):
@@ -98,9 +98,10 @@ class NaryFraction:
         ]
 
     def siblings(self) -> List["NaryFraction"]:
-        ret = self.after_sigma().pre_images()
-        assert self in ret, "{} is not in {}".format(
-            self.to_string(), map(lambda p: p.to_string(), ret)
+        assert max(self.exact + self.repeating) < self.base
+        ret = self.after_sigma().cleared().pre_images()
+        assert self.cleared() in ret, "{} is not in {}".format(
+            self.cleared().to_string(), list(map(lambda p: p.to_string(), ret))
         )
         return ret
 
@@ -129,6 +130,16 @@ class NaryFraction:
         angle = (1 - alpha) * self.to_angle() + alpha * other.to_angle()
         return angle_to_cartesian(angle)
 
+    def after_sigma_shortest_ccw(self):
+        assert self == self.cleared()
+        ret = self.after_sigma().cleared()
+        if ret.to_angle() < self.to_angle():
+            ret = NaryFraction(ret.base, ret.exact, ret.repeating, 1)
+        assert ret.to_angle() > self.to_angle()
+        assert ret.to_float() - self.to_float() <= 1
+        assert ret.overflow <= 1
+        return ret
+
 
 def angle_to_cartesian(angle: float):
     return np.array([cos(angle), sin(angle), 0])
@@ -151,3 +162,18 @@ assert (
 assert NaryFraction.from_string(10, "_9").to_float() == 1.0
 
 assert NaryFraction.from_string(4, "0_300").without_enharmonics().to_string() == "_030"
+
+
+# ["_302", "_322", "_023", "_223"]
+# ["_230", "_232", "_302", "_322"]
+
+# assert NaryFraction.from_string(4,"_230").to_string() == "1._023"
+# assert NaryFraction.from_string(4, "_232").to_string() == "1._223"
+a = NaryFraction.from_string(4, "_230")
+assert a.after_sigma().to_string() == "2._302"
+assert a.to_string() == "_230"
+
+assert a.after_sigma_shortest_ccw().to_string() == "_302"
+assert a.to_string() == "_230"
+
+

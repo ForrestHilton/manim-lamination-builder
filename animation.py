@@ -68,22 +68,6 @@ class AnimateLamination(Animation):
                             alpha,
                         )
                         make_and_append_bezier(submobject, a, b)
-                else:  # chord
-                    chord_initial = self.initial.chords[
-                        index_in_list_of_vmobjects - len(self.initial.polygons)
-                    ]
-                    chord_final = self.final.chords[
-                        index_in_list_of_vmobjects - len(self.initial.polygons)
-                    ]
-                    a = lerp(
-                        chord_initial.min.to_angle(), chord_final.min.to_angle(), alpha
-                    )
-                    b = lerp(
-                        chord_initial.max.to_angle(), chord_final.max.to_angle(), alpha
-                    )
-                    submobject.reset_points()
-                    make_and_append_bezier(submobject, a, b)
-
 
 class MyScene(Scene):
     def construct(self):
