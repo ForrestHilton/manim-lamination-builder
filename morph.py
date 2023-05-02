@@ -4,7 +4,7 @@ from custom_json import custom_dump, custom_parse
 from lamination import Lamination
 from points import FloatWrapper, NaryFraction, UnitPoint
 from typing import Tuple, Union
-from animation import AnimateLamination
+from animation import AnimateLamination, lerp
 
 
 def remove_occluded(
@@ -23,21 +23,23 @@ def remove_occluded(
 
 def morph_function(x: float, occlusion: Tuple[UnitPoint, UnitPoint]) -> float:
     a, b = occlusion[0].to_float(), occlusion[1].to_float()
-    attracting_point = (a + b) / 2
-    repelling_point = (attracting_point + 0.5) % 1
     bite_length = b - a
     remaining_length = 1 - bite_length
+    # Calculate the midpoint of the range
+    midpoint = (a + b) / 2
+    # Calculate the opposite of the midpoint
+    opposite = midpoint + 0.5 if midpoint < 0.5 else midpoint - 0.5
 
-    relative_x = (x - repelling_point) % 1
-    if x < a:
-        relative_y = relative_x / remaining_length - 1
-    elif x > repelling_point:
-        relative_y = relative_x / remaining_length
-    elif x > b:
-        relative_y = 1 - ((1 - relative_x) / remaining_length) - 1
+    # Determine which side of the midpoint the angle is on
+    if x >= a and x <= b:
+        # The angle is in the range, so map it to the midpoint
+        return midpoint
+    elif x < a:
+        # The angle is below the range, so stretch the lower half of the circle
+        return ((x - opposite) / remaining_length) + opposite
     else:
-        relative_y = 0.5 - 1
-    return (relative_y + repelling_point)
+        # The angle is above the range, so stretch the upper half of the circle
+        return ((x - b) / remaining_length) + midpoint
 
 
 def result(lam: Lamination) -> Lamination:
@@ -82,22 +84,6 @@ class MyScene(Scene):
 
 
 if __name__ == "__main__":
-    from points import FloatWrapper
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from morph import morph_function
-
-    x_values = np.linspace(0, 1, 1000)
-    y_values = []
-    # 
-    # (FloatWrapper(0.2), FloatWrapper(0.8))
-    morph_function(.62, (FloatWrapper(0.011904761904761904), FloatWrapper(0.19047619047619047)))
-    for x in x_values:
-        y = morph_function(x, (FloatWrapper(0.011904761904761904), FloatWrapper(0.19047619047619047)))
-        y_values.append(y)
-    plt.plot(x_values, y_values, 1, 1)
-    plt.show()
-    # with tempconfig({"quality": "medium_quality", "preview": True}):
-    #     scene = MyScene()
-    #     scene.render()
-
+    with tempconfig({"quality": "medium_quality", "preview": True}):
+        scene = MyScene()
+        scene.render()
