@@ -4,11 +4,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from typing import List, Callable
+from typing import List, Callable, Tuple, Union
 from manim import (
     BLUE,
     RED,
     BLACK,
+    TAU,
+    Arc,
     Dot,
     Mobject,
     VMobject,
@@ -25,6 +27,8 @@ background = BLACK
 class Lamination:
     polygons: List[List[NaryFraction]]
     points: List[NaryFraction]
+    # occludes the region bounded by the chord and the arc from the first to the second CCW
+    occlusion: Union[Tuple[NaryFraction, NaryFraction], None]
     radix: int
     colorizer: Callable[[NaryFraction], Colors]
 
@@ -34,11 +38,13 @@ class Lamination:
         points: List[NaryFraction],
         radix: int,
         colorizer=lambda p: Colors.red,
+        occlusion: Union[Tuple[NaryFraction, NaryFraction], None] = None,
     ) -> None:
         self.polygons = polygons
         self.points = points
         self.radix = radix
         self.colorizer = colorizer
+        self.occlusion = occlusion
 
     def auto_populate(self):
         for polygon in self.polygons:
@@ -48,7 +54,17 @@ class Lamination:
 
     def build(self) -> Mobject:
         ret = Mobject()
-        unit_circle = Circle(color=BLACK)  # create a circle
+        if self.occlusion is not None:
+            delta = self.occlusion[0].to_angle() - self.occlusion[1].to_angle()
+            if delta < 0:
+                delta += TAU
+            unit_circle = Arc(
+                start_angle=self.occlusion[1].to_angle(),
+                angle=delta,
+                color=BLACK,
+            )
+        else:
+            unit_circle = Circle(color=BLACK)  # create a circle
         ret.add(unit_circle)  # show the circle on screen
 
         for polygon in self.polygons:
@@ -60,7 +76,18 @@ class Lamination:
             ret.add(shape)
 
         for point in self.points:
-            ret.add(Dot(point.to_cartesian(), color=self.colorizer(point).value, radius=0.04))
+            ret.add(
+                Dot(
+                    point.to_cartesian(), color=self.colorizer(point).value, radius=0.04
+                )
+            )
+
+        # build a chord for occlusion
+
+        if self.occlusion is not None:
+            occlusion = VMobject(color=RED)
+            make_and_append_bezier(occlusion, self.occlusion[0], self.occlusion[1])
+            ret.add(occlusion)
 
         return ret
 

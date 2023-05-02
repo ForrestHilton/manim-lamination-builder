@@ -5,10 +5,6 @@ from lamination import Lamination
 from points import NaryFraction, angle_to_cartesian
 
 
-class OrientedChord:  # composition
-    pass
-
-
 def lerp(a: float, b: float, alpha: float) -> float:
     "Linearly interpolate between two floats a and b using time value alpha."
     return (1 - alpha) * a + alpha * b
@@ -20,8 +16,7 @@ class AnimateLamination(Animation):
         initial: Lamination,
         final: Lamination,
         start_mobject: Mobject = None,
-        # included_regions: List[OrientedChord],
-        ** kwargs,
+        **kwargs,
     ) -> None:
         super().__init__(start_mobject or initial.build(), **kwargs)
         self.initial = initial
@@ -68,15 +63,37 @@ class AnimateLamination(Animation):
                             alpha,
                         )
                         make_and_append_bezier(submobject, a, b)
+                else:  # occlusion
+                    occlusion_initial = self.initial.occlusion
+                    assert occlusion_initial is not None
+                    # TODO: be more clever about wrap around
+                    midpoint = (
+                        occlusion_initial[0].to_angle()
+                        + occlusion_initial[1].to_angle()
+                    )
+                    midpoint /= 2
+                    a = lerp(
+                        occlusion_initial[0].to_angle(),
+                        midpoint,
+                        alpha,
+                    )
+                    b = lerp(
+                        occlusion_initial[1].to_angle(),
+                        midpoint,
+                        alpha,
+                    )
+                    submobject.reset_points()
+                    make_and_append_bezier(submobject, a, b)
+
 
 class MyScene(Scene):
     def construct(self):
         self.camera.background_color = WHITE
-        # TODO: alter build() to no longer alter the Lamination by separaiting the populait action
         initial = custom_parse(
             """
  {
     "polygons": [["_300","_003", "_030"]],
+    occlusion: ["1","2"],
     "radix": 4
   }
                      """

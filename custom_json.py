@@ -42,7 +42,13 @@ class CustomDecoder(json.JSONDecoder):
 
             polygons = [*map(list_handler, dct.get("polygons", []))]
             points = list_handler(dct.get("points", []))
-            return Lamination(polygons, points, radix)
+            occlusion = list_handler(dct.get("occlusion", []))
+            if len(occlusion) == 0:
+                occlusion = None
+            else:
+                assert len(occlusion) == 2
+                occlusion = (occlusion[0], occlusion[1])
+            return Lamination(polygons, points, radix, occlusion=occlusion)
         return dct
 
 
