@@ -4,16 +4,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from typing import Union
-from manim import (
-    BLACK,
-    TAU,
-    Mobject,
-    VMobject,
-    tuplify,
-)
+from manim import BLACK, TAU, Mobject, VMobject, tuplify
 
-from points import NaryFraction, angle_to_cartesian
+from points import NaryFraction, UnitPoint
 from math import pi, tan
 
 
@@ -64,26 +57,15 @@ class Chord:
 
 def make_and_append_bezier(
     vmob: VMobject,
-    theta1: Union[NaryFraction, float],
-    theta2: Union[NaryFraction, float],
+    theta1: UnitPoint,
+    theta2: UnitPoint,
 ):
     """Add a cubic Bezier curve to a VMobject using given angles or NaryFractions."""
 
-    a = (
-        theta1.to_cartesian()
-        if isinstance(theta1, NaryFraction)
-        else angle_to_cartesian(theta1)
-    )
-    b = (
-        theta2.to_cartesian()
-        if isinstance(theta2, NaryFraction)
-        else angle_to_cartesian(theta2)
-    )
+    a = theta1.to_cartesian()
+    b = theta2.to_cartesian()
 
-    handle_len = handle_length(
-        theta1.to_angle() if isinstance(theta1, NaryFraction) else theta1,
-        theta2.to_angle() if isinstance(theta2, NaryFraction) else theta2,
-    )
+    handle_len = handle_length(theta1.to_angle(), theta2.to_angle())
     vmob.add_cubic_bezier_curve(a, a * (1 - handle_len), b * (1 - handle_len), b)
 
 

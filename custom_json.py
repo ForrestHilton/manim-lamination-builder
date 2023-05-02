@@ -4,7 +4,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import List, Union
 from lamination import Lamination
-from points import NaryFraction
+from points import FloatWrapper, NaryFraction
 import json
 import json5
 
@@ -19,6 +19,8 @@ class CustomEncoder(json.JSONEncoder):
             return ret
         if vtype == "Chord":
             return list(v.__dict__.values())
+        if vtype == "FloatWrapper":
+            return v.value
         if vtype in types:
             return types[type(v).__name__](v)
         else:
@@ -33,12 +35,15 @@ class CustomDecoder(json.JSONDecoder):
         if "radix" in dct:
             radix = dct["radix"]
 
-            def string_handler(s):
-                return NaryFraction.from_string(radix, s)
+            def point_handler(v):
+                if isinstance(v, float):
+                    return FloatWrapper(v)
+                else:
+                    return NaryFraction.from_string(radix, v)
 
             def list_handler(list):
                 assert isinstance(list, List)
-                return [*map(string_handler, list)]
+                return [*map(point_handler, list)]
 
             polygons = [*map(list_handler, dct.get("polygons", []))]
             points = list_handler(dct.get("points", []))

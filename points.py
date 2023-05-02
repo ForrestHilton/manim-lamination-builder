@@ -7,11 +7,42 @@ from typing import List
 from math import cos, pi, sin
 
 from manim.animation.animation import deepcopy
-
+from abc import ABC, abstractmethod
 import numpy as np
 
 
-class NaryFraction:
+def angle_to_cartesian(angle: float):
+    return np.array([cos(angle), sin(angle), 0])
+
+
+class UnitPoint(ABC):
+    @abstractmethod
+    def to_float(self) -> float:
+        pass
+
+    @abstractmethod
+    def cleared(self) -> "UnitPoint":
+        pass
+
+    def to_angle(self) -> float:
+        return self.to_float() * 2 * pi
+
+    def to_cartesian(self):
+        return angle_to_cartesian(self.to_angle())
+
+
+class FloatWrapper(UnitPoint):
+    def __init__(self, value: float):
+        self.value = value
+
+    def to_float(self):
+        return self.value
+
+    def cleared(self) -> "FloatWrapper":
+        return FloatWrapper(self.value % 1)
+
+
+class NaryFraction(UnitPoint):
     def __init__(self, base: int, exact: List[int], repeating: List[int], overflow=0):
         assert base != 1
         self.base = base
@@ -120,12 +151,6 @@ class NaryFraction:
             )
         return value + self.overflow
 
-    def to_angle(self):
-        return self.to_float() * 2 * pi
-
-    def to_cartesian(self):
-        return angle_to_cartesian(self.to_angle())
-
     def cartesian_lerp(self, other: "NaryFraction", alpha: float):
         angle = (1 - alpha) * self.to_angle() + alpha * other.to_angle()
         return angle_to_cartesian(angle)
@@ -139,10 +164,6 @@ class NaryFraction:
         assert ret.to_float() - self.to_float() <= 1
         assert ret.overflow <= 1
         return ret
-
-
-def angle_to_cartesian(angle: float):
-    return np.array([cos(angle), sin(angle), 0])
 
 
 assert NaryFraction(3, [1], [1, 0, 1]).to_string() == "1_101"
@@ -175,5 +196,3 @@ assert a.to_string() == "_230"
 
 assert a.after_sigma_shortest_ccw().to_string() == "_302"
 assert a.to_string() == "_230"
-
-

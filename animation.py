@@ -2,7 +2,7 @@ from manim import WHITE, Animation, Scene, tempconfig, Arc, Dot, RED, VMobject, 
 from chord import Chord, make_and_append_bezier
 from custom_json import custom_dump, custom_parse
 from lamination import Lamination
-from points import NaryFraction, angle_to_cartesian
+from points import FloatWrapper, NaryFraction, angle_to_cartesian
 
 
 def lerp(a: float, b: float, alpha: float) -> float:
@@ -53,37 +53,30 @@ class AnimateLamination(Animation):
                     submobject.reset_points()
                     for i in range(len(polygon_final)):
                         a = lerp(
-                            polygon_initial[i].to_angle(),
-                            polygon_final[i].to_angle(),
+                            polygon_initial[i].to_float(),
+                            polygon_final[i].to_float(),
                             alpha,
                         )
                         b = lerp(
-                            polygon_initial[(i + 1) % len(polygon_final)].to_angle(),
-                            polygon_final[(i + 1) % len(polygon_final)].to_angle(),
+                            polygon_initial[(i + 1) % len(polygon_final)].to_float(),
+                            polygon_final[(i + 1) % len(polygon_final)].to_float(),
                             alpha,
                         )
-                        make_and_append_bezier(submobject, a, b)
+                        make_and_append_bezier(
+                            submobject, FloatWrapper(a), FloatWrapper(b)
+                        )
                 else:  # occlusion
                     occlusion_initial = self.initial.occlusion
                     assert occlusion_initial is not None
                     # TODO: be more clever about wrap around
                     midpoint = (
-                        occlusion_initial[0].to_angle()
-                        + occlusion_initial[1].to_angle()
-                    )
-                    midpoint /= 2
-                    a = lerp(
-                        occlusion_initial[0].to_angle(),
-                        midpoint,
-                        alpha,
-                    )
-                    b = lerp(
-                        occlusion_initial[1].to_angle(),
-                        midpoint,
-                        alpha,
-                    )
+                        occlusion_initial[0].to_float()
+                        + occlusion_initial[1].to_float()
+                    ) / 2
+                    a = lerp(occlusion_initial[0].to_float(), midpoint, alpha)
+                    b = lerp(occlusion_initial[1].to_float(), midpoint, alpha)
                     submobject.reset_points()
-                    make_and_append_bezier(submobject, a, b)
+                    make_and_append_bezier(submobject, FloatWrapper(a), FloatWrapper(b))
 
 
 class MyScene(Scene):

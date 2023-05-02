@@ -17,28 +17,28 @@ from manim import (
     Circle,
 )
 from manim.utils.color import Colors, Color
-from points import NaryFraction
+from points import UnitPoint
 from chord import make_and_append_bezier
 
 
 background = BLACK
 
 
-class Lamination:
-    polygons: List[List[NaryFraction]]
-    points: List[NaryFraction]
+class Lamination():
+    polygons: List[List[UnitPoint]]
+    points: List[UnitPoint]
     # occludes the region bounded by the chord and the arc from the first to the second CCW
-    occlusion: Union[Tuple[NaryFraction, NaryFraction], None]
+    occlusion: Union[Tuple[UnitPoint, UnitPoint], None]
     radix: int
-    colorizer: Callable[[NaryFraction], Colors]
+    colorizer: Callable[[UnitPoint], Colors]
 
     def __init__(
         self,
-        polygons: List[List[NaryFraction]],
-        points: List[NaryFraction],
+        polygons: List[List[UnitPoint]],
+        points: List[UnitPoint],
         radix: int,
         colorizer=lambda p: Colors.red,
-        occlusion: Union[Tuple[NaryFraction, NaryFraction], None] = None,
+        occlusion: Union[Tuple[UnitPoint, UnitPoint], None] = None,
     ) -> None:
         self.polygons = polygons
         self.points = points
@@ -91,7 +91,7 @@ class Lamination:
 
         return ret
 
-    def apply_function(self, f: Callable[[NaryFraction], NaryFraction]) -> "Lamination":
+    def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "Lamination":
         new_polygons = []
         for poly in self.polygons:
             new_poly = [f(p) for p in poly]
