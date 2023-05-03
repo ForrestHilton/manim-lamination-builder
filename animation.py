@@ -1,8 +1,19 @@
-from manim import WHITE, Animation, Scene, tempconfig, Arc, Dot, RED, VMobject, Mobject
-from chord import Chord, make_and_append_bezier
+from manim import (
+    WHITE,
+    Animation,
+    Scene,
+    tempconfig,
+    Arc,
+    Dot,
+    VMobject,
+    Mobject,
+    TAU,
+)
+from chord import make_and_append_bezier
 from custom_json import custom_dump, custom_parse
 from lamination import Lamination
-from points import FloatWrapper, NaryFraction, angle_to_cartesian
+from points import FloatWrapper, angle_to_cartesian
+from typing import Union
 
 
 def lerp(a: float, b: float, alpha: float) -> float:
@@ -15,7 +26,7 @@ class AnimateLamination(Animation):
         self,
         initial: Lamination,
         final: Lamination,
-        start_mobject: Mobject = None,
+        start_mobject: Union[Mobject, None] = None,
         **kwargs,
     ) -> None:
         super().__init__(start_mobject or initial.build(), **kwargs)
@@ -24,7 +35,9 @@ class AnimateLamination(Animation):
         # TODO: check if laminations are compatible in terms of same length of properys
 
     def interpolate(self, alpha: float) -> None:
-        # lamination_radius = 1
+        circle = self.mobject.submobjects[0]
+        assert isinstance(circle, Arc)
+
         count_arcs = 0
         count_polygons = 0
         for i, submobject in enumerate(self.mobject.submobjects):
@@ -77,6 +90,9 @@ class AnimateLamination(Animation):
                     b = lerp(occlusion_initial[1].to_float(), midpoint, alpha)
                     submobject.reset_points()
                     make_and_append_bezier(submobject, FloatWrapper(a), FloatWrapper(b))
+                    circle.start_angle = b * TAU
+                    circle.angle = ((a - b) % 1) * TAU
+                    circle.generate_points()
 
 
 class MyScene(Scene):

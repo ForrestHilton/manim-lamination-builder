@@ -1,14 +1,13 @@
-from math import nan
 from manim import WHITE, Scene, tempconfig, Mobject
 from custom_json import custom_dump, custom_parse
 from lamination import Lamination
-from points import FloatWrapper, NaryFraction, UnitPoint
+from points import FloatWrapper, UnitPoint
 from typing import Tuple, Union
-from animation import AnimateLamination, lerp
+from animation import AnimateLamination
 
 
 def remove_occluded(
-    ret: Lamination, occlusion: Tuple[NaryFraction, NaryFraction]
+    ret: Lamination, occlusion: Tuple[UnitPoint, UnitPoint]
 ) -> Lamination:
     def criteria(point):
         return (
@@ -54,14 +53,14 @@ class MorphOcclusion(AnimateLamination):
     def __init__(
         self,
         initial: Lamination,
-        occlusion: Tuple[NaryFraction, NaryFraction],
+        occlusion: Tuple[UnitPoint, UnitPoint],
         start_mobject: Union[Mobject, None] = None,
         **kwargs,
     ) -> None:
         initial.occlusion = occlusion
         reported_initial = remove_occluded(initial, occlusion)
         reported_final = result(initial)
-        super().__init__(reported_initial, reported_final, **kwargs)
+        super().__init__(reported_initial, reported_final, start_mobject, **kwargs)
 
 
 class MyScene(Scene):
@@ -81,6 +80,7 @@ class MyScene(Scene):
         assert isinstance(initial, Lamination)
         occlusion = (initial.polygons[0][0], initial.polygons[0][2])
         self.play(MorphOcclusion(initial, occlusion, run_time=5))
+        self.wait(2)
 
 
 if __name__ == "__main__":
