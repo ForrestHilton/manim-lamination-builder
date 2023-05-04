@@ -26,7 +26,7 @@ def group(laminations: List[Lamination]):
     group = group.arrange_in_grid()
     group.scale(
         1
-        / max(group.width / config.frame_width, group.height / config.frame_height)
+        / max(group.width / config.frame_width + 0.01, group.height / config.frame_height + 0.01)
     )
     return group
 

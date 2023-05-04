@@ -97,7 +97,6 @@ def generate_sibling_portraits(original_shape: List[NaryFraction]) -> List[Lamin
     data = [Lamination(pollygons, [], degree, colorize) for pollygons in portraits]
     for lam in data:
         lam.auto_populate()
-    print(custom_dump(data))
 
     return data
 
@@ -112,6 +111,12 @@ def generate_unicritical_lamination(degree, order):
 
     data = generate_sibling_portraits(original_shape)
     return data
+
+
+def remove_non_original_pollygons(lams: List[Lamination]):
+    lam = lams[0]
+    lam.polygons = [lam.polygons[0]]
+    return [lam]
 
 
 # generate_unicritical_lamination(4, 3)

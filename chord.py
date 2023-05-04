@@ -55,11 +55,7 @@ class Chord:
         return False
 
 
-def make_and_append_bezier(
-    vmob: VMobject,
-    theta1: UnitPoint,
-    theta2: UnitPoint,
-):
+def make_and_append_bezier(vmob: VMobject, theta1: UnitPoint, theta2: UnitPoint):
     """Add a cubic Bezier curve to a VMobject using given angles or NaryFractions."""
 
     a = theta1.to_cartesian()
