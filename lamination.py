@@ -7,6 +7,7 @@
 from typing import List, Callable, Tuple, Union
 from manim import (
     BLUE,
+    ORIGIN,
     RED,
     BLACK,
     TAU,
@@ -24,7 +25,7 @@ from chord import make_and_append_bezier
 background = BLACK
 
 
-class Lamination():
+class Lamination:
     polygons: List[List[UnitPoint]]
     points: List[UnitPoint]
     # occludes the region bounded by the chord and the arc from the first to the second CCW
@@ -52,7 +53,7 @@ class Lamination():
                 if point not in self.points:
                     self.points.append(point)
 
-    def build(self) -> Mobject:
+    def build(self, radius=1, center=ORIGIN) -> Mobject:
         ret = Mobject()
         if self.occlusion is not None:
             delta = self.occlusion[0].to_angle() - self.occlusion[1].to_angle()
@@ -62,9 +63,11 @@ class Lamination():
                 start_angle=self.occlusion[1].to_angle(),
                 angle=delta,
                 color=BLACK,
+                radius=radius,
             )
         else:
-            unit_circle = Circle(color=BLACK)  # create a circle
+            unit_circle = Circle(color=BLACK, radius=radius)  # create a circle
+        unit_circle.move_arc_center_to(center)
         ret.add(unit_circle)  # show the circle on screen
 
         for polygon in self.polygons:
@@ -88,6 +91,12 @@ class Lamination():
             occlusion = VMobject(color=RED)
             make_and_append_bezier(occlusion, self.occlusion[0], self.occlusion[1])
             ret.add(occlusion)
+
+        for submobject in ret.submobjects:
+            if submobject is unit_circle:
+                continue
+            submobject.points *= radius
+            submobject.points += center
 
         return ret
 

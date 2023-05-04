@@ -1,4 +1,5 @@
 from manim import (
+    ORIGIN,
     WHITE,
     Animation,
     Scene,
@@ -37,6 +38,8 @@ class AnimateLamination(Animation):
     def interpolate(self, alpha: float) -> None:
         circle = self.mobject.submobjects[0]
         assert isinstance(circle, Arc)
+        center = circle.get_arc_center()
+        radius = circle.radius
 
         count_arcs = 0
         count_polygons = 0
@@ -46,11 +49,11 @@ class AnimateLamination(Animation):
                 index_in_list_of_points = i - count_polygons - count_arcs
                 point_initial = self.initial.points[index_in_list_of_points]
                 point_final = self.final.points[index_in_list_of_points]
-                submobject.move_arc_center_to(
-                    angle_to_cartesian(
-                        lerp(point_initial.to_angle(), point_final.to_angle(), alpha)
-                    )
+                submobject.arc_center = angle_to_cartesian(
+                    lerp(point_initial.to_angle(), point_final.to_angle(), alpha)
                 )
+                submobject.generate_points()
+
             elif isinstance(submobject, Arc):
                 count_arcs += 1
                 continue
@@ -93,6 +96,12 @@ class AnimateLamination(Animation):
                     circle.start_angle = b * TAU
                     circle.angle = ((a - b) % 1) * TAU
                     circle.generate_points()
+
+        for submobject in self.mobject.submobjects:
+            if submobject is circle:
+                continue
+            submobject.points *= radius
+            submobject.points += center
 
 
 class MyScene(Scene):
