@@ -22,6 +22,8 @@ def remove_occluded(
 
 def morph_function(x: float, occlusion: Tuple[UnitPoint, UnitPoint]) -> float:
     a, b = occlusion[0].to_float(), occlusion[1].to_float()
+    if a > b:
+        a, b = b, a
     bite_length = b - a
     remaining_length = 1 - bite_length
     # Calculate the midpoint of the range
@@ -35,7 +37,7 @@ def morph_function(x: float, occlusion: Tuple[UnitPoint, UnitPoint]) -> float:
         return midpoint
     elif x < a:
         # The angle is below the range, so stretch the lower half of the circle
-        return ((x - opposite) / remaining_length) + opposite
+        return ((x - a) / remaining_length) + midpoint
     else:
         # The angle is above the range, so stretch the upper half of the circle
         return ((x - b) / remaining_length) + midpoint
