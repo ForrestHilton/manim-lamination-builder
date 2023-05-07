@@ -1,3 +1,4 @@
+from copy import deepcopy
 from manim import WHITE, Scene, tempconfig, Mobject
 from custom_json import custom_dump, custom_parse
 from lamination import Lamination
@@ -7,13 +8,18 @@ from animation import AnimateLamination
 
 
 def remove_occluded(
-    ret: Lamination, occlusion: Tuple[UnitPoint, UnitPoint]
+    lam: Lamination, occlusion: Tuple[UnitPoint, UnitPoint]
 ) -> Lamination:
-    def criteria(point):
-        return (
-            point.to_float() < occlusion[0].to_float()
-            or point.to_float() > occlusion[1].to_float()
-        )
+    ret = deepcopy(lam)
+    a, b = occlusion[0].to_float(), occlusion[1].to_float()
+
+    def criteria(point):  # weather it is not occluded
+        if b > a:
+            return point.to_float() < a or point.to_float() >= b
+        else:
+            return not (point.to_float() < b or point.to_float() >= a)
+
+    ret.occlusion = occlusion
 
     ret.points = list(filter(criteria, ret.points))
     ret.polygons = list(filter(lambda polly: criteria(polly[0]), ret.polygons))
@@ -48,7 +54,10 @@ def result(lam: Lamination) -> Lamination:
         assert lam.occlusion is not None
         return FloatWrapper(morph_function(p.to_float(), lam.occlusion))
 
-    return lam.apply_function(mapping)
+    ret = remove_occluded(lam, occlusion=lam.occlusion).apply_function(mapping)
+
+    ret.occlusion = None
+    return ret
 
 
 class MorphOcclusion(AnimateLamination):

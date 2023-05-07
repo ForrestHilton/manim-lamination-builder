@@ -95,6 +95,8 @@ class AnimateLamination(Animation):
                     make_and_append_bezier(submobject, FloatWrapper(a), FloatWrapper(b))
                     circle.start_angle = b * TAU
                     circle.angle = ((a - b) % 1) * TAU
+                    if circle.angle == 0:
+                        circle.angle = TAU
                     circle.generate_points()
 
         for submobject in self.mobject.submobjects:
