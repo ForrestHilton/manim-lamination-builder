@@ -6,6 +6,8 @@ from typing import List, Callable
 from manim import tempconfig
 from manim.utils.color import Colors
 
+from points import UnitPoint
+
 
 def crosses(A: NaryFraction, B: NaryFraction, loops):
     cords: List[Chord] = []
@@ -58,9 +60,9 @@ def _generate(
 
 
 def curried_colorize_with_respect_to(
-    original_shape: List[NaryFraction],
-) -> Callable[[NaryFraction], Colors]:
-    def colorize(p: NaryFraction) -> Colors:
+    original_shape: List[UnitPoint],
+) -> Callable[[UnitPoint], Colors]:
+    def colorize(p: UnitPoint) -> Colors:
         colors = [
             Colors.pure_red,
             Colors.pure_green,

@@ -5,6 +5,7 @@ from lamination import Lamination
 from points import FloatWrapper, UnitPoint
 from typing import Tuple, Union
 from animation import AnimateLamination
+from generate import curried_colorize_with_respect_to
 
 
 def remove_occluded(
@@ -22,7 +23,9 @@ def remove_occluded(
     ret.occlusion = occlusion
 
     ret.points = list(filter(criteria, ret.points))
-    ret.polygons = list(filter(lambda polly: criteria(polly[0]), ret.polygons))
+    ret.polygons = list(
+        filter(lambda polly: all(criteria(point) for point in polly), ret.polygons)
+    )
     return ret
 
 
@@ -50,13 +53,38 @@ def morph_function(x: float, occlusion: Tuple[UnitPoint, UnitPoint]) -> float:
 
 
 def result(lam: Lamination) -> Lamination:
+    assert lam.occlusion is not None
+    remaining_degree = lam.radix
+    if (
+        lam.occlusion[0].has_degree() and lam.occlusion[1].has_degree()
+        and lam.occlusion[0].after_sigma().cleared()
+        == lam.occlusion[1].after_sigma().cleared()
+    ):
+        lost_criticalitys = int(
+            lam.occlusion[1].after_sigma().to_float()
+            - lam.occlusion[0].after_sigma().to_float()
+        )
+        remaining_degree = lam.radix - lost_criticalitys
+
     def mapping(p: UnitPoint) -> UnitPoint:
         assert lam.occlusion is not None
-        return FloatWrapper(morph_function(p.to_float(), lam.occlusion))
+        return FloatWrapper(
+            morph_function(p.to_float(), lam.occlusion), remaining_degree
+        )
 
     ret = remove_occluded(lam, occlusion=lam.occlusion).apply_function(mapping)
 
     ret.occlusion = None
+
+    ret.radix = remaining_degree
+
+    destination_points = []
+    for point in ret.points:  # ordered set with non-hash based equality?
+        image = point.after_sigma().cleared()
+        if image not in destination_points:
+            destination_points.append(image)
+    ret.colorizer = curried_colorize_with_respect_to(destination_points)
+
     return ret
 
 
@@ -89,7 +117,11 @@ class MyScene(Scene):
         "radix": 4}"""
         )
         assert isinstance(initial, Lamination)
+        initial.auto_populate()
         occlusion = (initial.polygons[0][0], initial.polygons[0][2])
+        self.add(initial.build())
+        self.wait(2)
+        self.clear()
         self.play(MorphOcclusion(initial, occlusion, run_time=5))
         self.wait(2)
 

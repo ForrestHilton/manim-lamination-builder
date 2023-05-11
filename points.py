@@ -24,22 +24,41 @@ class UnitPoint(ABC):
     def cleared(self) -> "UnitPoint":
         pass
 
+    @abstractmethod
+    def after_sigma(self) -> "FloatWrapper":
+        pass
+
     def to_angle(self) -> float:
         return self.to_float() * 2 * pi
 
     def to_cartesian(self):
         return angle_to_cartesian(self.to_angle())
 
+    def __eq__(self, other):
+        return abs(self.to_float() - other.to_float()) < 0.0000001
+
+    def has_degree(self):
+        return True
+
 
 class FloatWrapper(UnitPoint):
-    def __init__(self, value: float):
+    def __init__(self, value: float, degree: int = None):
         self.value = value
+        self.degree = degree
 
     def to_float(self):
         return self.value
 
     def cleared(self) -> "FloatWrapper":
-        return FloatWrapper(self.value % 1)
+        return FloatWrapper(self.value % 1, self.degree)
+
+    def after_sigma(self) -> "FloatWrapper":
+        after = deepcopy(self.cleared())
+        after.value *= self.degree
+        return after
+
+    def has_degree(self):
+        return self.degree is not None
 
 
 class NaryFraction(UnitPoint):
@@ -52,15 +71,6 @@ class NaryFraction(UnitPoint):
 
     def cleared(self) -> "NaryFraction":
         return NaryFraction(self.base, self.exact, self.repeating)
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return (
-                self.without_enharmonics().__dict__
-                == other.without_enharmonics().__dict__
-            )
-        else:
-            return False
 
     @staticmethod
     def from_string(base, string_representation):

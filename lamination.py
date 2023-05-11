@@ -53,7 +53,7 @@ class Lamination:
                 if point not in self.points:
                     self.points.append(point)
 
-    def build(self, radius=1, center=ORIGIN) -> Mobject:
+    def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         ret = Mobject()
         if self.occlusion is not None:
             delta = self.occlusion[0].to_angle() - self.occlusion[1].to_angle()
