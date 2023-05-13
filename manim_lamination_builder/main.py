@@ -38,16 +38,3 @@ class Main(Scene):
         self.add(group(self.laminations))
 
 
-if __name__ == "__main__":
-    file = sys.argv[-1]
-    if len(sys.argv) == 1:
-        path = "/home/forrest/Desktop/manim_lamination_builder/test.json5"
-    else:
-        path = os.path.join(os.getcwd(), file)
-    laminations = read_file_to_laminations(path)
-    for lamination in laminations:
-        lamination.auto_populate()
-
-    with tempconfig({"quality": "medium_quality", "preview": True}):
-        scene = Main(laminations)
-        scene.render()
