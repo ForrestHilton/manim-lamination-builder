@@ -3,8 +3,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import List, Union
-from lamination import Lamination
-from points import FloatWrapper, NaryFraction
+from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.points import FloatWrapper, NaryFraction
 import json
 import json5
 
@@ -37,7 +37,7 @@ class CustomDecoder(json.JSONDecoder):
 
             def point_handler(v):
                 if isinstance(v, float):
-                    return FloatWrapper(v)
+                    return FloatWrapper(v, radix)
                 else:
                     return NaryFraction.from_string(radix, v)
 
@@ -76,3 +76,9 @@ def custom_dump(data_of_a_type_defined_in_this_project) -> str:
 def custom_parse(string: str) -> Union[Lamination, List[Lamination]]:
     json_str = preprocess_for_json5(string)
     return json.loads(json_str, cls=CustomDecoder)
+
+
+def parse_lamination(string: str) -> Lamination:
+    lam = custom_parse(string)
+    assert isinstance(lam, Lamination)
+    return lam

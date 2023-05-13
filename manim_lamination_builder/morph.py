@@ -1,11 +1,11 @@
 from copy import deepcopy
 from manim import WHITE, Scene, tempconfig, Mobject
-from custom_json import custom_dump, custom_parse
-from lamination import Lamination
-from points import FloatWrapper, UnitPoint
+from manim_lamination_builder.custom_json import custom_dump, custom_parse
+from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.points import FloatWrapper, UnitPoint
 from typing import Tuple, Union
-from animation import AnimateLamination
-from generate import curried_colorize_with_respect_to
+from manim_lamination_builder.animation import AnimateLamination
+from manim_lamination_builder.generate import curried_colorize_with_respect_to
 
 
 def remove_occluded(
@@ -102,7 +102,7 @@ class MorphOcclusion(AnimateLamination):
         super().__init__(reported_initial, reported_final, start_mobject, **kwargs)
 
 
-class MyScene(Scene):
+class _MyScene(Scene):
     def construct(self):
         self.camera.background_color = WHITE
 
@@ -128,5 +128,5 @@ class MyScene(Scene):
 
 if __name__ == "__main__":
     with tempconfig({"quality": "medium_quality", "preview": True}):
-        scene = MyScene()
+        scene = _MyScene()
         scene.render()

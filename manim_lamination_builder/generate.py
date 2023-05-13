@@ -1,12 +1,12 @@
 from copy import deepcopy
-from main import Main, NaryFraction, Lamination, Chord
+from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.chord import Chord
 
-from custom_json import custom_dump, custom_parse
+from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from typing import List, Callable
-from manim import tempconfig
 from manim.utils.color import Colors
 
-from points import UnitPoint
+from manim_lamination_builder.points import UnitPoint, NaryFraction, sigma
 
 
 def crosses(A: NaryFraction, B: NaryFraction, loops):
@@ -62,6 +62,8 @@ def _generate(
 def curried_colorize_with_respect_to(
     original_shape: List[UnitPoint],
 ) -> Callable[[UnitPoint], Colors]:
+    image = list(map(lambda p: p.after_sigma().cleared(), original_shape))
+
     def colorize(p: UnitPoint) -> Colors:
         colors = [
             Colors.pure_red,
@@ -71,12 +73,16 @@ def curried_colorize_with_respect_to(
             Colors.purple,
             Colors.black,
         ]
-        return colors[original_shape.index(p.after_sigma().cleared())]
+        x = p.after_sigma().cleared()
+        if x in image:
+            return colors[image.index(x)]
+        return Colors.black
 
     return colorize
 
 
 def generate_sibling_portraits(original_shape: List[NaryFraction]) -> List[Lamination]:
+    "For reasons descirbed in my may 18th talk at the Nippising Topology workshop, this can be predicted using the Fuss-Catillan numbers."
     order = len(original_shape)
     degree = original_shape[0].base
     original_shape = list(map(lambda x: x.cleared(), original_shape))

@@ -18,8 +18,8 @@ from manim import (
     Circle,
 )
 from manim.utils.color import Colors, Color
-from points import UnitPoint
-from chord import make_and_append_bezier
+from manim_lamination_builder.points import UnitPoint
+from manim_lamination_builder.chord import make_and_append_bezier
 
 
 background = BLACK

@@ -106,9 +106,10 @@ class NaryFraction(UnitPoint):
     def after_sigma(self) -> "NaryFraction":
         after = deepcopy(self)
         # multiply the exact part by base
-        carry = after.repeating.pop(0)
-        after.repeating.append(carry)
-        after.exact.append(carry)
+        if after.repeating:
+            carry = after.repeating.pop(0)
+            after.repeating.append(carry)
+            after.exact.append(carry)
         after.overflow = after.exact.pop(0)
         return after
 
@@ -174,6 +175,9 @@ class NaryFraction(UnitPoint):
         assert ret.to_float() - self.to_float() <= 1
         assert ret.overflow <= 1
         return ret
+
+def sigma(p:UnitPoint):
+    return p.after_sigma()
 
 
 assert NaryFraction(3, [1], [1, 0, 1]).to_string() == "1_101"

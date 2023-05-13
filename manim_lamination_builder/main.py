@@ -4,8 +4,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from custom_json import custom_dump, read_file_to_laminations
-from typing import Callable, List
+from manim_lamination_builder.custom_json import custom_dump, read_file_to_laminations
+from typing import List
 from manim import (
     WHITE,
     Scene,
@@ -17,9 +17,7 @@ import os
 
 from manim.utils.file_ops import config
 
-from points import NaryFraction
-from chord import Chord
-from lamination import Lamination
+from manim_lamination_builder.lamination import Lamination
 
 def group(laminations: List[Lamination]):
     group = Group(*[lamination.build() for lamination in laminations])

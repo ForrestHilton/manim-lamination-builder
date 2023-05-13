@@ -6,7 +6,7 @@
 
 from manim import BLACK, TAU, Mobject, VMobject, tuplify
 
-from points import NaryFraction, UnitPoint
+from manim_lamination_builder.points import NaryFraction, UnitPoint
 from math import pi, tan
 
 

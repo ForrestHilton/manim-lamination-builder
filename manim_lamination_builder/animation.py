@@ -10,10 +10,10 @@ from manim import (
     Mobject,
     TAU,
 )
-from chord import make_and_append_bezier
-from custom_json import custom_dump, custom_parse
-from lamination import Lamination
-from points import FloatWrapper, angle_to_cartesian
+from manim_lamination_builder.chord import make_and_append_bezier
+from manim_lamination_builder.custom_json import custom_dump, custom_parse
+from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.points import FloatWrapper, angle_to_cartesian
 from typing import Union
 
 
@@ -104,39 +104,3 @@ class AnimateLamination(Animation):
                 continue
             submobject.points *= radius
             submobject.points += center
-
-
-class MyScene(Scene):
-    def construct(self):
-        self.camera.background_color = WHITE
-        initial = custom_parse(
-            """
- {
-    "polygons": [["_300","_003", "_030"]],
-    occlusion: ["1","2"],
-    "radix": 4
-  }
-                     """
-        )
-
-        final = custom_parse(
-            """
- {
-    "polygons": [["_003","_030", "_300"]],
-    "radix": 4
-  }
-                     """
-        )
-        initial.auto_populate()
-        final.auto_populate()
-        # initial.polygons.pop(0)
-        # final.polygons.pop(0)
-        print(custom_dump(initial))
-        print(custom_dump(final))
-        self.play(AnimateLamination(initial, final, run_time=5))
-
-
-if __name__ == "__main__":
-    with tempconfig({"quality": "medium_quality", "preview": True}):
-        scene = MyScene()
-        scene.render()
