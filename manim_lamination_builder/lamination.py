@@ -106,4 +106,4 @@ class Lamination:
             new_poly = [f(p) for p in poly]
             new_polygons.append(new_poly)
         new_points = [f(p) for p in self.points]
-        return Lamination(new_polygons, new_points, self.radix)
+        return Lamination(new_polygons, new_points, self.radix,self.colorizer)
