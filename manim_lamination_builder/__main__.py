@@ -1,4 +1,4 @@
-from manim_lamination_builder.custom_json import custom_dump, read_file_to_laminations
+from manim_lamination_builder import custom_dump, read_file_to_laminations, Main
 from manim import (
     tempconfig,
 )
