@@ -1,4 +1,3 @@
-# WORK IN PROGRESS
 This is a re-implementation of [lamination-builder](https://csfalcione.github.io/lamination-builder/) that runs in python without dependencies on a browser and focusing on animations and convenient generation of figures. Instead it uses [Manim](https://github.com/ManimCommunity/manim/), and which has several dependencies. 
 
 
@@ -8,12 +7,12 @@ Please refer to [to manim's installation instructions](https://docs.manim.commun
 pip install manim_lamination_builder
 ```
 
-# Usage: 
+# Example Uses:
 ## render multiple laminations in one image
 ```
-python -m manim_lamination_builder file.json
+python -m manim_lamination_builder file.json5
 ```
-The input format is as follows: A list of laminations to be placed in the figure (tilling is a best effort left to right and top to bottom Placemen). The blank lamination is permitted.
+The input format is as follows: A json or json5 list of laminations to be placed in the figure (tilling is a best effort left to right and top to bottom placemen). The blank lamination is permitted.
 ```
 [
   {
@@ -48,7 +47,7 @@ with tempconfig({"quality": "high_quality", "preview": True}):
 ![please enable images](https://github.com/ForrestHilton/python-lamination-builder/blob/main/example.png "Example Output from my Reasearch")
 
 ## animate the leaves and points moving to their images
-Please not that sigma_d is understood as a dilation of angular position with wrapping, so the forgotten digit is recorded and used to determine how many times to wrap around. 
+Please note that the animation does over its duration what sigma_3 does in one step. Moreover, this relies on the understanding that sigma_d is a dilation of angular position with wrapping (by a factor of d). So the forgotten digit is recorded and used to determine how many times to wrap around, which might not always be desirable. 
 ```
 from manim import Scene, WHITE, tempconfig
 from manim_lamination_builder import (
