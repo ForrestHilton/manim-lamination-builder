@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "manim_lamination_builder"
-version = "0.2.3"
+version = "0.2.6"
 authors = [
   { name="Forrest Hilton", email="forrestmhilton@gmail.com" },
 ]
@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "manim", "json5", "json"
+  "manim", "json5"
 ]
 [project.urls]
 "Homepage" = "https://github.com/ForrestHilton/manim-lamination-builder"
