@@ -71,10 +71,11 @@ def curried_colorize_with_respect_to(
             Colors.pure_blue,
             Colors.yellow,
             Colors.purple,
-            Colors.black,
         ]
         x = p.after_sigma().cleared()
         if x in image:
+            if image.index(x) > 5:
+                return Colors.black
             return colors[image.index(x)]
         return Colors.black
 

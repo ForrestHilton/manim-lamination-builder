@@ -56,7 +56,8 @@ def result(lam: Lamination) -> Lamination:
     assert lam.occlusion is not None
     remaining_degree = lam.radix
     if (
-        lam.occlusion[0].has_degree() and lam.occlusion[1].has_degree()
+        lam.occlusion[0].has_degree()
+        and lam.occlusion[1].has_degree()
         and lam.occlusion[0].after_sigma().cleared()
         == lam.occlusion[1].after_sigma().cleared()
     ):
@@ -75,15 +76,8 @@ def result(lam: Lamination) -> Lamination:
     ret = remove_occluded(lam, occlusion=lam.occlusion).apply_function(mapping)
 
     ret.occlusion = None
-
     ret.radix = remaining_degree
-
-    destination_points = []
-    for point in ret.points:  # ordered set with non-hash based equality?
-        image = point.after_sigma().cleared()
-        if image not in destination_points:
-            destination_points.append(image)
-    ret.colorizer = curried_colorize_with_respect_to(destination_points)
+    ret.colorizer = curried_colorize_with_respect_to(ret.points)
 
     return ret
 

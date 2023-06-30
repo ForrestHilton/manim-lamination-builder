@@ -4,7 +4,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import List
 
-from math import cos, pi, sin
+from math import cos, pi, sin, floor
 
 from manim.animation.animation import deepcopy
 from abc import ABC, abstractmethod
@@ -35,7 +35,10 @@ class UnitPoint(ABC):
         return angle_to_cartesian(self.to_angle())
 
     def __eq__(self, other):
-        return abs(self.to_float() - other.to_float()) < 0.0000001
+        return self.__hash__() == other.__hash__()
+
+    def __hash__(self):
+        return hash(floor(self.to_float() / 0.0000002))
 
     def has_degree(self):
         return True
@@ -176,7 +179,8 @@ class NaryFraction(UnitPoint):
         assert ret.overflow <= 1
         return ret
 
-def sigma(p:UnitPoint):
+
+def sigma(p: UnitPoint):
     return p.after_sigma()
 
 
