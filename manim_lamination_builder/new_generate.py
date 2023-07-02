@@ -1,6 +1,3 @@
-# write a python function that takes a single argument which is a list length n of lists of length d. it should generate all of the ways of combining the elements of the lists into lists with no overlap and taking exactly one element from each of the original lists.  attempt to use combinatoric function from itertools.
-
-
 from copy import deepcopy
 from typing import List, Callable
 from manim.utils.color import Colors
@@ -9,16 +6,17 @@ from itertools import product, permutations
 from manim_lamination_builder import (
     UnitPoint,
     NaryFraction,
-    Lamination,
+    LeafLamination,
     Chord,
     custom_dump,
     custom_parse,
+    parse_lamination,
 )
 
 
 def sibling_collections_of_leaf_in_existing(
-    leaf: Chord, existing: Lamination
-) -> List[Lamination]:
+    leaf: Chord, existing: LeafLamination
+) -> List[LeafLamination]:
     """
     note that it includes the existing laminaition in addition to
     """
@@ -29,17 +27,9 @@ def sibling_collections_of_leaf_in_existing(
         collection = deepcopy(existing)
         for i, j in enumerate(indesies):
             l = Chord(pre_a[i], pre_b[j])
-            if crosses(collection, l):
+            if collection.crosses(l):
                 break
-            collection.polygons.append(l)
+            collection.leafs.append(l)
         else:  # exited normally
             collections.append(collection)
     return collections
-
-
-def crosses(self, target):
-    cords: List[Chord] = self.cords()
-
-    return any([target.crosses(reference) for reference in cords])
-
-
