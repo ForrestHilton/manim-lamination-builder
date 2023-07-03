@@ -5,6 +5,7 @@
 
 
 from abc import ABC
+from collections.abc import Iterable
 from itertools import accumulate
 from typing import List, Set
 from typing import List, Callable, Tuple, Union
@@ -125,17 +126,17 @@ class Lamination(AbstractLamination):
 
 
 class LeafLamination(AbstractLamination):
-    leafs: List[Chord]
+    leafs: Set[Chord]
 
     def __init__(
         self,
-        leafs: List[Chord],
+        leafs: Iterable[Chord],
         points: List[UnitPoint],
         radix: int,
         colorizer=lambda p: Colors.red,
         occlusion: Union[Tuple[UnitPoint, UnitPoint], None] = None,
     ) -> None:
-        self.leafs = leafs
+        self.leafs = set(leafs)
         self.points = points
         self.radix = radix
         self.colorizer = colorizer
@@ -146,7 +147,7 @@ class LeafLamination(AbstractLamination):
         polygons: List[Set[UnitPoint]] = []
         for leaf in self.leafs:
             used_leaf = False
-            for p, other in [(leaf[0], leaf[1]), (leaf[1], leaf[0])]:
+            for p, other in [(leaf.min, leaf.max), (leaf.max, leaf.min)]:
                 for polygon in polygons:
                     if p in polygon:
                         polygon_with_other = next(
@@ -168,7 +169,7 @@ class LeafLamination(AbstractLamination):
                 if used_leaf:
                     break
             if not used_leaf:
-                polygons.append(set(leaf))
+                polygons.append(set([leaf.min,leaf.max]))
 
         polygons_ = list(map(lambda s: sorted(s, key=lambda p: p.to_float()), polygons))
         return Lamination(polygons_, self.points, self.radix)

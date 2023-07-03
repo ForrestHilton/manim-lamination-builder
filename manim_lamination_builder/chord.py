@@ -22,6 +22,9 @@ class Chord:
             self.min = b
             self.max = a
 
+    def __hash__(self):
+        return hash((self.min, self.max))
+
     def crosses(self, other: "Chord") -> bool:
         if (
             self.max.to_float() <= other.min.to_float()

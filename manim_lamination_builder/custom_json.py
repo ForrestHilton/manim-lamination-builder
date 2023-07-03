@@ -23,6 +23,8 @@ class CustomEncoder(json.JSONEncoder):
             return v.value
         if vtype in types:
             return types[type(v).__name__](v)
+        if vtype == "set":
+            return list(v)
         else:
             return json.JSONEncoder.default(self, v)
 
