@@ -20,4 +20,3 @@ from manim_lamination_builder.generate import (
 from manim_lamination_builder.main import group, Main
 import manim_lamination_builder.morph
 import manim_lamination_builder.__main__
-from manim_lamination_builder.new_generate import sibling_collections_of_leaf_in_existing
