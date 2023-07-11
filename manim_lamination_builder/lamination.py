@@ -4,7 +4,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from itertools import accumulate
 from typing import List, Set
@@ -35,6 +35,10 @@ class AbstractLamination(ABC):
     occlusion: Union[Tuple[UnitPoint, UnitPoint], None]
     radix: int
     colorizer: Callable[[UnitPoint], Colors]
+
+    @abstractmethod
+    def build(self) -> Mobject:
+        pass
 
 
 class Lamination(AbstractLamination):
@@ -107,9 +111,7 @@ class Lamination(AbstractLamination):
 
         return ret
 
-    def apply_function(
-        self, f: Callable[[UnitPoint], UnitPoint]
-    ) -> "Lamination":
+    def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "Lamination":
         new_polygons = []
         for poly in self.polygons:
             new_poly = [f(p) for p in poly]
@@ -169,10 +171,17 @@ class LeafLamination(AbstractLamination):
                 if used_leaf:
                     break
             if not used_leaf:
-                polygons.append(set([leaf.min,leaf.max]))
+                polygons.append(set([leaf.min, leaf.max]))
 
         polygons_ = list(map(lambda s: sorted(s, key=lambda p: p.to_float()), polygons))
         return Lamination(polygons_, self.points, self.radix)
 
     def crosses(self, target: Chord):
         return any([target.crosses(reference) for reference in self.leafs])
+
+    def build(self) -> Mobject:
+        return self.to_polygons().build()
+
+    @staticmethod
+    def empty() -> "LeafLamination":
+        return LeafLamination([], [], 0)

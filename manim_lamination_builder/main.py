@@ -10,16 +10,13 @@ from manim import (
     WHITE,
     Scene,
     Group,
-    tempconfig,
 )
-import sys
-import os
 
 from manim.utils.file_ops import config
 
-from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.lamination import AbstractLamination
 
-def group(laminations: List[Lamination]):
+def group(laminations: List[AbstractLamination]):
     group = Group(*[lamination.build() for lamination in laminations])
     group = group.arrange_in_grid()
     group.scale(
@@ -29,12 +26,10 @@ def group(laminations: List[Lamination]):
     return group
 
 class Main(Scene):
-    def __init__(self, laminations: List[Lamination]):
+    def __init__(self, laminations: List[AbstractLamination]):
         self.laminations = laminations
         super().__init__()
 
     def construct(self):
-        self.camera.background_color = WHITE
+        config.background_color = WHITE
         self.add(group(self.laminations))
-
-
