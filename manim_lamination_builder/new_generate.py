@@ -134,4 +134,4 @@ if __name__ == "__main__":
     tree = PullBackTree(start, 4)
     config.preview = True
     config.background_color = WHITE
-    TreeRender(tree).render()
+    Main(tree.flaten()[-1]).render()
