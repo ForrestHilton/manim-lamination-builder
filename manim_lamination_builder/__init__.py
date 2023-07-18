@@ -12,7 +12,6 @@ from manim_lamination_builder.points import FloatWrapper, UnitPoint, NaryFractio
 from manim_lamination_builder.animation import AnimateLamination
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.generate import (
-    curried_colorize_with_respect_to,
     generate_sibling_portraits,
     generate_unicritical_lamination,
     remove_non_original_pollygons,

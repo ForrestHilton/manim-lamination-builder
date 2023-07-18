@@ -10,7 +10,6 @@ from itertools import accumulate
 from typing import List, Set
 from typing import List, Callable, Tuple, Union
 from manim import (
-    BLUE,
     ORIGIN,
     RED,
     BLACK,
@@ -21,7 +20,6 @@ from manim import (
     VMobject,
     Circle,
 )
-from manim.utils.color import Colors, Color
 from manim_lamination_builder.points import UnitPoint
 from manim_lamination_builder.chord import make_and_append_bezier, Chord
 
@@ -34,7 +32,6 @@ class AbstractLamination(ABC):
     # occludes the region bounded by the chord and the arc from the first to the second CCW
     occlusion: Union[Tuple[UnitPoint, UnitPoint], None]
     radix: int
-    colorizer: Callable[[UnitPoint], Colors]
 
     @abstractmethod
     def build(self) -> Mobject:
@@ -49,13 +46,11 @@ class Lamination(AbstractLamination):
         polygons: List[List[UnitPoint]],
         points: List[UnitPoint],
         radix: int,
-        colorizer=lambda p: Colors.red,
         occlusion: Union[Tuple[UnitPoint, UnitPoint], None] = None,
     ) -> None:
         self.polygons = polygons
         self.points = points
         self.radix = radix
-        self.colorizer = colorizer
         self.occlusion = occlusion
 
     def auto_populate(self):
@@ -82,7 +77,13 @@ class Lamination(AbstractLamination):
         ret.add(unit_circle)  # show the circle on screen
 
         for polygon in self.polygons:
-            shape = VMobject(BLUE, 1, color=BLACK)
+            visual = polygon[0].visual_settings
+            shape = VMobject(
+                visual.polygon_color.value,
+                1,
+                stroke_width=visual.stroke_width,
+                color=visual.stroke_color.value,
+            )
             for i in range(len(polygon)):
                 a = polygon[i]
                 b = polygon[(i + 1) % len(polygon)]
@@ -92,7 +93,9 @@ class Lamination(AbstractLamination):
         for point in self.points:
             ret.add(
                 Dot(
-                    point.to_cartesian(), color=self.colorizer(point).value, radius=0.04
+                    point.to_cartesian(),
+                    color=point.visual_settings.point_color.value,
+                    radius=0.04,
                 )
             )
 
@@ -135,13 +138,11 @@ class LeafLamination(AbstractLamination):
         leafs: Iterable[Chord],
         points: List[UnitPoint],
         radix: int,
-        colorizer=lambda p: Colors.red,
         occlusion: Union[Tuple[UnitPoint, UnitPoint], None] = None,
     ) -> None:
         self.leafs = set(leafs)
         self.points = points
         self.radix = radix
-        self.colorizer = colorizer
         self.occlusion = occlusion
 
     def to_polygons(self) -> Lamination:

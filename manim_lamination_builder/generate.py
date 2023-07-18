@@ -5,8 +5,10 @@ from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from typing import List, Callable
 from manim.utils.color import Colors
+from manim import tempconfig
 
 from manim_lamination_builder.points import UnitPoint, NaryFraction, sigma
+from manim_lamination_builder.visual_settings import VisualSettings, get_color
 
 
 def crosses(A: NaryFraction, B: NaryFraction, loops):
@@ -59,29 +61,6 @@ def _generate(
     return sibling_portraits
 
 
-def curried_colorize_with_respect_to(
-    original_shape: List[UnitPoint],
-) -> Callable[[UnitPoint], Colors]:
-    image = list(map(lambda p: p.after_sigma().cleared(), original_shape))
-
-    def colorize(p: UnitPoint) -> Colors:
-        colors = [
-            Colors.pure_red,
-            Colors.pure_green,
-            Colors.pure_blue,
-            Colors.yellow,
-            Colors.purple,
-        ]
-        x = p.after_sigma().cleared()
-        if x in image:
-            if image.index(x) > 5:
-                return Colors.black
-            return colors[image.index(x)]
-        return Colors.black
-
-    return colorize
-
-
 def generate_sibling_portraits(original_shape: List[NaryFraction]) -> List[Lamination]:
     "For reasons descirbed in my may 18th talk at the Nippising Topology workshop, this can be predicted using the Fuss-Catillan numbers."
     order = len(original_shape)
@@ -94,7 +73,6 @@ def generate_sibling_portraits(original_shape: List[NaryFraction]) -> List[Lamin
     # For example the points in the 1st list of all points includes the 1st
     # point in the original shape.
     all_points = []
-    colorize = curried_colorize_with_respect_to(original_shape)
 
     for i in range(order):
         siblings = original_shape[i].siblings()
@@ -103,7 +81,7 @@ def generate_sibling_portraits(original_shape: List[NaryFraction]) -> List[Lamin
         all_points.append(siblings)
 
     portraits = _generate([], deepcopy(all_points), original_shape)
-    data = [Lamination(pollygons, [], degree, colorize) for pollygons in portraits]
+    data = [Lamination(pollygons, [], degree) for pollygons in portraits]
     for lam in data:
         lam.auto_populate()
 
@@ -118,6 +96,9 @@ def generate_unicritical_lamination(degree, order):
         point = original_shape[i]
         original_shape.append(point.after_sigma().cleared())
 
+    for i, p in enumerate(original_shape):
+        p.visual_settings = VisualSettings(point_color=get_color(i))
+
     data = generate_sibling_portraits(original_shape)
     return data
 
@@ -128,6 +109,16 @@ def remove_non_original_pollygons(lams: List[Lamination]):
     return [lam]
 
 
-# generate_unicritical_lamination(4, 3)
+if __name__ == "__main__":
+    with tempconfig(
+        {
+            "quality": "medium_quality",
+            "preview": True,
+            "background_color": Colors.white.value,
+        }
+    ):
+        from manim_lamination_builder import Main
+
+        Main(generate_unicritical_lamination(4, 3)).render()
 
 # "0_122" is a proposed test case

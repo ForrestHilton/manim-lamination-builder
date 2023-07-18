@@ -10,12 +10,16 @@ from manim.animation.animation import deepcopy
 from abc import ABC, abstractmethod
 import numpy as np
 
+from manim_lamination_builder.visual_settings import VisualSettings
+
 
 def angle_to_cartesian(angle: float):
     return np.array([cos(angle), sin(angle), 0])
 
 
 class UnitPoint(ABC):
+    visual_settings: VisualSettings
+
     @abstractmethod
     def to_float(self) -> float:
         pass
@@ -45,15 +49,18 @@ class UnitPoint(ABC):
 
 
 class FloatWrapper(UnitPoint):
-    def __init__(self, value: float, degree: int = None):
+    def __init__(
+        self, value: float, degree: int = None, visual_settings=VisualSettings()
+    ):
         self.value = value
         self.degree = degree
+        self.visual_settings = visual_settings
 
     def to_float(self):
         return self.value
 
     def cleared(self) -> "FloatWrapper":
-        return FloatWrapper(self.value % 1, self.degree)
+        return FloatWrapper(self.value % 1, self.degree, self.visual_settings)
 
     def after_sigma(self) -> "FloatWrapper":
         after = deepcopy(self.cleared())
@@ -65,15 +72,25 @@ class FloatWrapper(UnitPoint):
 
 
 class NaryFraction(UnitPoint):
-    def __init__(self, base: int, exact: List[int], repeating: List[int], overflow=0):
+    def __init__(
+        self,
+        base: int,
+        exact: List[int],
+        repeating: List[int],
+        overflow=0,
+        visual_settings=VisualSettings(),
+    ):
         assert base != 1
         self.base = base
         self.exact = exact
         self.repeating = repeating
         self.overflow = overflow
+        self.visual_settings = visual_settings
 
     def cleared(self) -> "NaryFraction":
-        return NaryFraction(self.base, self.exact, self.repeating)
+        return NaryFraction(
+            self.base, self.exact, self.repeating, 0, self.visual_settings
+        )
 
     @staticmethod
     def from_string(base, string_representation):
@@ -138,7 +155,9 @@ class NaryFraction(UnitPoint):
     def pre_images(self) -> List["NaryFraction"]:
         ret = self.without_enharmonics()
         return [
-            NaryFraction(self.base, [digit] + ret.exact, self.repeating)
+            NaryFraction(
+                self.base, [digit] + ret.exact, self.repeating, 0, self.visual_settings
+            )
             for digit in range(self.base)
         ]
 
@@ -173,7 +192,9 @@ class NaryFraction(UnitPoint):
         assert self == self.cleared()
         ret = self.after_sigma().cleared()
         if ret.to_angle() < self.to_angle():
-            ret = NaryFraction(ret.base, ret.exact, ret.repeating, 1)
+            ret = NaryFraction(
+                ret.base, ret.exact, ret.repeating, 1, self.visual_settings
+            )
         assert ret.to_angle() > self.to_angle()
         assert ret.to_float() - self.to_float() <= 1
         assert ret.overflow <= 1

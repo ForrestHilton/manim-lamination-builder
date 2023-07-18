@@ -5,7 +5,6 @@ from manim_lamination_builder.lamination import Lamination
 from manim_lamination_builder.points import FloatWrapper, UnitPoint
 from typing import Tuple, Union
 from manim_lamination_builder.animation import AnimateLamination
-from manim_lamination_builder.generate import curried_colorize_with_respect_to
 
 
 def remove_occluded(
@@ -77,7 +76,7 @@ def result(lam: Lamination) -> Lamination:
 
     ret.occlusion = None
     ret.radix = remaining_degree
-    ret.colorizer = curried_colorize_with_respect_to(ret.points)
+    # ret.colorizer = curried_colorize_with_respect_to(ret.points)
 
     return ret
 

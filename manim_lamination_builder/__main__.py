@@ -1,3 +1,6 @@
+from manim import WHITE
+
+
 if __name__ == "__main__":
     from manim_lamination_builder import custom_dump, read_file_to_laminations, Main
     from manim import (
@@ -13,6 +16,8 @@ if __name__ == "__main__":
     for lamination in laminations:
         lamination.auto_populate()
 
-    with tempconfig({"quality": "medium_quality", "preview": True}):
+    with tempconfig(
+        {"quality": "medium_quality", "preview": True, "background_color": WHITE}
+    ):
         scene = Main(laminations)
         scene.render()
