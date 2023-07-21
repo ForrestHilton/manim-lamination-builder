@@ -88,13 +88,18 @@ def generate_sibling_portraits(original_shape: List[NaryFraction]) -> List[Lamin
     return data
 
 
-def generate_unicritical_lamination(degree, order):
+def unicritical_polygon(degree, order):
     starting_point = NaryFraction.from_string(degree, "_" + "0" * (order - 1) + "1")
     original_shape = [starting_point]
     # generate original shape
     for i in range(order - 1):
         point = original_shape[i]
         original_shape.append(point.after_sigma().cleared())
+    return original_shape
+
+
+def generate_unicritical_lamination(degree, order):
+    original_shape = unicritical_polygon(degree, order)
 
     for i, p in enumerate(original_shape):
         p.visual_settings = VisualSettings(point_color=get_color(i))

@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from typing import List
+from typing import List, Optional
 
 from math import cos, pi, sin, floor
 
@@ -19,6 +19,7 @@ def angle_to_cartesian(angle: float):
 
 class UnitPoint(ABC):
     visual_settings: VisualSettings
+    base: Optional[int]
 
     @abstractmethod
     def to_float(self) -> float:
@@ -47,28 +48,44 @@ class UnitPoint(ABC):
     def has_degree(self):
         return True
 
+    def siblings(self) -> List["UnitPoint"]:
+        ret = self.after_sigma().cleared().pre_images()
+        assert self.cleared() in ret
+        return ret
+
+    @abstractmethod
+    def pre_images(self) -> List["UnitPoint"]:
+        pass
+
 
 class FloatWrapper(UnitPoint):
     def __init__(
         self, value: float, degree: int = None, visual_settings=VisualSettings()
     ):
         self.value = value
-        self.degree = degree
+        self.base = degree
         self.visual_settings = visual_settings
 
     def to_float(self):
         return self.value
 
     def cleared(self) -> "FloatWrapper":
-        return FloatWrapper(self.value % 1, self.degree, self.visual_settings)
+        return FloatWrapper(self.value % 1, self.base, self.visual_settings)
 
     def after_sigma(self) -> "FloatWrapper":
         after = deepcopy(self.cleared())
-        after.value *= self.degree
+        after.value *= self.base
         return after
 
     def has_degree(self):
-        return self.degree is not None
+        return self.base is not None
+
+    def pre_images(self) -> List["UnitPoint"]:
+        assert self.base is not None
+        return [
+            FloatWrapper(self.value / self.base + digit / self.base)
+            for digit in range(self.base)
+        ]
 
 
 class NaryFraction(UnitPoint):
@@ -86,6 +103,7 @@ class NaryFraction(UnitPoint):
         self.repeating = repeating
         self.overflow = overflow
         self.visual_settings = visual_settings
+        assert max(self.exact + self.repeating) < self.base
 
     def cleared(self) -> "NaryFraction":
         return NaryFraction(
@@ -160,14 +178,6 @@ class NaryFraction(UnitPoint):
             )
             for digit in range(self.base)
         ]
-
-    def siblings(self) -> List["NaryFraction"]:
-        assert max(self.exact + self.repeating) < self.base
-        ret = self.after_sigma().cleared().pre_images()
-        assert self.cleared() in ret, "{} is not in {}".format(
-            self.cleared().to_string(), list(map(lambda p: p.to_string(), ret))
-        )
-        return ret
 
     def to_float(self) -> float:
         value = sum([n / self.base ** (i + 1) for i, n in enumerate(self.exact)])
