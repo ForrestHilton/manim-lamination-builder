@@ -28,8 +28,8 @@ def group(laminations: List[AbstractLamination]):
 class Main(Scene):
     def __init__(self, laminations: List[AbstractLamination]):
         self.laminations = laminations
+        config.background_color = WHITE
         super().__init__()
 
     def construct(self):
-        config.background_color = WHITE
         self.add(group(self.laminations))
