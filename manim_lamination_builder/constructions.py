@@ -3,9 +3,9 @@ This file brings together methods that would be needed for describing certain fi
 """
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.points import UnitPoint, NaryFraction
-from lamination import Lamination
+from manim_lamination_builder import Lamination
 from typing import List
-from visual_settings import get_color, VisualSettings
+from manim_lamination_builder.visual_settings import get_color, VisualSettings
 
 
 def uniquely_color(list: List[UnitPoint]) -> List[UnitPoint]:
@@ -24,8 +24,6 @@ def unicritical_polygon(degree, order) -> List[NaryFraction]:
         original_shape.append(point.after_sigma().cleared())
 
     return uniquely_color(original_shape)
-
-
 
 
 def insert_criticality(x: Lamination, at: NaryFraction) -> Lamination:

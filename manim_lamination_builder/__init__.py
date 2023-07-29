@@ -21,3 +21,4 @@ from manim_lamination_builder.main import group, Main
 import manim_lamination_builder.morph
 import manim_lamination_builder.__main__
 from manim_lamination_builder.visual_settings import VisualSettings, get_color
+from manim_lamination_builder.sibling_trees import first_polygon, make_regions, construct_nested_tuple, construct_tree
