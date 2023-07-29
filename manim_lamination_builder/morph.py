@@ -81,6 +81,14 @@ def result(lam: Lamination) -> Lamination:
 
     return ret
 
+def interpolate_quotent_of_region_under_the_first_listed_polygon(lam: Lamination):
+    d = lam.radix
+    critical_cord = (
+        lam.polygons[0][0],
+        FloatWrapper(lam.polygons[0][0].to_float() + 1 / d, d),
+    )
+    lam.occlusion = critical_cord
+    return result(lam)
 
 class MorphOcclusion(AnimateLamination):
     def __init__(
