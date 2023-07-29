@@ -20,4 +20,4 @@ from manim_lamination_builder.new_generate import next_pull_back
 from manim_lamination_builder.main import group, Main
 import manim_lamination_builder.morph
 import manim_lamination_builder.__main__
-from manim_lamination_builder.visual_settings import VisualSettings, get_color, uniquely_color
+from manim_lamination_builder.visual_settings import VisualSettings, get_color
