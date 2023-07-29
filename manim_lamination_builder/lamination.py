@@ -37,6 +37,12 @@ class AbstractLamination(ABC):
     def build(self) -> Mobject:
         pass
 
+    @abstractmethod
+    def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "AbstractLamination":
+        pass
+
+
+
 
 class Lamination(AbstractLamination):
     polygons: List[List[UnitPoint]]
@@ -120,7 +126,7 @@ class Lamination(AbstractLamination):
             new_poly = [f(p) for p in poly]
             new_polygons.append(new_poly)
         new_points = [f(p) for p in self.points]
-        return Lamination(new_polygons, new_points, self.radix, self.colorizer)
+        return Lamination(new_polygons, new_points, self.radix)
 
     def to_leafs(self) -> "LeafLamination":
         leafs: List[Chord] = []
@@ -184,5 +190,13 @@ class LeafLamination(AbstractLamination):
         return self.to_polygons().build()
 
     @staticmethod
-    def empty() -> "LeafLamination":
-        return LeafLamination([], [], 0)
+    def empty(d=0) -> "LeafLamination":
+        return LeafLamination([], [], d)
+
+    def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "LeafLamination":
+        new_leaves = []
+        for leaf in self.leafs:
+            new_leaf = [f(p) for p in [leaf.min,leaf.max]]
+            new_leaves.append(new_leaf)
+        new_points = [f(p) for p in self.points]
+        return LeafLamination(new_leaves, new_points, self.radix)

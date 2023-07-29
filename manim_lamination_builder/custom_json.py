@@ -15,7 +15,6 @@ class CustomEncoder(json.JSONEncoder):
         vtype = type(v).__name__
         if vtype in ["LeafLamination", "Lamination"]:
             ret = v.__dict__.copy()
-            ret.pop("colorizer")
             return ret
         if vtype == "Chord":
             return list(v.__dict__.values())

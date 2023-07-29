@@ -69,14 +69,15 @@ def result(lam: Lamination) -> Lamination:
     def mapping(p: UnitPoint) -> UnitPoint:
         assert lam.occlusion is not None
         return FloatWrapper(
-            morph_function(p.to_float(), lam.occlusion), remaining_degree
+            morph_function(p.to_float(), lam.occlusion),
+            remaining_degree,
+            p.visual_settings,
         )
 
     ret = remove_occluded(lam, occlusion=lam.occlusion).apply_function(mapping)
 
     ret.occlusion = None
     ret.radix = remaining_degree
-    # ret.colorizer = curried_colorize_with_respect_to(ret.points)
 
     return ret
 

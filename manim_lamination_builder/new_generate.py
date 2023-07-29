@@ -15,7 +15,6 @@ from manim.utils.file_ops import config
 from manim_lamination_builder.lamination import AbstractLamination
 
 from manim_lamination_builder import (
-    Main,
     LeafLamination,
     Chord,
     parse_lamination,
@@ -40,7 +39,7 @@ def next_pull_back(
         pre_a = leaf.min.pre_images()
         pre_b = leaf.max.pre_images()
 
-        required_pre_images = existing_pre_images.get(leaf,[])
+        required_pre_images = existing_pre_images.get(leaf, [])
 
         for indexes in permutations(range(len(pre_b))):
             requirements_fulfiled = 0
@@ -49,6 +48,7 @@ def next_pull_back(
                 l = Chord(pre_a[i], pre_b[j])
                 if l in required_pre_images:
                     requirements_fulfiled += 1
+                    collection.leafs.add(l)
                 if collection.crosses(l):
                     break
                 collection.leafs.add(l)
@@ -57,24 +57,13 @@ def next_pull_back(
                     collections.append(collection)
         return collections
 
-    # TODO: auto create included_images
-    ret = [deepcopy(_lam)]
+    ret = [LeafLamination.empty(_lam.radix)]
     for l in list(_lam.leafs - included_images.leafs):
         new_ret = []
         for lam2 in ret:
             new_ret += sibling_collections_of_leaf_in_existing(l, lam2)
         ret = new_ret
     return ret
-
-
-def render_expanded_3_3_minashery():
-    start = parse_lamination(
-        """{polygons:[['_100','_010','_001']],radix:3}"""
-    ).to_leafs()
-
-    result = list(map(lambda lam: lam.to_polygons(), next_pull_back(start)))
-    config.preview = True
-    Main(result).render()
 
 
 class PullBackTree:
@@ -134,4 +123,6 @@ if __name__ == "__main__":
     tree = PullBackTree(start, 4)
     config.preview = True
     config.background_color = WHITE
+    from manim_lamination_builder import Main
+
     Main(tree.flaten()[-1]).render()

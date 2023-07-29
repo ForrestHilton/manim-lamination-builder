@@ -52,7 +52,7 @@ def _generate(
         len(loops[-1])
     ]  # iterate over options for its next step / how to continue polygon
     for i, next_point in enumerate(next_connection_options):
-        if not crosses(next_point, loops[-1][-1], loops):  # TODO: check for crossing
+        if not crosses(next_point, loops[-1][-1], loops):
             n_remaining = deepcopy(remaining)
             n_loops = deepcopy(loops)
             n_loops[-1].append(n_remaining[len(loops[-1])].pop(i))
@@ -95,14 +95,15 @@ def unicritical_polygon(degree, order):
     for i in range(order - 1):
         point = original_shape[i]
         original_shape.append(point.after_sigma().cleared())
+
+    for i, p in enumerate(original_shape):
+        p.visual_settings = VisualSettings(point_color=get_color(i))
+
     return original_shape
 
 
 def generate_unicritical_lamination(degree, order):
     original_shape = unicritical_polygon(degree, order)
-
-    for i, p in enumerate(original_shape):
-        p.visual_settings = VisualSettings(point_color=get_color(i))
 
     data = generate_sibling_portraits(original_shape)
     return data

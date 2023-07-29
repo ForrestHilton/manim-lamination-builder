@@ -7,13 +7,17 @@ how far away the next end point should be by how many critical cords are inside
 it. Moreover, it does so in a degree aware way.
 """
 from typing import Callable, List, Tuple, Optional
+
+from manim.animation.animation import config
+from manim_lamination_builder.custom_json import custom_dump
+from manim_lamination_builder.main import Main
 from manim_lamination_builder.points import (
     FloatWrapper,
     NaryFraction,
     UnitPoint,
 )
 from manim_lamination_builder.generate import unicritical_polygon
-from manim_lamination_builder.lamination import AbstractLamination
+from manim_lamination_builder.lamination import AbstractLamination, Lamination
 
 
 class CriticalTree:
@@ -90,30 +94,35 @@ class CriticalTree:
         return alternat_branches + [lambda x: not self.is_inside(x)]
 
     def all_branches(self) -> List[Callable[[UnitPoint], UnitPoint]]:
-        return [
-            lambda x: next(filter(identifyer, x.pre_images()))
-            for identifyer in self.all_branches_identifyers()
-        ]
+        def create_branch(identifyer):
+            def branch(x):
+                return next(filter(identifyer, x.pre_images()))
 
+            return branch
 
-class PullBackScheme:
-    seed: AbstractLamination
-    branches: CriticalTree
+        identifyers = self.all_branches_identifyers()
+        return [create_branch(identifyer) for identifyer in identifyers]
 
-    def __init__(self, seed, branches: CriticalTree):
-        self.seed = seed
-        self.branches = branches
+    def pull_back1(self, lam: Lamination) -> AbstractLamination:
+        branches = self.all_branches()
+        polygons = []
+        points = []
+        for f in branches:
+            polygons += lam.apply_function(f).polygons
+            points += lam.apply_function(f).points
+        return Lamination(polygons, points, lam.radix)
 
-    @staticmethod
-    def default():
-        "the one provided for the rabbit in lamination builder"
-        return PullBackScheme(unicritical_polygon(2, 3), CriticalTree.default())
+    def pull_back_n(self, lam: AbstractLamination, n) -> AbstractLamination:
+        ret = lam
+        for _ in range(n - 1):
+            ret = self.pull_back1(ret)
+        return ret
 
+def rabbit_nth_pullback(n) -> Lamination:
+    rabbit_seed = Lamination([unicritical_polygon(2, 3)], [], 2)
+    rabbit_cord = CriticalTree.default()
+    return rabbit_cord.pull_back_n(rabbit_seed, n)
 
 if __name__ == "__main__":
-    example = CriticalTree.default()
-    branches = example.all_branches()
-    print(branches[0](FloatWrapper(0, 2)).to_float())
-    print(branches[1](FloatWrapper(0, 2)).to_float())
-    print(branches[0](FloatWrapper(0.4, 2)).to_float())
-    print(branches[1](FloatWrapper(0.4, 2)).to_float())
+    config.preview = True
+    Main([rabbit_nth_pullback(4)]).render()

@@ -1,4 +1,8 @@
+from copy import deepcopy
+from typing import List
 from manim.utils.color import Colors
+
+from manim_lamination_builder.points import UnitPoint
 
 colors_list = [
     Colors.pure_red,
@@ -12,6 +16,7 @@ def get_color(i:int):
     if i >= len(colors_list):
         return Colors.black
     return colors_list[i]
+
 
 class VisualSettings:
     point_color: Colors
@@ -31,3 +36,9 @@ class VisualSettings:
     @staticmethod
     def default():
         return VisualSettings()
+
+def uniquely_color(list:List[UnitPoint]) -> List[UnitPoint]:
+    ret = deepcopy(list)
+    for i,p in enumerate(list):
+        p.visual_settings.point_color = get_color(i)
+    return ret
