@@ -67,11 +67,12 @@ double_orbit = Lamination(
     3,
 )
 
+double_orbit.auto_populate()
+
 if __name__ == "__main__":
     from manim_lamination_builder import Main
     from manim_lamination_builder.main import config
     print(custom_dump(double_orbit))
 
     config.preview = True
-    double_orbit.auto_populate()
     Main([double_orbit]).render()

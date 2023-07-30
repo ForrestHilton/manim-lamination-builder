@@ -6,6 +6,7 @@ from typing import List
 from manim_lamination_builder import UnitPoint, Lamination
 from manim_lamination_builder.morph import remove_occluded
 
+
 def first_polygon(lam: Lamination) -> List[UnitPoint]:
     "select first polygon CCW"
     sorted_points = sorted(lam.points, key=lambda x: x.to_float())
