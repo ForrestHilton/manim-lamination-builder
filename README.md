@@ -46,6 +46,19 @@ with tempconfig({"quality": "high_quality", "preview": True}):
 ```
 ![please enable images](https://github.com/ForrestHilton/python-lamination-builder/blob/main/example.png "Example Output from my Reasearch")
 
+Alternately, you might want to specify the rotational shape by hand:
+```
+from manim_lamination_builder import generate_sibling_portraits, parse_lamination, Main
+from manim import tempconfig
+
+shape = parse_lamination("""{polygons:[['_002','_020','_200']],radix:3}""").polygons[0]
+
+portraits = generate_sibling_portraits(shape)
+
+with tempconfig({"quality": "high_quality", "preview": True}):
+    Main(portraits).render()
+```
+
 ## animate the leaves and points moving to their images
 Please note that the animation does over its duration what sigma_3 does in one step. Moreover, this relies on the understanding that sigma_d is a dilation of angular position with wrapping (by a factor of d). So the forgotten digit is recorded and used to determine how many times to wrap around, which might not always be desirable. 
 ```
