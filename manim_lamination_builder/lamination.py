@@ -14,6 +14,7 @@ from manim import (
     RED,
     BLACK,
     TAU,
+    WHITE,
     Arc,
     Dot,
     Mobject,
@@ -38,10 +39,10 @@ class AbstractLamination(ABC):
         pass
 
     @abstractmethod
-    def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "AbstractLamination":
+    def apply_function(
+        self, f: Callable[[UnitPoint], UnitPoint]
+    ) -> "AbstractLamination":
         pass
-
-
 
 
 class Lamination(AbstractLamination):
@@ -53,11 +54,13 @@ class Lamination(AbstractLamination):
         points: List[UnitPoint],
         radix: int,
         occlusion: Union[Tuple[UnitPoint, UnitPoint], None] = None,
+        dark_theme=True,
     ) -> None:
         self.polygons = polygons
         self.points = points
         self.radix = radix
         self.occlusion = occlusion
+        self.dark_theme = dark_theme
 
     def auto_populate(self):
         for polygon in self.polygons:
@@ -74,21 +77,26 @@ class Lamination(AbstractLamination):
             unit_circle = Arc(
                 start_angle=self.occlusion[1].to_angle(),
                 angle=delta,
-                color=BLACK,
+                color=BLACK,  # TODO
                 radius=radius,
             )
         else:
-            unit_circle = Circle(color=BLACK, radius=radius)  # create a circle
+            unit_circle = Circle(
+                color=WHITE if self.dark_theme else BLACK, radius=radius
+            )  # create a circle
         unit_circle.move_arc_center_to(center)
         ret.add(unit_circle)  # show the circle on screen
 
         for polygon in self.polygons:
             visual = polygon[0].visual_settings
+            stroke_color = visual.stroke_color.value
+            if stroke_color == BLACK and self.dark_theme:
+                stroke_color = WHITE
             shape = VMobject(
                 visual.polygon_color.value,
                 1,
                 stroke_width=visual.stroke_width,
-                color=visual.stroke_color.value,
+                color=stroke_color,
             )
             for i in range(len(polygon)):
                 a = polygon[i]
@@ -196,7 +204,7 @@ class LeafLamination(AbstractLamination):
     def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "LeafLamination":
         new_leaves = []
         for leaf in self.leafs:
-            new_leaf = [f(p) for p in [leaf.min,leaf.max]]
+            new_leaf = [f(p) for p in [leaf.min, leaf.max]]
             new_leaves.append(new_leaf)
         new_points = [f(p) for p in self.points]
         return LeafLamination(new_leaves, new_points, self.radix)

@@ -57,21 +57,30 @@ double_orbit = Lamination(
     [
         uniquely_color(
             start.polygons[0]
-            + start.apply_function(lambda x: x.after_sigma()).polygons[0]
-            + start.apply_function(lambda x: x.after_sigma())
-            .apply_function(lambda x: x.after_sigma())
+            + start.apply_function(lambda x: x.after_sigma().cleared()).polygons[0]
+            + start.apply_function(lambda x: x.after_sigma().cleared())
+            .apply_function(lambda x: x.after_sigma().cleared())
             .polygons[0]
         )
     ],
     [],
     3,
 )
-
 double_orbit.auto_populate()
+
+
+def add_points_preimages(lam: Lamination) -> Lamination:
+    "mutates and returns mutation"
+    for i in range(len(lam.points)):
+        lam.points += lam.points[i].pre_images()
+
+
+add_points_preimages(double_orbit)
 
 if __name__ == "__main__":
     from manim_lamination_builder import Main
     from manim_lamination_builder.main import config
+
     print(custom_dump(double_orbit))
 
     config.preview = True
