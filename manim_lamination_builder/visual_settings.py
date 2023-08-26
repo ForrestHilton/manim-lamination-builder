@@ -28,7 +28,7 @@ class VisualSettings:
         stroke_color=Colors.black,
         polygon_color=Colors.blue_c,
         point_size=0.04,
-        stroke_width=4,
+        stroke_width=2,
     ):
         self.point_color = point_color
         self.stroke_color = stroke_color

@@ -33,6 +33,7 @@ class AbstractLamination(ABC):
     # occludes the region bounded by the chord and the arc from the first to the second CCW
     occlusion: Union[Tuple[UnitPoint, UnitPoint], None]
     radix: int
+    dark_theme: bool
 
     @abstractmethod
     def build(self) -> Mobject:
