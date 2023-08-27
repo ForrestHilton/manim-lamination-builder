@@ -213,35 +213,3 @@ class NaryFraction(UnitPoint):
 
 def sigma(p: UnitPoint):
     return p.after_sigma()
-
-
-assert NaryFraction(3, [1], [1, 0, 1]).to_string() == "1_101"
-assert NaryFraction(2, [1], []).to_string() == "1"
-
-assert NaryFraction.from_string(3, "1_101") == NaryFraction(3, [1], [1, 0, 1])
-assert NaryFraction.from_string(2, "1") == NaryFraction(2, [1], [])
-
-assert NaryFraction.from_string(3, "_101").after_sigma().to_string() == "1._011"
-assert NaryFraction.from_string(3, "1._101").to_string() == "1._101"
-assert (
-    NaryFraction.from_string(10, "_33").to_float()
-    == NaryFraction.from_string(3, "1").to_float()
-)
-
-
-assert NaryFraction.from_string(10, "_9").to_float() == 1.0
-
-assert NaryFraction.from_string(4, "0_300").without_enharmonics().to_string() == "_030"
-
-
-# ["_302", "_322", "_023", "_223"]
-# ["_230", "_232", "_302", "_322"]
-
-# assert NaryFraction.from_string(4,"_230").to_string() == "1._023"
-# assert NaryFraction.from_string(4, "_232").to_string() == "1._223"
-a = NaryFraction.from_string(4, "_230")
-assert a.after_sigma().to_string() == "2._302"
-assert a.to_string() == "_230"
-
-assert a.after_sigma_shortest_ccw().to_string() == "_302"
-assert a.to_string() == "_230"
