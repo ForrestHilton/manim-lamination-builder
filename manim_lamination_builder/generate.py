@@ -101,18 +101,3 @@ def remove_non_original_pollygons(lams: List[Lamination]):
     lam = lams[0]
     lam.polygons = [lam.polygons[0]]
     return [lam]
-
-
-if __name__ == "__main__":
-    with tempconfig(
-        {
-            "quality": "medium_quality",
-            "preview": True,
-            "background_color": Colors.white.value,
-        }
-    ):
-        from manim_lamination_builder import Main
-
-        Main(generate_unicritical_lamination(4, 3)).render()
-
-# "0_122" is a proposed test case

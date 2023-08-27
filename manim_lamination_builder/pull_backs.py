@@ -122,7 +122,3 @@ def rabbit_nth_pullback(n) -> Lamination:
     rabbit_seed = Lamination([unicritical_polygon(2, 3)], [], 2)
     rabbit_cord = CriticalTree.default()
     return rabbit_cord.pull_back_n(rabbit_seed, n)
-
-if __name__ == "__main__":
-    config.preview = True
-    Main([rabbit_nth_pullback(4)]).render()

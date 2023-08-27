@@ -71,6 +71,7 @@ class Lamination(AbstractLamination):
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         ret = Mobject()
+        edge_color = WHITE if self.dark_theme else BLACK
         if self.occlusion is not None:
             delta = self.occlusion[0].to_angle() - self.occlusion[1].to_angle()
             if delta < 0:
@@ -78,12 +79,12 @@ class Lamination(AbstractLamination):
             unit_circle = Arc(
                 start_angle=self.occlusion[1].to_angle(),
                 angle=delta,
-                color=BLACK,  # TODO
+                color=edge_color,
                 radius=radius,
             )
         else:
             unit_circle = Circle(
-                color=WHITE if self.dark_theme else BLACK, radius=radius
+                color=edge_color, radius=radius
             )  # create a circle
         unit_circle.move_arc_center_to(center)
         ret.add(unit_circle)  # show the circle on screen

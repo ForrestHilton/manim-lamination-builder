@@ -73,15 +73,7 @@ def add_points_preimages(lam: Lamination) -> Lamination:
     "mutates and returns mutation"
     for i in range(len(lam.points)):
         lam.points += lam.points[i].pre_images()
+    return lam
 
 
 add_points_preimages(double_orbit)
-
-if __name__ == "__main__":
-    from manim_lamination_builder import Main
-    from manim_lamination_builder.main import config
-
-    print(custom_dump(double_orbit))
-
-    config.preview = True
-    Main([double_orbit]).render()
