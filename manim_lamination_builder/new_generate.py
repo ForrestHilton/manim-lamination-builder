@@ -1,7 +1,6 @@
 from copy import deepcopy
 from typing import Dict, List, Callable, Set
 from manim.animation.animation import config
-from manim.utils.color import Colors
 from itertools import product, permutations
 from manim import (
     DOWN,
@@ -57,7 +56,9 @@ def next_pull_back(
                     collections.append(collection)
         return collections
 
-    ret = [LeafLamination.empty(_lam.radix)]
+    # TODO: auto create included_images???
+    # TODO: deal make non-cumulative
+    ret = [deepcopy(_lam)]
     for l in list(_lam.leafs - included_images.leafs):
         new_ret = []
         for lam2 in ret:
@@ -97,7 +98,6 @@ class TreeRender(Scene):
         super().__init__()
 
     def construct(self):
-        self.background_color = WHITE
         list_of_groups = []
         print(self.tree.flaten())
         for row in self.tree.flaten():
@@ -114,15 +114,3 @@ class TreeRender(Scene):
             )
         )
         self.add(outer_group)
-
-
-if __name__ == "__main__":
-    start = parse_lamination(
-        """{polygons:[['_100','_010','_001']],radix:2}"""
-    ).to_leafs()
-    tree = PullBackTree(start, 4)
-    config.preview = True
-    config.background_color = WHITE
-    from manim_lamination_builder import Main
-
-    Main(tree.flaten()[-1]).render()

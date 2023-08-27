@@ -16,7 +16,11 @@ from manim_lamination_builder.generate import (
     generate_unicritical_lamination,
     remove_non_original_pollygons,
 )
-from manim_lamination_builder.new_generate import next_pull_back
+from manim_lamination_builder.new_generate import (
+    TreeRender,
+    next_pull_back,
+    PullBackTree,
+)
 from manim_lamination_builder.main import group, Main
 import manim_lamination_builder.morph
 import manim_lamination_builder.__main__

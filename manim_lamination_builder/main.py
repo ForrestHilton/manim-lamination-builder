@@ -7,7 +7,6 @@
 from manim_lamination_builder.custom_json import custom_dump, read_file_to_laminations
 from typing import List
 from manim import (
-    WHITE,
     Scene,
     Group,
 )
@@ -28,9 +27,6 @@ def group(laminations: List[AbstractLamination]):
 class Main(Scene):
     def __init__(self, laminations: List[AbstractLamination]):
         self.laminations = laminations
-        for lam in self.laminations:
-            lam.dark_theme = False
-        config.background_color = WHITE
         super().__init__()
 
     def construct(self):
