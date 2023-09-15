@@ -22,6 +22,16 @@ class UnitPoint(ABC):
     base: Optional[int]
 
     @abstractmethod
+    def to_string(self) -> str:
+        pass
+
+    def __repr__(self) -> str:
+        return self.to_string()
+
+    def __str__(self) -> str:
+        return self.to_string()
+
+    @abstractmethod
     def to_float(self) -> float:
         pass
 
