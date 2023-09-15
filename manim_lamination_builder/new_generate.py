@@ -10,6 +10,7 @@ from manim import (
 )
 
 from manim.utils.file_ops import config
+from manim_lamination_builder.custom_json import custom_parse
 
 from manim_lamination_builder.lamination import AbstractLamination
 
@@ -19,10 +20,14 @@ from manim_lamination_builder import (
     parse_lamination,
 )
 
+from manim_lamination_builder import custom_dump
+from manim_lamination_builder.points import NaryFraction
+
 
 def next_pull_back(
-    _lam: LeafLamination, included_images=LeafLamination.empty()
+    _lam: LeafLamination, included_images=LeafLamination.empty(), cumulative=False
 ) -> List[LeafLamination]:
+    # maps each cord to any preimages it might already have
     existing_pre_images: Dict[Chord, List[Chord]] = {}
     for l in _lam.leafs:
         image = Chord(l.min.after_sigma().cleared(), l.max.after_sigma().cleared())
@@ -34,6 +39,7 @@ def next_pull_back(
     def sibling_collections_of_leaf_in_existing(
         leaf: Chord, existing: LeafLamination
     ) -> List[LeafLamination]:
+        "considers one leaf at a time and considers all the ways to fit in exactly the right number of pre images"
         collections = []
         pre_a = leaf.min.pre_images()
         pre_b = leaf.max.pre_images()
@@ -48,6 +54,7 @@ def next_pull_back(
                 if l in required_pre_images:
                     requirements_fulfiled += 1
                     collection.leafs.add(l)
+                    continue
                 if collection.crosses(l):
                     break
                 collection.leafs.add(l)
@@ -115,6 +122,7 @@ class TreeRender(Scene):
         )
         self.add(outer_group)
 
+
 if __name__ == "__main__":
     from manim_lamination_builder import (
         Lamination,
@@ -132,5 +140,14 @@ if __name__ == "__main__":
     shape = unicritical_polygon(d, n)
     lamination = Lamination([shape], [], d)
     config.preview = True
+    # lam = parse_lamination(
+    #     '{"leafs": [["_0001", "_0010"], ["_0100", "_1000"], ["_0001", "_1000"], ["_0010", "_0100"]], "points": [], "radix": 3}'
+    # ).to_polygons()
+    # lam.polygons.append(
+    #     [NaryFraction.from_string(3, "0_0010"), NaryFraction.from_string(3, "1_0001")]
+    # )
+    # Main([lam]).render()
+    # exit()
     options = next_pull_back(lamination.to_leafs())
-    Main([lam.to_polygons() for lam in options]).render()
+    print(options)
+    # Main([lam.to_polygons() for lam in options]).render()

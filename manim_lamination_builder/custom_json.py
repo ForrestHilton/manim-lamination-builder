@@ -3,7 +3,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import List, Union
-from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.chord import Chord
+from manim_lamination_builder.lamination import (
+    AbstractLamination,
+    Lamination,
+    LeafLamination,
+)
 from manim_lamination_builder.points import FloatWrapper, NaryFraction
 import json
 import json5
@@ -42,11 +47,12 @@ class CustomDecoder(json.JSONDecoder):
                 else:
                     return NaryFraction.from_string(radix, v)
 
-            def list_handler(list):
-                assert isinstance(list, List)
-                return [*map(point_handler, list)]
+            def list_handler(ls):
+                assert isinstance(ls, List)
+                return [*map(point_handler, ls)]
 
             polygons = [*map(list_handler, dct.get("polygons", []))]
+            leafs = [*map(list_handler, dct.get("leafs", []))]
             points = list_handler(dct.get("points", []))
             occlusion = list_handler(dct.get("occlusion", []))
             if len(occlusion) == 0:
@@ -54,6 +60,10 @@ class CustomDecoder(json.JSONDecoder):
             else:
                 assert len(occlusion) == 2
                 occlusion = (occlusion[0], occlusion[1])
+
+            if dct.get("leafs", None) is not None:
+                leafs = list(map(lambda l: Chord(l[0], l[1]), leafs))
+                return LeafLamination(leafs, points, radix, occlusion=occlusion)
             return Lamination(polygons, points, radix, occlusion=occlusion)
         return dct
 
@@ -79,7 +89,7 @@ def custom_parse(string: str) -> Union[Lamination, List[Lamination]]:
     return json.loads(json_str, cls=CustomDecoder)
 
 
-def parse_lamination(string: str) -> Lamination:
+def parse_lamination(string: str) -> AbstractLamination:
     lam = custom_parse(string)
-    assert isinstance(lam, Lamination)
+    assert isinstance(lam, AbstractLamination)
     return lam
