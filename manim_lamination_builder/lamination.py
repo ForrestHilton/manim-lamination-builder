@@ -84,7 +84,7 @@ class Lamination(AbstractLamination):
             )
         else:
             unit_circle = Circle(
-                color=edge_color, radius=radius
+                color=edge_color, radius=radius, stroke_width=2
             )  # create a circle
         unit_circle.move_arc_center_to(center)
         ret.add(unit_circle)  # show the circle on screen

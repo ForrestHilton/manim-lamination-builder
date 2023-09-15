@@ -114,3 +114,23 @@ class TreeRender(Scene):
             )
         )
         self.add(outer_group)
+
+if __name__ == "__main__":
+    from manim_lamination_builder import (
+        Lamination,
+        fussCatalan,
+        unicritical_polygon,
+        Main,
+        next_pull_back,
+        generate_sibling_portraits,
+        parse_lamination,
+        group,
+    )
+
+    n = 4
+    d = 3
+    shape = unicritical_polygon(d, n)
+    lamination = Lamination([shape], [], d)
+    config.preview = True
+    options = next_pull_back(lamination.to_leafs())
+    Main([lam.to_polygons() for lam in options]).render()

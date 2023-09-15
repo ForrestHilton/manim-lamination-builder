@@ -6,6 +6,7 @@ from manim_lamination_builder.points import UnitPoint, NaryFraction
 from manim_lamination_builder import Lamination
 from typing import List
 from manim_lamination_builder.visual_settings import get_color, VisualSettings
+import scipy
 
 
 def uniquely_color(list: List[UnitPoint]) -> List[UnitPoint]:
@@ -15,8 +16,21 @@ def uniquely_color(list: List[UnitPoint]) -> List[UnitPoint]:
     return list
 
 
-def unicritical_polygon(degree, order) -> List[NaryFraction]:
-    starting_point = NaryFraction.from_string(degree, "_" + "0" * (order - 1) + "1")
+def unicritical_polygon(d, q) -> List[NaryFraction]:
+    """gives the polygon rotational that has rotation number 1/q in degree d"""
+    starting_point = NaryFraction.from_string(d, "_" + "0" * (q - 1) + "1")
+    original_shape = [starting_point]
+    # generate original shape
+    for i in range(q - 1):
+        point = original_shape[i]
+        original_shape.append(point.after_sigma().cleared())
+
+    return uniquely_color(original_shape)
+
+
+def inverted_rotational_polygon(degree, order) -> List[NaryFraction]:
+    """similar to unicritical_polygon, but returns a polygon whose rotation number is -1/q"""
+    starting_point = NaryFraction.from_string(degree, "_"  + "0" + "1" * (order - 1))
     original_shape = [starting_point]
     # generate original shape
     for i in range(order - 1):
@@ -77,3 +91,10 @@ def add_points_preimages(lam: Lamination) -> Lamination:
 
 
 add_points_preimages(double_orbit)
+
+
+def fussCatalan(i, n):
+    """
+    formula that appears in my poster
+    """
+    return scipy.special.binom(n * i, i) / ((n - 1) * i + 1)

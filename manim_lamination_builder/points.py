@@ -89,6 +89,8 @@ class FloatWrapper(UnitPoint):
 
 
 class NaryFraction(UnitPoint):
+    base: int
+
     def __init__(
         self,
         base: int,

@@ -36,5 +36,6 @@ from manim_lamination_builder.constructions import (
     uniquely_color,
     unicritical_polygon,
     add_points_preimages,
+    fussCatalan,
 )
 from manim_lamination_builder.pull_backs import CriticalTree, rabbit_nth_pullback

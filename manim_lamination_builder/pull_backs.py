@@ -29,6 +29,7 @@ class CriticalTree:
         outside: Optional["CriticalTree"] = None,
     ):
         self.first_ccw_end_point = first_ccw_end_point.cleared()
+        assert self.first_ccw_end_point.to_float() <= 0.5
         self.first_end_point_on_inside = first_end_point_on_inside
         self.inside = inside
         self.outside = outside

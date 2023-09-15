@@ -16,6 +16,8 @@ from manim.utils.file_ops import config
 from manim_lamination_builder.lamination import AbstractLamination
 
 def group(laminations: List[AbstractLamination]):
+    if len(laminations) == 0:
+        return Group()
     group = Group(*[lamination.build() for lamination in laminations])
     group = group.arrange_in_grid()
     group.scale(
