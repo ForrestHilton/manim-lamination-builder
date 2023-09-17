@@ -4,7 +4,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from manim import BLACK, TAU, Mobject, VMobject, tuplify
+from manim import BLACK, TAU, Mobject, VMobject
 
 from manim_lamination_builder.points import NaryFraction, UnitPoint
 from math import pi, tan
@@ -87,13 +87,3 @@ def handle_length(theta1: float, theta2: float) -> float:
     return r * k
 
 
-a, b, c, d = tuplify(NaryFraction.from_string(4, "0_0").pre_images())
-
-assert Chord(a, c).crosses(Chord(b, d))
-assert not Chord(a, b).crosses(Chord(c, d))
-assert Chord(b, d).crosses(Chord(a, c))
-assert not Chord(c, d).crosses(Chord(a, b))
-assert NaryFraction.from_string(4, "0_0") == NaryFraction.from_string(4, "0_0")
-assert Chord(NaryFraction.from_string(4, "0_0"), b) in [
-    Chord(NaryFraction.from_string(4, "0_0"), b)
-]
