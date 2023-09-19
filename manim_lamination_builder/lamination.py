@@ -1,4 +1,4 @@
-# Licensed under the The AGPLv3 License (AGPLv3)
+
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -31,7 +31,7 @@ background = BLACK
 class AbstractLamination(ABC):
     points: List[UnitPoint]
     # occludes the region bounded by the chord and the arc from the first to the second CCW
-    occlusion: Union[Tuple[UnitPoint, UnitPoint], None]
+    # occlusion: Union[Tuple[UnitPoint, UnitPoint], None]
     radix: int
     dark_theme: bool
 
@@ -60,7 +60,7 @@ class Lamination(AbstractLamination):
         self.polygons = polygons
         self.points = points
         self.radix = radix
-        self.occlusion = occlusion
+        # self.occlusion = occlusion
         self.dark_theme = dark_theme
 
     def auto_populate(self):
@@ -72,7 +72,7 @@ class Lamination(AbstractLamination):
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         ret = Mobject()
         edge_color = WHITE if self.dark_theme else BLACK
-        if self.occlusion is not None:
+        if False:
             delta = self.occlusion[0].to_angle() - self.occlusion[1].to_angle()
             if delta < 0:
                 delta += TAU
@@ -117,7 +117,7 @@ class Lamination(AbstractLamination):
 
         # build a chord for occlusion
 
-        if self.occlusion is not None:
+        if False:
             occlusion = VMobject(color=RED)
             make_and_append_bezier(occlusion, self.occlusion[0], self.occlusion[1])
             ret.add(occlusion)
@@ -159,7 +159,7 @@ class LeafLamination(AbstractLamination):
         self.leafs = set(leafs)
         self.points = points
         self.radix = radix
-        self.occlusion = occlusion
+        # self.occlusion = occlusion
 
     def to_polygons(self) -> Lamination:
         "identifies finite gaps"

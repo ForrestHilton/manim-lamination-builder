@@ -21,10 +21,6 @@ class UnitPoint(ABC):
     visual_settings: VisualSettings
     base: Optional[int]
 
-    @abstractmethod
-    def to_string(self) -> str:
-        pass
-
     def __repr__(self) -> str:
         return self.to_string()
 
@@ -204,7 +200,7 @@ class NaryFraction(UnitPoint):
                 / self.base ** len(self.exact)
                 / (self.base ** len(self.repeating) - 1)
             )
-        return value + self.overflow
+        return value 
 
     def cartesian_lerp(self, other: "NaryFraction", alpha: float):
         angle = (1 - alpha) * self.to_angle() + alpha * other.to_angle()

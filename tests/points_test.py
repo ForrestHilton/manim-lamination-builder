@@ -27,3 +27,11 @@ def test_original_point_operations():
 
     assert a.after_sigma_shortest_ccw().to_string() == "_302"
     assert a.to_string() == "_230"
+
+def test_not_wraping1():
+    a = NaryFraction.from_string(4, "_230")
+    assert a.after_sigma().to_float() == NaryFraction.from_string(4,"_302").to_float()
+
+def test_not_wraping2():
+    a = NaryFraction.from_string(4, "_230")
+    assert a.after_sigma().to_string() == "_302"
