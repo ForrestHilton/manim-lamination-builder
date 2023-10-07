@@ -182,7 +182,7 @@ class NaryFraction(UnitPoint):
         ret = self.without_enharmonics()
         return [
             NaryFraction(
-                self.base, [digit] + ret.exact, self.repeating, 0, self.visual_settings
+                self.base, [digit] + ret.exact, ret.repeating, 0, self.visual_settings
             )
             for digit in range(self.base)
         ]

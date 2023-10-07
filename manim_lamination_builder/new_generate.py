@@ -54,19 +54,13 @@ def _sibling_collections_of_leaf_in_existing(
     Considers one leaf at a time and considers all the ways to fit in exactly the right number of pre images.
     Takes into consideration a list of pre_images that is is required to have.
     """
-    print(custom_dump(leaf))
-    print(custom_dump(existing))
-    print(custom_dump(required_pre_images))
     contextual_collections = []
 
     for collection in _sibling_collections_of_leaf(leaf):
         requirements_fulfiled = 0
         contextual_collection = deepcopy(existing)
         for l in collection:
-            print(custom_dump(l))
             if contextual_collection.crosses(l):
-                print(custom_dump(l))
-                print(custom_dump(contextual_collection))
                 break
             if l in required_pre_images:
                 requirements_fulfiled += 1
@@ -79,13 +73,6 @@ def _sibling_collections_of_leaf_in_existing(
         else:  # exited normally
             if len(required_pre_images) == requirements_fulfiled:
                 contextual_collections.append(contextual_collection)
-            else:
-                print(
-                    "required:",
-                    len(required_pre_images),
-                    "actual:",
-                    requirements_fulfiled,
-                )
     return contextual_collections
 
 
