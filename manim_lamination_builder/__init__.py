@@ -8,7 +8,7 @@ from manim_lamination_builder.custom_json import (
     read_file_to_laminations,
     parse_lamination,
 )
-from manim_lamination_builder.points import FloatWrapper, UnitPoint, NaryFraction, sigma
+from manim_lamination_builder.points import FloatWrapper, UnitPoint, NaryFraction
 from manim_lamination_builder.animation import AnimateLamination
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.generate import (
@@ -37,5 +37,6 @@ from manim_lamination_builder.constructions import (
     unicritical_polygon,
     add_points_preimages,
     fussCatalan,
+    sigma,
 )
 from manim_lamination_builder.pull_backs import CriticalTree, rabbit_nth_pullback

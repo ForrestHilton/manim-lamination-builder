@@ -6,7 +6,7 @@ from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.constructions import fussCatalan
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from manim_lamination_builder.main import Main
-from manim_lamination_builder.points import FloatWrapper, NaryFraction, sigma
+from manim_lamination_builder import FloatWrapper, NaryFraction, sigma
 from manim_lamination_builder.new_generate import (
     _sibling_collections_of_leaf_in_existing,
     _sibling_collections_of_leaf,
@@ -39,7 +39,10 @@ def test_issolated_collections():
         actuall = []
         for c in _sibling_collections_of_leaf(l):
             actuall.append(frozenset(c))
+            for lp in c:
+                assert sigma(lp) == l
         assert len(actuall) == fussCatalan(d, 2)
+        assert l == Chord(FloatWrapper(num1, d), FloatWrapper(num2, d))
 
 
 def test_preimage_dictionary():
@@ -53,7 +56,7 @@ def test_preimage_dictionary():
     for l, v in dict.items():
         hist[len(v)] += 1
         for lp in v:
-            assert Chord(sigma(lp.min), sigma(lp.max)) == l
+            assert sigma(lp) == l
     assert hist == [0,0,3]
 
 
@@ -69,21 +72,27 @@ def test_single_leavs1():
 
 
 def test_single_leavs2():
+
+    start = parse_lamination(
+        """
+{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "radix": 2}
+            """
+    )
+    existing_pre_images = pre_image_dictionary(start)
+
+
     l = Chord(
         NaryFraction.from_string(2, "0_010"), NaryFraction.from_string(2, "0_100")
     )
+    required = existing_pre_images.get(l, [])
+    
     L = custom_parse(
-        '{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}'
+        '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "radix": 2}]'
     )
-    required = custom_parse('[["0_001", "1_010"], ["0_010", "1_001"]]')
 
-    # white box examination shows these as the possible pullbacks of the leaf
-    ["0_010", "0_100"]
-    ["1_010", "1_100"]
-
-    ["0_010", "1_100"]
-    ["0_100", "1_010"]
-    result = _sibling_collections_of_leaf_in_existing(l, L, required)
+    assert all([sigma(l2) == l for l2 in required])
+    assert len(required) == 2
+    result = _sibling_collections_of_leaf_in_existing(l, L[1], required)
 
     assert len(result) == 1
 
@@ -121,7 +130,7 @@ def show_rabbit_tree():
 
 if __name__ == "__main__":
     config.preview = True
-    test_preimage_dictionary()
+    test_single_leavs2()
     # main = parse_lamination(
     #     '{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}'
     # )
@@ -129,4 +138,6 @@ if __name__ == "__main__":
     # required = parse_lamination(
     #     '{"leafs": [["0_001", "1_010"], ["0_010", "1_001"]], "points": [], "radix": 2}'
     # )
+
+
     # Main([main, leaf, required]).render()

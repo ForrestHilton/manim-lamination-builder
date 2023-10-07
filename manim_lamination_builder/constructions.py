@@ -1,10 +1,11 @@
 """
 This file brings together methods that would be needed for describing certain finite laminations. Its methods are particularly un-trustworthy.
 """
+from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.points import UnitPoint, NaryFraction
 from manim_lamination_builder import Lamination
-from typing import List
+from typing import List, Union
 from manim_lamination_builder.visual_settings import get_color, VisualSettings
 import scipy
 
@@ -30,7 +31,7 @@ def unicritical_polygon(d, q) -> List[NaryFraction]:
 
 def inverted_rotational_polygon(degree, order) -> List[NaryFraction]:
     """similar to unicritical_polygon, but returns a polygon whose rotation number is -1/q"""
-    starting_point = NaryFraction.from_string(degree, "_"  + "0" + "1" * (order - 1))
+    starting_point = NaryFraction.from_string(degree, "_" + "0" + "1" * (order - 1))
     original_shape = [starting_point]
     # generate original shape
     for i in range(order - 1):
@@ -98,3 +99,10 @@ def fussCatalan(i, n):
     formula that appears in my poster
     """
     return scipy.special.binom(n * i, i) / ((n - 1) * i + 1)
+
+
+def sigma(input: Union[UnitPoint, Chord]):
+    if isinstance(input, UnitPoint):
+        return input.after_sigma()
+    else:
+        return Chord(input.min.after_sigma(), input.max.after_sigma())

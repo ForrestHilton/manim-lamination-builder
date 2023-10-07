@@ -17,7 +17,11 @@ from manim_lamination_builder.points import (
     UnitPoint,
 )
 from manim_lamination_builder.generate import unicritical_polygon
-from manim_lamination_builder.lamination import AbstractLamination, Lamination
+from manim_lamination_builder.lamination import (
+    AbstractLamination,
+    Lamination,
+    LeafLamination,
+)
 
 
 class CriticalTree:
@@ -104,20 +108,29 @@ class CriticalTree:
         identifyers = self.all_branches_identifyers()
         return [create_branch(identifyer) for identifyer in identifyers]
 
-    def pull_back1(self, lam: Lamination) -> AbstractLamination:
+    def pull_back1(self, lam: AbstractLamination) -> AbstractLamination:
         branches = self.all_branches()
         polygons = []
+        leafs = []
         points = []
-        for f in branches:
-            polygons += lam.apply_function(f).polygons
-            points += lam.apply_function(f).points
-        return Lamination(polygons, points, lam.radix)
+        if isinstance(lam, Lamination):
+            for f in branches:
+                polygons += lam.apply_function(f).polygons
+                points += lam.apply_function(f).points
+            return Lamination(polygons, points, lam.radix)
+        else:
+            assert isinstance(lam, LeafLamination)
+            for f in branches:
+                leafs += lam.apply_function(f).leafs
+                points += lam.apply_function(f).points
+            return LeafLamination(leafs, points, lam.radix)
 
     def pull_back_n(self, lam: AbstractLamination, n) -> AbstractLamination:
         ret = lam
         for _ in range(n - 1):
             ret = self.pull_back1(ret)
         return ret
+
 
 def rabbit_nth_pullback(n) -> Lamination:
     rabbit_seed = Lamination([unicritical_polygon(2, 3)], [], 2)

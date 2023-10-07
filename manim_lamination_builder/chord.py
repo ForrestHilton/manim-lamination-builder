@@ -6,15 +6,15 @@
 
 from manim import BLACK, TAU, Mobject, VMobject
 
-from manim_lamination_builder.points import NaryFraction, UnitPoint
+from manim_lamination_builder.points import UnitPoint
 from math import pi, tan
 
 
 class Chord:
-    min: NaryFraction
-    max: NaryFraction
+    min: UnitPoint
+    max: UnitPoint
 
-    def __init__(self, a: NaryFraction, b: NaryFraction):  # TODO: min max
+    def __init__(self, a: UnitPoint, b: UnitPoint):
         if a.to_float() < b.to_float():
             self.min = a
             self.max = b

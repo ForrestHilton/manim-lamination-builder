@@ -36,7 +36,7 @@ class UnitPoint(ABC):
         pass
 
     @abstractmethod
-    def after_sigma(self) -> "FloatWrapper":
+    def after_sigma(self) -> "UnitPoint":
         pass
 
     def to_angle(self) -> float:
@@ -81,15 +81,15 @@ class FloatWrapper(UnitPoint):
     def after_sigma(self) -> "FloatWrapper":
         after = deepcopy(self.cleared())
         after.value *= self.base
-        return after
+        return after.cleared()
 
     def has_degree(self):
         return self.base is not None
 
-    def pre_images(self) -> List["UnitPoint"]:
+    def pre_images(self) -> List["FloatWrapper"]:
         assert self.base is not None
         return [
-            FloatWrapper(self.value / self.base + digit / self.base)
+            FloatWrapper(self.value / self.base + digit / self.base,self.base)
             for digit in range(self.base)
         ]
 
@@ -200,7 +200,7 @@ class NaryFraction(UnitPoint):
                 / self.base ** len(self.exact)
                 / (self.base ** len(self.repeating) - 1)
             )
-        return value 
+        return value
 
     def cartesian_lerp(self, other: "NaryFraction", alpha: float):
         angle = (1 - alpha) * self.to_angle() + alpha * other.to_angle()
@@ -217,7 +217,3 @@ class NaryFraction(UnitPoint):
         assert ret.to_float() - self.to_float() <= 1
         assert ret.overflow <= 1
         return ret
-
-
-def sigma(p: UnitPoint):
-    return p.after_sigma()

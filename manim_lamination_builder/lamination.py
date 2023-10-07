@@ -1,4 +1,3 @@
-
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -206,7 +205,7 @@ class LeafLamination(AbstractLamination):
     def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "LeafLamination":
         new_leaves = []
         for leaf in self.leafs:
-            new_leaf = [f(p) for p in [leaf.min, leaf.max]]
+            new_leaf = Chord(f(leaf.min), f(leaf.max))
             new_leaves.append(new_leaf)
         new_points = [f(p) for p in self.points]
         return LeafLamination(new_leaves, new_points, self.radix)

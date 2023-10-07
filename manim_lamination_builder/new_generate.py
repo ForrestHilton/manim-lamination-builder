@@ -65,12 +65,16 @@ def _sibling_collections_of_leaf_in_existing(
         for l in collection:
             print(custom_dump(l))
             if contextual_collection.crosses(l):
+                print(custom_dump(l))
+                print(custom_dump(contextual_collection))
                 break
             if l in required_pre_images:
                 requirements_fulfiled += 1
                 if not cumulative:
                     contextual_collection.leafs.add(l)
                 continue
+            elif len(required_pre_images) == len(collection):
+                break
             contextual_collection.leafs.add(l)
         else:  # exited normally
             if len(required_pre_images) == requirements_fulfiled:
@@ -108,17 +112,18 @@ def next_pull_back(
     else:
         ret = [LeafLamination.empty(lam.radix)]
     for l in list(lam.leafs):
-        print(custom_dump(l))
+        required_pre_images = existing_pre_images.get(l, [])
         new_ret = []
+        print("here")
+        print(custom_dump(l))
+        print(custom_dump(ret))
         for lam2 in ret:
-            required_pre_images = existing_pre_images.get(l, [])
             new_ret += _sibling_collections_of_leaf_in_existing(
                 l, lam2, required_pre_images, cumulative
             )
         ret = new_ret
         if len(ret) == 0:
             return []
-        print(len(ret))
         # return ret
     return ret
 
@@ -186,7 +191,7 @@ if __name__ == "__main__":
             """
     )
     # assert start is LeafLamination
-    # Main(next_pull_back(start)).render()
+    Main(next_pull_back(start)).render()
     #     res = custom_parse(
     #         """
     #                       [

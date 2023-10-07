@@ -1,5 +1,5 @@
 from copy import deepcopy
-from manim_lamination_builder.constructions import unicritical_polygon
+from manim_lamination_builder.constructions import unicritical_polygon, sigma
 from manim_lamination_builder.lamination import Lamination
 from manim_lamination_builder.chord import Chord
 
@@ -8,7 +8,7 @@ from typing import List, Callable
 from manim.utils.color import Colors
 from manim import tempconfig
 
-from manim_lamination_builder.points import UnitPoint, NaryFraction, sigma
+from manim_lamination_builder.points import UnitPoint, NaryFraction
 from manim_lamination_builder.visual_settings import VisualSettings, get_color
 
 
