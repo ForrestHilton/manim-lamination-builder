@@ -11,11 +11,6 @@ from manim_lamination_builder.custom_json import (
 from manim_lamination_builder.points import FloatWrapper, UnitPoint, NaryFraction
 from manim_lamination_builder.animation import AnimateLamination
 from manim_lamination_builder.chord import Chord
-from manim_lamination_builder.generate import (
-    generate_sibling_portraits,
-    generate_unicritical_lamination,
-    remove_non_original_pollygons,
-)
 from manim_lamination_builder.new_generate import (
     TreeRender,
     next_pull_back,

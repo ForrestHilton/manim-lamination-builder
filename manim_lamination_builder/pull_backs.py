@@ -16,7 +16,7 @@ from manim_lamination_builder.points import (
     NaryFraction,
     UnitPoint,
 )
-from manim_lamination_builder.generate import unicritical_polygon
+from manim_lamination_builder.constructions import unicritical_polygon
 from manim_lamination_builder.lamination import (
     AbstractLamination,
     Lamination,

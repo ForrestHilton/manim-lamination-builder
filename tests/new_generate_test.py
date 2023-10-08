@@ -1,9 +1,12 @@
+"""
+Most of the tests here were needed to diagnose an issue that is no longer present in the code.
+"""
 from manim.animation.animation import config
 from manim.utils.file_ops import config
 from manim_lamination_builder import parse_lamination
 from manim_lamination_builder import TreeRender, next_pull_back, PullBackTree
 from manim_lamination_builder.chord import Chord
-from manim_lamination_builder.constructions import fussCatalan
+from manim_lamination_builder.constructions import fussCatalan, pollygons_are_one_to_one
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from manim_lamination_builder.lamination import LeafLamination
 from manim_lamination_builder.main import Main
@@ -45,8 +48,11 @@ def test_issolated_collections():
         assert len(actuall) == fussCatalan(d, 2)
         assert l == Chord(FloatWrapper(num1, d), FloatWrapper(num2, d))
 
+
 def test_issolated_collections2():
-    l = Chord(NaryFraction.from_string(2,"0_010"), NaryFraction.from_string(2,"0_100"))
+    l = Chord(
+        NaryFraction.from_string(2, "0_010"), NaryFraction.from_string(2, "0_100")
+    )
     # at this point, I fixed l.min.pre_images()
     actuall = []
     for c in _sibling_collections_of_leaf(l):
@@ -54,6 +60,7 @@ def test_issolated_collections2():
         for lp in c:
             assert sigma(lp) == l
     assert len(actuall) == 2
+
 
 def test_preimage_dictionary():
     start = parse_lamination(
@@ -125,6 +132,21 @@ def test_rabbit_tree():
     assert len(list_of_lists[2]) == 1
     assert len(list_of_lists[3]) == 1
     assert len(list_of_lists[4]) == 4
+
+
+def test_rabbit_tree_one_to_one():
+    start = parse_lamination(
+        """{polygons:[['_100','_010','_001']],radix:2}"""
+    ).to_leafs()
+    tree = PullBackTree(start, 4)
+    options = tree.flaten()[4]
+    # print([len(o.to_polygons().polygons) for o in options])
+    for o in [options[0], options[2], options[3]]:
+        assert len(o.to_polygons().polygons) == 16
+        assert pollygons_are_one_to_one(o)
+
+    assert len(options[1].to_polygons().polygons) == 15
+    assert not pollygons_are_one_to_one(options[1])
 
 
 def show_rabbit_tree():

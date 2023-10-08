@@ -7,21 +7,14 @@ from manim_lamination_builder import (
     unicritical_polygon,
     Main,
     next_pull_back,
-    generate_sibling_portraits,
     parse_lamination,
     group,
 )
+from manim_lamination_builder.constructions import pollygons_are_one_to_one
 
 
-def test_sibling_portraits():
-    shape = parse_lamination(
-        """{polygons:[['_001','_010','_100']],radix:3}"""
-    ).polygons[0]
-    portraits = generate_sibling_portraits(shape)
-    assert len(portraits) == 3
-
-
-def test_catalan():
+def test_fuss_catalan():
+    "For reasons described in my may 18th talk at the Nippising Topology workshop, this can be predicted using the Fuss-Catillan numbers."
     for d in range(2, 5):
         for n in range(2, 5):
             shape = unicritical_polygon(d, n)
@@ -29,8 +22,7 @@ def test_catalan():
             options = next_pull_back(lamination.to_leafs())
             filtered_options = list(
                 filter(
-                    lambda lam: n
-                    == max([len(poly) for poly in lam.to_polygons().polygons]),
+                    lambda lam: pollygons_are_one_to_one(lam),
                     options,
                 )
             )

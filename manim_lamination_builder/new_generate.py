@@ -101,9 +101,6 @@ def next_pull_back(
     for l in list(lam.leafs):
         required_pre_images = existing_pre_images.get(l, [])
         new_ret = []
-        print("here")
-        print(custom_dump(l))
-        print(custom_dump(ret))
         for lam2 in ret:
             new_ret += _sibling_collections_of_leaf_in_existing(
                 l, lam2, required_pre_images, cumulative
@@ -111,7 +108,6 @@ def next_pull_back(
         ret = new_ret
         if len(ret) == 0:
             return []
-        # return ret
     return ret
 
 
@@ -147,7 +143,6 @@ class TreeRender(Scene):
 
     def construct(self):
         list_of_groups = []
-        print(self.tree.flaten())
         for row in self.tree.flaten():
             outer_group = Group(*[lamination.build() for lamination in row])
             outer_group.arrange()
