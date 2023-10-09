@@ -32,7 +32,7 @@ class UnitPoint(ABC):
         pass
 
     @abstractmethod
-    def cleared(self) -> "UnitPoint":
+    def to_string(self) -> str:
         pass
 
     @abstractmethod
@@ -55,8 +55,8 @@ class UnitPoint(ABC):
         return True
 
     def siblings(self) -> List["UnitPoint"]:
-        ret = self.after_sigma().cleared().pre_images()
-        assert self.cleared() in ret
+        ret = self.after_sigma().pre_images()
+        assert self in ret
         return ret
 
     @abstractmethod
@@ -65,23 +65,25 @@ class UnitPoint(ABC):
 
 
 class FloatWrapper(UnitPoint):
-    def __init__(
-        self, value: float, degree: int = None, visual_settings=VisualSettings()
-    ):
-        self.value = value
+    value: float
+
+    def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
+        self.value = value % 1
         self.base = degree
         self.visual_settings = visual_settings
 
     def to_float(self):
         return self.value
 
-    def cleared(self) -> "FloatWrapper":
-        return FloatWrapper(self.value % 1, self.base, self.visual_settings)
+    def to_string(self):
+        return str(self.value)
 
     def after_sigma(self) -> "FloatWrapper":
-        after = deepcopy(self.cleared())
+        after = deepcopy(self)
+        assert self.base is not None
         after.value *= self.base
-        return after.cleared()
+        after.value %= 1
+        return after
 
     def has_degree(self):
         return self.base is not None
@@ -89,7 +91,7 @@ class FloatWrapper(UnitPoint):
     def pre_images(self) -> List["FloatWrapper"]:
         assert self.base is not None
         return [
-            FloatWrapper(self.value / self.base + digit / self.base,self.base)
+            FloatWrapper(self.value / self.base + digit / self.base, self.base)
             for digit in range(self.base)
         ]
 
@@ -102,39 +104,31 @@ class NaryFraction(UnitPoint):
         base: int,
         exact: List[int],
         repeating: List[int],
-        overflow=0,
         visual_settings=VisualSettings(),
     ):
         assert base != 1
         self.base = base
         self.exact = exact
         self.repeating = repeating
-        self.overflow = overflow
         self.visual_settings = visual_settings
         assert max(self.exact + self.repeating) < self.base
 
     def cleared(self) -> "NaryFraction":
-        return NaryFraction(
-            self.base, self.exact, self.repeating, 0, self.visual_settings
-        )
+        return NaryFraction(self.base, self.exact, self.repeating, self.visual_settings)
 
     @staticmethod
     def from_string(base, string_representation):
-        overflow = 0
-        if "." in string_representation:
-            overflow, string_representation = string_representation.split(".")
-            overflow = int(overflow)
+        # TODO: regex
+        assert not "." in string_representation
         parts = string_representation.split("_")
         exact = [int(i) for i in parts[0]]
         repeating = []
         if len(parts) > 1:
             repeating = [int(i) for i in parts[1]]
-        return NaryFraction(base, exact, repeating, overflow)
+        return NaryFraction(base, exact, repeating)
 
     def to_string(self):
         overflow_string = ""
-        if self.overflow != 0:
-            overflow_string = str(self.overflow) + "."
         # convert exact part to string
         exact_string = ""
         for i in self.exact:
@@ -156,7 +150,7 @@ class NaryFraction(UnitPoint):
             carry = after.repeating.pop(0)
             after.repeating.append(carry)
             after.exact.append(carry)
-        after.overflow = after.exact.pop(0)
+        after.exact.pop(0)
         return after
 
     def without_enharmonics(self):
@@ -182,7 +176,7 @@ class NaryFraction(UnitPoint):
         ret = self.without_enharmonics()
         return [
             NaryFraction(
-                self.base, [digit] + ret.exact, ret.repeating, 0, self.visual_settings
+                self.base, [digit] + ret.exact, ret.repeating, self.visual_settings
             )
             for digit in range(self.base)
         ]
@@ -202,18 +196,111 @@ class NaryFraction(UnitPoint):
             )
         return value
 
+
+class Carry(ABC):
+    "class providing an alternate"
+
+    @abstractmethod
+    def cleared(self) -> "UnitPoint":
+        pass
+
+    pass
+
+
+class CarryingNaryFraction(NaryFraction):
+    overflow: int
+
+    def __init__(
+        self,
+        base: int,
+        exact: List[int],
+        repeating: List[int],
+        overflow=0,
+        visual_settings=VisualSettings(),
+    ):
+        assert base != 1
+        self.base = base
+        self.exact = exact
+        self.repeating = repeating
+        self.overflow = overflow
+        self.visual_settings = visual_settings
+        assert max(self.exact + self.repeating) < self.base
+
+    def cleared(self) -> "NaryFraction":
+        return NaryFraction(self.base, self.exact, self.repeating, self.visual_settings)
+
+    @staticmethod
+    def from_string(base, string_representation):
+        overflow = 0
+        if "." in string_representation:
+            overflow, string_representation = string_representation.split(".")
+            overflow = int(overflow)
+        parts = string_representation.split("_")
+        exact = [int(i) for i in parts[0]]
+        repeating = []
+        if len(parts) > 1:
+            repeating = [int(i) for i in parts[1]]
+        return CarryingNaryFraction(base, exact, repeating, overflow)
+
+    def to_string(self):
+        overflow_string = ""
+        if self.overflow != 0:
+            overflow_string = str(self.overflow) + "."
+        # convert exact part to string
+        exact_string = ""
+        for i in self.exact:
+            exact_string += str(i)
+
+        # convert repeating part to string
+        repeating_string = ""
+        if self.repeating:
+            repeating_string = "_"
+            for i in self.repeating:
+                repeating_string += str(i)
+
+        return overflow_string + exact_string + repeating_string
+
+    def after_sigma(self) -> "CarryingNaryFraction":
+        after = deepcopy(self)
+        # multiply the exact part by base
+        if after.repeating:
+            carry = after.repeating.pop(0)
+            after.repeating.append(carry)
+            after.exact.append(carry)
+        after.overflow = after.exact.pop(0)
+        return after
+
     def cartesian_lerp(self, other: "NaryFraction", alpha: float):
         angle = (1 - alpha) * self.to_angle() + alpha * other.to_angle()
         return angle_to_cartesian(angle)
 
     def after_sigma_shortest_ccw(self):
-        assert self == self.cleared()
-        ret = self.after_sigma().cleared()
+        ret = self.after_sigma()
         if ret.to_angle() < self.to_angle():
-            ret = NaryFraction(
+            ret = CarryingNaryFraction(
                 ret.base, ret.exact, ret.repeating, 1, self.visual_settings
+            )
+        else:
+            ret = CarryingNaryFraction(
+                ret.base, ret.exact, ret.repeating, 0, self.visual_settings
             )
         assert ret.to_angle() > self.to_angle()
         assert ret.to_float() - self.to_float() <= 1
         assert ret.overflow <= 1
         return ret
+
+
+class CarryingFloatWrapper(FloatWrapper):
+    def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
+        self.value = value
+        self.base = degree
+        self.visual_settings = visual_settings
+
+    def cleared(self) -> "FloatWrapper":
+        return FloatWrapper(self.value % 1, self.base, self.visual_settings)
+
+    def after_sigma(self) -> "FloatWrapper":
+        after = deepcopy(self)
+        assert self.base is not None
+        after.value *= self.base
+        return after

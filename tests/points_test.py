@@ -9,8 +9,7 @@ def test_original_point_operations():
     assert NaryFraction.from_string(3, "1_101") == NaryFraction(3, [1], [1, 0, 1])
     assert NaryFraction.from_string(2, "1") == NaryFraction(2, [1], [])
 
-    assert NaryFraction.from_string(3, "_101").after_sigma().to_string() == "1._011"
-    assert NaryFraction.from_string(3, "1._101").to_string() == "1._101"
+    assert NaryFraction.from_string(3, "_101").after_sigma().to_string() == "_011"
     assert (
         NaryFraction.from_string(10, "_33").to_float()
         == NaryFraction.from_string(3, "1").to_float()
@@ -23,10 +22,9 @@ def test_original_point_operations():
     )
 
     a = NaryFraction.from_string(4, "_230")
-    assert a.after_sigma().to_string() == "2._302"
+    assert a.after_sigma().to_string() == "_302"
     assert a.to_string() == "_230"
 
-    assert a.after_sigma_shortest_ccw().to_string() == "_302"
     assert a.to_string() == "_230"
 
 
@@ -46,4 +44,7 @@ def test_preimage():
     b = FloatWrapper(0.5, 4)
     assert all([sigma(p) == b for p in b.pre_images()])
     assert len(b.pre_images()) == len(a.pre_images()) == 4
-test_preimage()
+
+def test_for_carrying():
+    a = CarryingNaryFraction.from_string(4, "_230")
+    assert a.after_sigma_shortest_ccw().to_string() == "_302"
