@@ -44,7 +44,3 @@ def test_preimage():
     b = FloatWrapper(0.5, 4)
     assert all([sigma(p) == b for p in b.pre_images()])
     assert len(b.pre_images()) == len(a.pre_images()) == 4
-
-def test_for_carrying():
-    a = CarryingNaryFraction.from_string(4, "_230")
-    assert a.after_sigma_shortest_ccw().to_string() == "_302"

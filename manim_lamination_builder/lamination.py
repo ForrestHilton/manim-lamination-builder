@@ -49,7 +49,7 @@ class AbstractLamination(ABC):
         pass
 
     def convert_to_carrying(self):
-        return self.apply_function(lambda p: CarryingFloatWrapper(p.to_float(), p.base))
+        return self.apply_function(lambda p: p.to_carrying())
 
 
 class Lamination(AbstractLamination):

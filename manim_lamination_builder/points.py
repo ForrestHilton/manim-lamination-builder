@@ -63,6 +63,9 @@ class UnitPoint(ABC):
     def pre_images(self) -> List["UnitPoint"]:
         pass
 
+    def to_carrying(self) -> "CarryingFloatWrapper":
+        return CarryingFloatWrapper(self.to_float(), self.base)
+
 
 class FloatWrapper(UnitPoint):
     value: float
@@ -194,98 +197,10 @@ class NaryFraction(UnitPoint):
         return value
 
 
-class Carry(ABC):
-    "abstract class that works like UnitPoint, but keeps track of the most recent overflowed digit"
+class CarryingFloatWrapper(FloatWrapper):
+    """like FloatWrapper, but keeps track of the most recent overflowed digit,
+    mostly for purpose of animation"""
 
-    @abstractmethod
-    def cleared(self) -> "UnitPoint":
-        pass
-
-
-class CarryingNaryFraction(Carry, NaryFraction):
-    overflow: int
-
-    def __init__(
-        self,
-        base: int,
-        exact: List[int],
-        repeating: List[int],
-        overflow=0,
-        visual_settings=VisualSettings(),
-    ):
-        assert base != 1
-        self.base = base
-        self.exact = exact
-        self.repeating = repeating
-        self.overflow = overflow
-        self.visual_settings = visual_settings
-        assert max(self.exact + self.repeating) < self.base
-
-    def cleared(self) -> "NaryFraction":
-        return NaryFraction(self.base, self.exact, self.repeating, self.visual_settings)
-
-    @staticmethod
-    def from_string(base, string_representation):
-        overflow = 0
-        if "." in string_representation:
-            overflow, string_representation = string_representation.split(".")
-            overflow = int(overflow)
-        parts = string_representation.split("_")
-        exact = [int(i) for i in parts[0]]
-        repeating = []
-        if len(parts) > 1:
-            repeating = [int(i) for i in parts[1]]
-        return CarryingNaryFraction(base, exact, repeating, overflow)
-
-    def to_string(self):
-        overflow_string = ""
-        if self.overflow != 0:
-            overflow_string = str(self.overflow) + "."
-        # convert exact part to string
-        exact_string = ""
-        for i in self.exact:
-            exact_string += str(i)
-
-        # convert repeating part to string
-        repeating_string = ""
-        if self.repeating:
-            repeating_string = "_"
-            for i in self.repeating:
-                repeating_string += str(i)
-
-        return overflow_string + exact_string + repeating_string
-
-    def after_sigma(self) -> "CarryingNaryFraction":
-        after = deepcopy(self)
-        # multiply the exact part by base
-        if after.repeating:
-            carry = after.repeating.pop(0)
-            after.repeating.append(carry)
-            after.exact.append(carry)
-        after.overflow = after.exact.pop(0)
-        return after
-
-    def cartesian_lerp(self, other: "NaryFraction", alpha: float):
-        angle = (1 - alpha) * self.to_angle() + alpha * other.to_angle()
-        return angle_to_cartesian(angle)
-
-    def after_sigma_shortest_ccw(self):
-        ret = self.after_sigma()
-        if ret.to_angle() < self.to_angle():
-            ret = CarryingNaryFraction(
-                ret.base, ret.exact, ret.repeating, 1, self.visual_settings
-            )
-        else:
-            ret = CarryingNaryFraction(
-                ret.base, ret.exact, ret.repeating, 0, self.visual_settings
-            )
-        assert ret.to_angle() > self.to_angle()
-        assert ret.to_float() - self.to_float() <= 1
-        assert ret.overflow <= 1
-        return ret
-
-
-class CarryingFloatWrapper(Carry, FloatWrapper):
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
         self.value = value
         self.base = degree
@@ -304,5 +219,5 @@ class CarryingFloatWrapper(Carry, FloatWrapper):
         # https://www.desmos.com/calculator/jrc4g7ljum
         x = self.value % 1
         a = center.to_float()
-        ret = x - ceil(x-a-.5)
+        ret = x - ceil(x - a - 0.5)
         return CarryingFloatWrapper(ret, self.base)
