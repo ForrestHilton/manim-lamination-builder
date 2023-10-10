@@ -20,7 +20,7 @@ from manim import (
     VMobject,
     Circle,
 )
-from manim_lamination_builder.points import UnitPoint
+from manim_lamination_builder.points import CarryingFloatWrapper, UnitPoint
 from manim_lamination_builder.chord import make_and_append_bezier, Chord
 
 
@@ -43,6 +43,13 @@ class AbstractLamination(ABC):
         self, f: Callable[[UnitPoint], UnitPoint]
     ) -> "AbstractLamination":
         pass
+
+    @abstractmethod
+    def filtered(self, f: Callable[[UnitPoint], bool]) -> "AbstractLamination":
+        pass
+
+    def convert_to_carrying(self):
+        return self.apply_function(lambda p: CarryingFloatWrapper(p.to_float(), p.base))
 
 
 class Lamination(AbstractLamination):
@@ -137,6 +144,14 @@ class Lamination(AbstractLamination):
         new_points = [f(p) for p in self.points]
         return Lamination(new_polygons, new_points, self.radix)
 
+    def filtered(self, f: Callable[[UnitPoint], bool]) -> "Lamination":
+        new_polygons = []
+        for poly in self.polygons:
+            if all([f(p) for p in poly]):
+                new_polygons.append(poly)
+        new_points = list(filter(f, self.points))
+        return Lamination(new_polygons, new_points, self.radix)
+
     def to_leafs(self) -> "LeafLamination":
         leafs: List[Chord] = []
         for polygon in self.polygons:
@@ -208,4 +223,12 @@ class LeafLamination(AbstractLamination):
             new_leaf = Chord(f(leaf.min), f(leaf.max))
             new_leaves.append(new_leaf)
         new_points = [f(p) for p in self.points]
+        return LeafLamination(new_leaves, new_points, self.radix)
+
+    def filtered(self, f: Callable[[UnitPoint], bool]) -> "LeafLamination":
+        new_leaves = []
+        for leaf in self.leafs:
+            if f(leaf.min) and f(leaf.max):
+                new_leaves.append(leaf)
+        new_points = list(filter(f, self.points))
         return LeafLamination(new_leaves, new_points, self.radix)

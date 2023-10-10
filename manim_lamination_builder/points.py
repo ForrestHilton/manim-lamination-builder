@@ -4,7 +4,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import List, Optional
 
-from math import cos, pi, sin, floor
+from math import ceil, cos, pi, sin, floor
 
 from manim.animation.animation import deepcopy
 from abc import ABC, abstractmethod
@@ -297,6 +297,12 @@ class CarryingFloatWrapper(Carry, FloatWrapper):
     def after_sigma(self) -> "FloatWrapper":
         after = deepcopy(self)
         assert self.base is not None
-        after.value %= 1
         after.value *= self.base
         return after
+
+    def centered(self, center: UnitPoint) -> "CarryingFloatWrapper":
+        # https://www.desmos.com/calculator/jrc4g7ljum
+        x = self.value % 1
+        a = center.to_float()
+        ret = x - ceil(x-a-.5)
+        return CarryingFloatWrapper(ret, self.base)

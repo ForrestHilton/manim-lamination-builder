@@ -102,11 +102,13 @@ def fussCatalan(i, n):
     return scipy.special.binom(n * i, i) / ((n - 1) * i + 1)
 
 
-def sigma(input: Union[UnitPoint, Chord, Iterable[UnitPoint]]):
+def sigma(input: Union[UnitPoint, Chord, Iterable[UnitPoint], AbstractLamination]):
     if isinstance(input, UnitPoint):
         return input.after_sigma()
     elif isinstance(input, Chord):
         return Chord(input.min.after_sigma(), input.max.after_sigma())
+    elif isinstance(input, AbstractLamination):
+        return input.apply_function(sigma)
     else:
         return [p.after_sigma() for p in input]
 
