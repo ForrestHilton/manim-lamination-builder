@@ -4,6 +4,8 @@ import cmath
 
 import functools
 
+from manim_lamination_builder.points import CarryingFloatWrapper
+
 c = -0.122561166876657 + 0.744861766619737j
 
 
@@ -103,21 +105,21 @@ import cmath
 from manim_lamination_builder import custom_dump
 
 
-def get_convexity(in_list: List[UnitPoint]) -> Optional[List[FloatWrapper]]:
+def get_convexity(in_list: List[UnitPoint]) -> Optional[List[CarryingFloatWrapper]]:
     """
     Retruns a sorted list of vetesies in CCW order such that the first is the boundary
     of the convex region. Wraping is handeld correctly and all points are taken from the same sheet
     of the reamon serface.
     If the Polygon is not convex in some way, return None.
     """
-    sorted_list = sorted([p.cleared().to_float() for p in in_list])
+    sorted_list = sorted([p.to_float() for p in in_list])
 
     for i, p in enumerate(sorted_list):
         next_p = sorted_list[(i + 1) % len(in_list)]
         distance_ccw = (next_p - p) % 1
         if distance_ccw > 0.5:
             sorted_list = sorted([1 + p2 if p2 < next_p else p2 for p2 in sorted_list])
-            return list(map(lambda p: FloatWrapper(p), sorted_list))
+            return list(map(lambda p: CarryingFloatWrapper(p), sorted_list))
 
     return None
 
@@ -130,7 +132,7 @@ class CheatingPinch(Scene):
         self.lamination = lamination.apply_function(change_color)
         self.all_vertecies_sorted = sorted(
             itertools.chain.from_iterable(self.lamination.polygons),
-            key=lambda p: p.cleared().to_float(),
+            key=lambda p: p.to_float(),
         )
         #  corresponds to its first ccw edge in the sorted or convex list
         self.initial_curves = []
@@ -154,7 +156,7 @@ class CheatingPinch(Scene):
             points.append(RIGHT * np.real(z) + UP * np.imag(z))
         return sum(points) / len(points)
 
-    def angle_of_last_fatu_gap(self, polygon):
+    def angle_of_last_fatu_gap_rotaitions(self, polygon) -> float:
         """rotations"""
         first_ray = get_convexity(polygon)[0]
         z1 = psi(1.000000001 * cmath.exp(first_ray.to_angle() * 1j))
@@ -168,7 +170,7 @@ class CheatingPinch(Scene):
         self.polygons_handled[self.lamination.polygons.index(polygon)] = True
         polygon_sorted = get_convexity(polygon)
         assert not polygon_sorted == None
-        angle_of_final_fatue_gap = self.angle_of_last_fatu_gap(polygon)
+        angle_of_final_fatue_gap = self.angle_of_last_fatu_gap_rotaitions(polygon)
 
         for i, p in enumerate(polygon_sorted):
             # test if recursion is needed
@@ -202,7 +204,7 @@ class CheatingPinch(Scene):
                 adjacent_polygon = next(
                     filter(lambda poly: next_p in poly, self.lamination.polygons)
                 )
-                angle_of_this_cut_point_from_other = self.angle_of_last_fatu_gap(
+                angle_of_this_cut_point_from_other = self.angle_of_last_fatu_gap_rotaitions(
                     adjacent_polygon
                 ) + list(
                     map(lambda p: p.cleared(), get_convexity(adjacent_polygon))

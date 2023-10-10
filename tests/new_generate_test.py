@@ -159,6 +159,7 @@ def show_rabbit_tree():
 
 
 if __name__ == "__main__":
+    show_rabbit_tree()
     config.preview = True
     # main = parse_lamination(
     #     '{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}'

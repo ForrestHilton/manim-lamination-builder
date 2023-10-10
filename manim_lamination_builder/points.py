@@ -113,9 +113,6 @@ class NaryFraction(UnitPoint):
         self.visual_settings = visual_settings
         assert max(self.exact + self.repeating) < self.base
 
-    def cleared(self) -> "NaryFraction":
-        return NaryFraction(self.base, self.exact, self.repeating, self.visual_settings)
-
     @staticmethod
     def from_string(base, string_representation):
         # TODO: regex
@@ -198,16 +195,14 @@ class NaryFraction(UnitPoint):
 
 
 class Carry(ABC):
-    "class providing an alternate"
+    "abstract class that works like UnitPoint, but keeps track of the most recent overflowed digit"
 
     @abstractmethod
     def cleared(self) -> "UnitPoint":
         pass
 
-    pass
 
-
-class CarryingNaryFraction(NaryFraction):
+class CarryingNaryFraction(Carry, NaryFraction):
     overflow: int
 
     def __init__(
@@ -290,7 +285,7 @@ class CarryingNaryFraction(NaryFraction):
         return ret
 
 
-class CarryingFloatWrapper(FloatWrapper):
+class CarryingFloatWrapper(Carry, FloatWrapper):
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
         self.value = value
         self.base = degree
@@ -302,5 +297,6 @@ class CarryingFloatWrapper(FloatWrapper):
     def after_sigma(self) -> "FloatWrapper":
         after = deepcopy(self)
         assert self.base is not None
+        after.value %= 1
         after.value *= self.base
         return after

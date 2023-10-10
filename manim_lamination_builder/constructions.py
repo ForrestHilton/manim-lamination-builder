@@ -25,7 +25,7 @@ def unicritical_polygon(d, q) -> List[NaryFraction]:
     # generate original shape
     for i in range(q - 1):
         point = original_shape[i]
-        original_shape.append(point.after_sigma().cleared())
+        original_shape.append(point.after_sigma())
 
     return uniquely_color(original_shape)
 
@@ -37,7 +37,7 @@ def inverted_rotational_polygon(degree, order) -> List[NaryFraction]:
     # generate original shape
     for i in range(order - 1):
         point = original_shape[i]
-        original_shape.append(point.after_sigma().cleared())
+        original_shape.append(point.after_sigma())
 
     return uniquely_color(original_shape)
 
@@ -73,9 +73,9 @@ double_orbit = Lamination(
     [
         uniquely_color(
             start.polygons[0]
-            + start.apply_function(lambda x: x.after_sigma().cleared()).polygons[0]
-            + start.apply_function(lambda x: x.after_sigma().cleared())
-            .apply_function(lambda x: x.after_sigma().cleared())
+            + start.apply_function(lambda x: x.after_sigma()).polygons[0]
+            + start.apply_function(lambda x: x.after_sigma())
+            .apply_function(lambda x: x.after_sigma())
             .polygons[0]
         )
     ],

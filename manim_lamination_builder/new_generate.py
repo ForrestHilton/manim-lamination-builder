@@ -80,7 +80,7 @@ def pre_image_dictionary(lam: LeafLamination) -> Dict[Chord, List[Chord]]:
     "maps each cord to any preimages it might already have"
     ret = {}
     for l in lam.leafs:
-        image = Chord(l.min.after_sigma().cleared(), l.max.after_sigma().cleared())
+        image = Chord(l.min.after_sigma(), l.max.after_sigma())
         if image in ret.keys():
             ret[image].append(l)
         else:
