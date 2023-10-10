@@ -219,5 +219,5 @@ class CarryingFloatWrapper(FloatWrapper):
         # https://www.desmos.com/calculator/jrc4g7ljum
         x = self.value % 1
         a = center.to_float()
-        ret = x - ceil(x - a - 0.5)
+        ret = x - floor(x - a + 0.5)
         return CarryingFloatWrapper(ret, self.base)
