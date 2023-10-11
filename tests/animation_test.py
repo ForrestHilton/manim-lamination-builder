@@ -15,6 +15,16 @@ def test_centering():
     assert abs(res.to_float() - -0.1) < 0.000001
     assert sigma(res).to_float() < res.to_float()
 
+def test_filter():
+    rabbit_cord = CriticalTree.default().all_branches_identifyers()
+    shared_starting_point = rabbit_nth_pullback(4).convert_to_carrying()
+    init = shared_starting_point.filtered(rabbit_cord[0])
+    assert len(init.polygons) == 4
+
+    init = shared_starting_point.filtered(rabbit_cord[1]).convert_to_carrying().apply_function(lambda p: p.centered(CarryingFloatWrapper(0)))
+
+    assert len(init.polygons) == 4
+
 
 class _MyScene(Scene):
     def construct(self):
@@ -38,6 +48,5 @@ class _MyScene(Scene):
 
         self.wait(2)
 
-# test_centering()
 if __name__ == "__main__":
     _MyScene().render()
