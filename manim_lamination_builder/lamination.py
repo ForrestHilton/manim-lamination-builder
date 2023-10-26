@@ -29,14 +29,15 @@ background = BLACK
 
 class AbstractLamination(ABC):
     points: List[UnitPoint]
-    # occludes the region bounded by the chord and the arc from the first to the second CCW
-    # occlusion: Union[Tuple[UnitPoint, UnitPoint], None]
     radix: int
     dark_theme: bool
 
     @abstractmethod
-    def build(self) -> Mobject:
+    def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         pass
+
+    def edge_color(self):
+        return WHITE if self.dark_theme else BLACK
 
     @abstractmethod
     def apply_function(
@@ -51,6 +52,12 @@ class AbstractLamination(ABC):
     def convert_to_carrying(self):
         return self.apply_function(lambda p: p.to_carrying())
 
+    def to_polygons(self) -> 'Lamination':
+        return self
+
+    def to_leafs(self) -> "LeafLamination":
+        return self
+
 
 class Lamination(AbstractLamination):
     polygons: List[List[UnitPoint]]
@@ -60,13 +67,11 @@ class Lamination(AbstractLamination):
         polygons: List[List[UnitPoint]],
         points: List[UnitPoint],
         radix: int,
-        occlusion: Union[Tuple[UnitPoint, UnitPoint], None] = None,
         dark_theme=True,
     ) -> None:
         self.polygons = polygons
         self.points = points
         self.radix = radix
-        # self.occlusion = occlusion
         self.dark_theme = dark_theme
 
     def auto_populate(self):
@@ -77,23 +82,9 @@ class Lamination(AbstractLamination):
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         ret = Mobject()
-        edge_color = WHITE if self.dark_theme else BLACK
-        if False:
-            delta = self.occlusion[0].to_angle() - self.occlusion[1].to_angle()
-            if delta < 0:
-                delta += TAU
-            unit_circle = Arc(
-                start_angle=self.occlusion[1].to_angle(),
-                angle=delta,
-                color=edge_color,
-                radius=radius,
-            )
-        else:
-            unit_circle = Circle(
-                color=edge_color, radius=radius, stroke_width=2
-            )  # create a circle
+        unit_circle = Circle(color=self.edge_color(), radius=radius, stroke_width=2)
         unit_circle.move_arc_center_to(center)
-        ret.add(unit_circle)  # show the circle on screen
+        ret.add(unit_circle)
 
         for polygon in self.polygons:
             visual = polygon[0].visual_settings
@@ -121,12 +112,6 @@ class Lamination(AbstractLamination):
                 )
             )
 
-        # build a chord for occlusion
-
-        if False:
-            occlusion = VMobject(color=RED)
-            make_and_append_bezier(occlusion, self.occlusion[0], self.occlusion[1])
-            ret.add(occlusion)
 
         for submobject in ret.submobjects:
             if submobject is unit_circle:

@@ -17,7 +17,7 @@ from manim_lamination_builder.new_generate import (
     PullBackTree,
 )
 from manim_lamination_builder.main import group, Main
-import manim_lamination_builder.morph
+from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
 import manim_lamination_builder.__main__
 from manim_lamination_builder.visual_settings import VisualSettings, get_color
 from manim_lamination_builder.sibling_trees import (

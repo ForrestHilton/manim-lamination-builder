@@ -3,10 +3,7 @@ __pycache__/
 dist/
 manim_lamination_builder.egg-info/
 media/
-test.py
-inserting_criticality.py
-mainapril13.py
-mainapril21.py
+illistrations
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -170,4 +167,5 @@ cython_debug/
 #.idea/
 
 .DS_Store
+
 

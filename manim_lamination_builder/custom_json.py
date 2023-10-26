@@ -23,7 +23,7 @@ class CustomEncoder(json.JSONEncoder):
             return ret
         if vtype == "Chord":
             return list(v.__dict__.values())
-        if vtype == "FloatWrapper":
+        if vtype in ["FloatWrapper","CarryingFloatWrapper"]:
             return v.value
         if vtype in types:
             return types[type(v).__name__](v)
@@ -63,8 +63,8 @@ class CustomDecoder(json.JSONDecoder):
 
             if dct.get("leafs", None) is not None:
                 leafs = list(map(lambda l: Chord(l[0], l[1]), leafs))
-                return LeafLamination(leafs, points, radix, occlusion=occlusion)
-            return Lamination(polygons, points, radix, occlusion=occlusion)
+                return LeafLamination(leafs, points, radix)
+            return Lamination(polygons, points, radix)
         return dct
 
 

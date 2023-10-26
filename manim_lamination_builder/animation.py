@@ -13,26 +13,38 @@ from manim import (
 from manim_lamination_builder.chord import make_and_append_bezier
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
 from manim_lamination_builder.points import FloatWrapper, angle_to_cartesian
-from typing import Union
+from typing import Optional, Union
 
 
 def lerp(a: float, b: float, alpha: float) -> float:
     "Linearly interpolate between two floats a and b using time value alpha."
     return (1 - alpha) * a + alpha * b
 
-
+# @dataclass
 class AnimateLamination(Animation):
+    initial: Lamination
+    final: Lamination
+    initial_occlusion: Optional[HalfOpenArc] = None
+
     def __init__(
         self,
-        initial: Lamination,
+        initial: Union[Lamination, OccludedLamination],
         final: Lamination,
-        start_mobject: Union[Mobject, None] = None,
+        start_mobject: Optional[Mobject] = None,
         **kwargs,
     ) -> None:
         super().__init__(start_mobject or initial.build(), **kwargs)
-        self.initial = initial
+        assert isinstance(final, Lamination)
+        if isinstance(initial, OccludedLamination):
+            self.initial = initial.lam.to_polygons()
+            self.final = final.to_polygons()
+            self.initial_occlusion = initial.occlusion
+        else:
+            self.initial = initial
         self.final = final
+        assert isinstance(self.initial, Lamination) and isinstance(self.final, Lamination) and isinstance(self.initial_occlusion, Optional[HalfOpenArc])
         # TODO: check if laminations are compatible in terms of same length of properys
 
     def interpolate(self, alpha: float) -> None:
@@ -82,15 +94,13 @@ class AnimateLamination(Animation):
                             submobject, FloatWrapper(a), FloatWrapper(b)
                         )
                 else:  # occlusion
-                    occlusion_initial = self.initial.occlusion
-                    assert occlusion_initial is not None
-                    # TODO: be more clever about wrap around
+                    assert self.initial_occlusion is not None
                     midpoint = (
-                        occlusion_initial[0].to_float()
-                        + occlusion_initial[1].to_float()
+                        self.initial_occlusion.a.to_float()
+                        + self.initial_occlusion.b.to_float()
                     ) / 2
-                    a = lerp(occlusion_initial[0].to_float(), midpoint, alpha)
-                    b = lerp(occlusion_initial[1].to_float(), midpoint, alpha)
+                    a = lerp(self.initial_occlusion.a.to_float(), midpoint, alpha)
+                    b = lerp(self.initial_occlusion.b.to_float(), midpoint, alpha)
                     submobject.reset_points()
                     make_and_append_bezier(submobject, FloatWrapper(a), FloatWrapper(b))
                     circle.start_angle = b * TAU

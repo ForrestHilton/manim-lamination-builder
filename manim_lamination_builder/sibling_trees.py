@@ -3,8 +3,12 @@ from manim import BLACK, Graph, Mobject
 from copy import deepcopy
 
 from typing import List
-from manim_lamination_builder import UnitPoint, Lamination
-from manim_lamination_builder.morph import remove_occluded
+from manim_lamination_builder import (
+    UnitPoint,
+    Lamination,
+    HalfOpenArc,
+    OccludedLamination,
+)
 
 
 def first_polygon(lam: Lamination) -> List[UnitPoint]:
@@ -14,22 +18,22 @@ def first_polygon(lam: Lamination) -> List[UnitPoint]:
         polygon = next(filter(lambda lst: p in lst, lam.polygons), None)
         if polygon is not None:
             return polygon
+    assert False, "There were no plygons and you asked for the first of them."
 
 
-def make_regions(lam: Lamination) -> List[Lamination]:
+def make_regions(lam: OccludedLamination) -> List[OccludedLamination]:
     "seperate the lamination into regions based on the first polygon"
     # use it partition into n pieces in CCW order
-    polygon = first_polygon(lam)
+    assert lam.lam is Lamination
+    polygon = first_polygon(lam.lam)
 
     regions = []
     n = len(polygon)
     sorted_polygon = sorted(polygon, key=lambda x: x.to_float())
-    sorted_polygon.append((lam.occlusion or sorted_polygon)[0])
+    sorted_polygon.append(lam.occlusion.a if lam.occlusion else sorted_polygon[0])
     for i in range(n):
-        chord = (sorted_polygon[i + 1], sorted_polygon[i])
-        region = deepcopy(lam)
-        lam.occlusion = chord
-        regions.append(remove_occluded(region, chord))
+        chord = HalfOpenArc(sorted_polygon[i + 1], sorted_polygon[i], None)
+        regions.append(OccludedLamination(lam.lam, chord))
     return regions
 
 
@@ -37,7 +41,14 @@ def construct_nested_tuple(lam: Lamination):
     if len(lam.polygons) == 0:
         return ()
 
-    return tuple(reversed([construct_nested_tuple(lam) for lam in make_regions(lam)]))
+    return tuple(
+        reversed(
+            [
+                construct_nested_tuple(lam)
+                for lam in make_regions(OccludedLamination(lam, None))
+            ]
+        )
+    )
 
 
 # make copy first
