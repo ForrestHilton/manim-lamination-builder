@@ -64,7 +64,7 @@ class UnitPoint(ABC):
         pass
 
     def to_carrying(self) -> "CarryingFloatWrapper":
-        return CarryingFloatWrapper(self.to_float(), self.base)
+        return CarryingFloatWrapper(self.to_float(), self.base, visual_settings=self.visual_settings)
 
 
 class FloatWrapper(UnitPoint):

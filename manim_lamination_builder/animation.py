@@ -10,9 +10,11 @@ from manim import (
     Mobject,
     TAU,
 )
+from manim.animation.animation import config
 from manim_lamination_builder.chord import make_and_append_bezier
+from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
-from manim_lamination_builder.lamination import Lamination
+from manim_lamination_builder.lamination import AbstractLamination, Lamination
 from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
 from manim_lamination_builder.points import FloatWrapper, angle_to_cartesian
 from typing import Optional, Union
@@ -21,6 +23,7 @@ from typing import Optional, Union
 def lerp(a: float, b: float, alpha: float) -> float:
     "Linearly interpolate between two floats a and b using time value alpha."
     return (1 - alpha) * a + alpha * b
+
 
 # @dataclass
 class AnimateLamination(Animation):
@@ -44,7 +47,11 @@ class AnimateLamination(Animation):
         else:
             self.initial = initial
         self.final = final
-        assert isinstance(self.initial, Lamination) and isinstance(self.final, Lamination) and isinstance(self.initial_occlusion, Optional[HalfOpenArc])
+        assert (
+            isinstance(self.initial, Lamination)
+            and isinstance(self.final, Lamination)
+            and isinstance(self.initial_occlusion, Optional[HalfOpenArc])
+        )
         # TODO: check if laminations are compatible in terms of same length of properys
 
     def interpolate(self, alpha: float) -> None:
@@ -114,3 +121,21 @@ class AnimateLamination(Animation):
                 continue
             submobject.points *= radius
             submobject.points += center
+
+
+class SigmaAnimation(Scene):
+    def __init__(self, lam: AbstractLamination):
+        self.lam = lam.to_polygons()
+        super().__init__()
+
+    def construct(self):
+        mob = self.lam.build()
+        self.add(mob)
+        self.wait(1)
+        final = sigma(self.lam)
+        assert isinstance(final,Lamination)
+        self.play(AnimateLamination(self.lam, final, mob, run_time = 5))
+        self.wait(1)
+
+config.frame_width /= 3.7
+config.frame_height /= 3.7

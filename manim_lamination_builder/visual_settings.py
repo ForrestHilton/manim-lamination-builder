@@ -11,7 +11,8 @@ colors_list = [
 
 def get_color(i: int):
     if i >= len(colors_list):
-        return Colors.black
+        # TODO: test if dark theme
+        return Colors.white
     return colors_list[i]
 
 
