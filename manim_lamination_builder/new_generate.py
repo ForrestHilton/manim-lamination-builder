@@ -89,7 +89,7 @@ def pre_image_dictionary(lam: LeafLamination) -> Dict[Chord, List[Chord]]:
 
 
 def next_pull_back(
-    lam: LeafLamination, included_images=LeafLamination.empty(), cumulative=False
+    lam: LeafLamination, cumulative=False
 ) -> List[LeafLamination]:
     existing_pre_images = pre_image_dictionary(lam)
     # TODO: auto create included_images???
@@ -115,14 +115,14 @@ class PullBackTree:
     node: LeafLamination
     children: List["PullBackTree"]
 
-    def __init__(self, lam: LeafLamination, depth: int, parent=LeafLamination.empty()):
+    def __init__(self, lam: LeafLamination, depth: int):
         self.node = lam
         if depth == 0:
             self.children = []
             return
-        children = next_pull_back(lam, parent)
+        children = next_pull_back(lam)
         self.children = list(
-            map(lambda child: PullBackTree(child, depth - 1, lam), children)
+            map(lambda child: PullBackTree(child, depth - 1), children)
         )
 
     def flaten(self) -> List[List[LeafLamination]]:

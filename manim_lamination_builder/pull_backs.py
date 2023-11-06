@@ -117,13 +117,13 @@ class CriticalTree:
             for f in branches:
                 polygons += lam.apply_function(f).polygons
                 points += lam.apply_function(f).points
-            return Lamination(polygons, points, lam.radix)
+            return Lamination(polygons=polygons,points= points,radix= lam.radix)
         else:
             assert isinstance(lam, LeafLamination)
             for f in branches:
                 leafs += lam.apply_function(f).leafs
                 points += lam.apply_function(f).points
-            return LeafLamination(leafs, points, lam.radix)
+            return LeafLamination(leafs=leafs,points= points,radix= lam.radix)
 
     def pull_back_n(self, lam: AbstractLamination, n) -> AbstractLamination:
         ret = lam
@@ -133,6 +133,6 @@ class CriticalTree:
 
 
 def rabbit_nth_pullback(n) -> Lamination:
-    rabbit_seed = Lamination([unicritical_polygon(2, 3)], [], 2)
+    rabbit_seed = Lamination(polygons=[unicritical_polygon(2, 3)], points=[], radix=2)
     rabbit_cord = CriticalTree.default()
     return rabbit_cord.pull_back_n(rabbit_seed, n)

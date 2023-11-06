@@ -4,23 +4,18 @@
 
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
-from itertools import accumulate
-from typing import List, Set
-from typing import List, Callable, Tuple, Union
+from typing import List, Set, Callable
 from manim import (
     ORIGIN,
-    RED,
     BLACK,
-    TAU,
     WHITE,
-    Arc,
     Dot,
     Mobject,
     VMobject,
     Circle,
 )
-from manim_lamination_builder.points import CarryingFloatWrapper, UnitPoint
+from pydantic import BaseModel
+from manim_lamination_builder.points import Degree, Angle
 from manim_lamination_builder.chord import make_and_append_bezier, Chord
 
 
@@ -28,8 +23,8 @@ background = BLACK
 
 
 class AbstractLamination(ABC):
-    points: List[UnitPoint]
-    radix: int
+    points: List[Angle]
+    radix: Degree
     dark_theme: bool
 
     @abstractmethod
@@ -40,39 +35,28 @@ class AbstractLamination(ABC):
         return WHITE if self.dark_theme else BLACK
 
     @abstractmethod
-    def apply_function(
-        self, f: Callable[[UnitPoint], UnitPoint]
-    ) -> "AbstractLamination":
+    def apply_function(self, f: Callable[[Angle], Angle]) -> "AbstractLamination":
         pass
 
     @abstractmethod
-    def filtered(self, f: Callable[[UnitPoint], bool]) -> "AbstractLamination":
+    def filtered(self, f: Callable[[Angle], bool]) -> "AbstractLamination":
         pass
 
     def convert_to_carrying(self):
         return self.apply_function(lambda p: p.to_carrying())
 
-    def to_polygons(self) -> 'Lamination':
+    def to_polygons(self) -> "Lamination":
         return self
 
     def to_leafs(self) -> "LeafLamination":
         return self
 
 
-class Lamination(AbstractLamination):
-    polygons: List[List[UnitPoint]]
-
-    def __init__(
-        self,
-        polygons: List[List[UnitPoint]],
-        points: List[UnitPoint],
-        radix: int,
-        dark_theme=True,
-    ) -> None:
-        self.polygons = polygons
-        self.points = points
-        self.radix = radix
-        self.dark_theme = dark_theme
+class Lamination(AbstractLamination, BaseModel):
+    points: List[Angle]
+    radix: Degree
+    dark_theme: bool = True
+    polygons: List[List[Angle]]
 
     def auto_populate(self):
         for polygon in self.polygons:
@@ -112,7 +96,6 @@ class Lamination(AbstractLamination):
                 )
             )
 
-
         for submobject in ret.submobjects:
             if submobject is unit_circle:
                 continue
@@ -121,48 +104,39 @@ class Lamination(AbstractLamination):
 
         return ret
 
-    def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "Lamination":
+    def apply_function(self, f: Callable[[Angle], Angle]) -> "Lamination":
         new_polygons = []
         for poly in self.polygons:
             new_poly = [f(p) for p in poly]
             new_polygons.append(new_poly)
         new_points = [f(p) for p in self.points]
-        return Lamination(new_polygons, new_points, self.radix)
+        return Lamination(polygons=new_polygons, points=new_points, radix=self.radix)
 
-    def filtered(self, f: Callable[[UnitPoint], bool]) -> "Lamination":
+    def filtered(self, f: Callable[[Angle], bool]) -> "Lamination":
         new_polygons = []
         for poly in self.polygons:
             if all([f(p) for p in poly]):
                 new_polygons.append(poly)
         new_points = list(filter(f, self.points))
-        return Lamination(new_polygons, new_points, self.radix)
+        return Lamination(polygons=new_polygons, points=new_points, radix=self.radix)
 
     def to_leafs(self) -> "LeafLamination":
         leafs: List[Chord] = []
         for polygon in self.polygons:
             for i in range(len(polygon)):
                 leafs.append(Chord(polygon[i], polygon[(i + 1) % len(polygon)]))
-        return LeafLamination(leafs, self.points, self.radix)
+        return LeafLamination(leafs=set(leafs), points=self.points, radix=self.radix)
 
 
-class LeafLamination(AbstractLamination):
+class LeafLamination(AbstractLamination, BaseModel):
+    points: List[Angle]
+    radix: Degree
+    dark_theme: bool = True
     leafs: Set[Chord]
-
-    def __init__(
-        self,
-        leafs: Iterable[Chord],
-        points: List[UnitPoint],
-        radix: int,
-        occlusion: Union[Tuple[UnitPoint, UnitPoint], None] = None,
-    ) -> None:
-        self.leafs = set(leafs)
-        self.points = points
-        self.radix = radix
-        # self.occlusion = occlusion
 
     def to_polygons(self) -> Lamination:
         "identifies finite gaps"
-        polygons: List[Set[UnitPoint]] = []
+        polygons: List[Set[Angle]] = []
         for leaf in self.leafs:
             used_leaf = False
             for p, other in [(leaf.min, leaf.max), (leaf.max, leaf.min)]:
@@ -190,7 +164,7 @@ class LeafLamination(AbstractLamination):
                 polygons.append(set([leaf.min, leaf.max]))
 
         polygons_ = list(map(lambda s: sorted(s, key=lambda p: p.to_float()), polygons))
-        return Lamination(polygons_, self.points, self.radix)
+        return Lamination(polygons=polygons_, points=self.points, radix=self.radix)
 
     def crosses(self, target: Chord):
         return any([target.crosses(reference) for reference in self.leafs])
@@ -199,21 +173,21 @@ class LeafLamination(AbstractLamination):
         return self.to_polygons().build()
 
     @staticmethod
-    def empty(d=0) -> "LeafLamination":
-        return LeafLamination([], [], d)
+    def empty(d) -> "LeafLamination":
+        return LeafLamination(leafs=set(), points=[], radix=d)
 
-    def apply_function(self, f: Callable[[UnitPoint], UnitPoint]) -> "LeafLamination":
+    def apply_function(self, f: Callable[[Angle], Angle]) -> "LeafLamination":
         new_leaves = []
         for leaf in self.leafs:
             new_leaf = Chord(f(leaf.min), f(leaf.max))
             new_leaves.append(new_leaf)
         new_points = [f(p) for p in self.points]
-        return LeafLamination(new_leaves, new_points, self.radix)
+        return LeafLamination(leafs=set(new_leaves), points=new_points, radix=self.radix)
 
-    def filtered(self, f: Callable[[UnitPoint], bool]) -> "LeafLamination":
+    def filtered(self, f: Callable[[Angle], bool]) -> "LeafLamination":
         new_leaves = []
         for leaf in self.leafs:
             if f(leaf.min) and f(leaf.max):
                 new_leaves.append(leaf)
         new_points = list(filter(f, self.points))
-        return LeafLamination(new_leaves, new_points, self.radix)
+        return LeafLamination(leafs=set(new_leaves), points=new_points, radix=self.radix)

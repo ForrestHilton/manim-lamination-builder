@@ -5,8 +5,8 @@ from manim_lamination_builder.points import CarryingFloatWrapper
 from manim_lamination_builder.pull_backs import CriticalTree, rabbit_nth_pullback
 
 config.preview = True
-config.frame_width /= 3.7
 config.frame_height /= 3.7
+config.frame_width /= 3.7
 
 
 def test_centering():
@@ -30,10 +30,6 @@ def test_filter():
     )
 
     assert len(init.polygons) == 4
-
-
-def test_half_open():
-    pass
 
 
 class _MyScene(Scene):

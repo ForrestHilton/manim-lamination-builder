@@ -6,7 +6,7 @@ from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.lamination import AbstractLamination, LeafLamination
 from manim_lamination_builder.points import UnitPoint, NaryFraction
 from manim_lamination_builder import Lamination
-from typing import Iterable, List, Union
+from typing import Iterable, List, TypeVar, Union
 from manim_lamination_builder.visual_settings import get_color, VisualSettings
 import scipy
 
@@ -59,9 +59,11 @@ def insert_criticality(x: Lamination, at: NaryFraction) -> Lamination:
 
 
 start = Lamination(
-    [[NaryFraction.from_string(3, "_012"), NaryFraction.from_string(3, "_112")]],
-    [],
-    3,
+    polygons=[
+        [NaryFraction.from_string(3, "_012"), NaryFraction.from_string(3, "_112")]
+    ],
+    points=[],
+    radix=3,
 )
 
 insertion_points = [
@@ -70,7 +72,7 @@ insertion_points = [
 ]
 
 double_orbit = Lamination(
-    [
+    polygons=[
         uniquely_color(
             start.polygons[0]
             + start.apply_function(lambda x: x.after_sigma()).polygons[0]
@@ -79,8 +81,8 @@ double_orbit = Lamination(
             .polygons[0]
         )
     ],
-    [],
-    3,
+    points=[],
+    radix=3,
 )
 double_orbit.auto_populate()
 
@@ -102,7 +104,10 @@ def fussCatalan(i, n):
     return scipy.special.binom(n * i, i) / ((n - 1) * i + 1)
 
 
-def sigma(input: Union[UnitPoint, Chord, Iterable[UnitPoint], AbstractLamination]):
+T = TypeVar("T", UnitPoint, Chord, Iterable[UnitPoint], AbstractLamination)
+
+
+def sigma(input: T) -> T:
     if isinstance(input, UnitPoint):
         return input.after_sigma()
     elif isinstance(input, Chord):

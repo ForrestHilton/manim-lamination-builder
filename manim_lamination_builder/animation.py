@@ -25,7 +25,6 @@ def lerp(a: float, b: float, alpha: float) -> float:
     return (1 - alpha) * a + alpha * b
 
 
-# @dataclass
 class AnimateLamination(Animation):
     initial: Lamination
     final: Lamination
@@ -133,9 +132,6 @@ class SigmaAnimation(Scene):
         self.add(mob)
         self.wait(1)
         final = sigma(self.lam)
-        assert isinstance(final,Lamination)
-        self.play(AnimateLamination(self.lam, final, mob, run_time = 5))
+        assert isinstance(final, Lamination)
+        self.play(AnimateLamination(self.lam, final, mob, run_time=5))
         self.wait(1)
-
-config.frame_width /= 3.7
-config.frame_height /= 3.7

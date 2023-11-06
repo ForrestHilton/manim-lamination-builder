@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "manim", "json5"
+  "manim", "json5", "pydantic"
 ]
 [project.urls]
 "Homepage" = "https://github.com/ForrestHilton/manim-lamination-builder"

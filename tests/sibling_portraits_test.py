@@ -18,7 +18,7 @@ def test_fuss_catalan():
     for d in range(2, 5):
         for n in range(2, 5):
             shape = unicritical_polygon(d, n)
-            lamination = Lamination([shape], [], d)
+            lamination = Lamination(polygons=[shape],points= [], radix=d)
             options = next_pull_back(lamination.to_leafs())
             filtered_options = list(
                 filter(
@@ -27,6 +27,7 @@ def test_fuss_catalan():
                 )
             )
             assert len(filtered_options) == fussCatalan(d - 1, n)
+test_fuss_catalan()
 
 
 if __name__ == "__main__":

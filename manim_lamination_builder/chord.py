@@ -5,22 +5,21 @@
 
 
 from manim import BLACK, TAU, Mobject, VMobject
+from pydantic import BaseModel
 
-from manim_lamination_builder.points import UnitPoint
+from manim_lamination_builder.points import Angle
 from math import pi, tan
 
 
-class Chord:
-    min: UnitPoint
-    max: UnitPoint
+class Chord(BaseModel):
+    min: Angle
+    max: Angle
 
-    def __init__(self, a: UnitPoint, b: UnitPoint):
+    def __init__(self, a: Angle, b: Angle):
+        min,max = b,a
         if a.to_float() < b.to_float():
-            self.min = a
-            self.max = b
-        else:
-            self.min = b
-            self.max = a
+            min,max = max,min
+        super(Chord,self).__init__(min=min,max=max)
 
     def __hash__(self):
         return hash((self.min, self.max))
@@ -60,7 +59,7 @@ class Chord:
         return False
 
 
-def make_and_append_bezier(vmob: VMobject, theta1: UnitPoint, theta2: UnitPoint):
+def make_and_append_bezier(vmob: VMobject, theta1: Angle, theta2: Angle):
     """Add a cubic Bezier curve to a VMobject using given angles or NaryFractions."""
 
     a = theta1.to_cartesian()

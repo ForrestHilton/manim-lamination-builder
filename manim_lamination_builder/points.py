@@ -2,11 +2,13 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from typing import List, Optional
+from typing import Annotated, List, Optional, Union
 
-from math import ceil, cos, pi, sin, floor
+from math import cos, pi, sin, floor
 
 from manim.animation.animation import deepcopy
+from pydantic import BaseModel, ValidationInfo, field_validator
+from annotated_types import Gt
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -17,9 +19,12 @@ def angle_to_cartesian(angle: float):
     return np.array([cos(angle), sin(angle), 0])
 
 
+Degree = Annotated[int, Gt(1)]
+
+
 class UnitPoint(ABC):
-    visual_settings: VisualSettings
-    base: Optional[int]
+    visual_settings: VisualSettings = VisualSettings()
+    base: Optional[Degree]
 
     def __repr__(self) -> str:
         return self.to_string()
@@ -64,16 +69,19 @@ class UnitPoint(ABC):
         pass
 
     def to_carrying(self) -> "CarryingFloatWrapper":
-        return CarryingFloatWrapper(self.to_float(), self.base, visual_settings=self.visual_settings)
+        return CarryingFloatWrapper(
+            self.to_float(), self.base, visual_settings=self.visual_settings
+        )
 
 
-class FloatWrapper(UnitPoint):
+class FloatWrapper(UnitPoint, BaseModel):
     value: float
+    visual_settings: VisualSettings = VisualSettings()
 
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
-        self.value = value % 1
-        self.base = degree
-        self.visual_settings = visual_settings
+        super(FloatWrapper, self).__init__(
+            value=value % 1, base=degree, visual_settings=visual_settings
+        )
 
     def to_float(self):
         return self.value
@@ -99,33 +107,28 @@ class FloatWrapper(UnitPoint):
         ]
 
 
-class NaryFraction(UnitPoint):
-    base: int
+class NaryFraction(UnitPoint, BaseModel):
+    base: Degree
+    exact: List[int]
+    repeating: List[int]
+    visual_settings: VisualSettings = VisualSettings()
 
-    def __init__(
-        self,
-        base: int,
-        exact: List[int],
-        repeating: List[int],
-        visual_settings=VisualSettings(),
-    ):
-        assert base != 1
-        self.base = base
-        self.exact = exact
-        self.repeating = repeating
-        self.visual_settings = visual_settings
-        assert max(self.exact + self.repeating) < self.base
+    @field_validator("exact", "repeating")
+    def check_values(cls, v, info: ValidationInfo):
+        base = int(info.data["base"])
+        for n in v:
+            assert n >= 0 and n < base, "{} not a valid {}-ary digit".format(n,base)
+        return v
 
     @staticmethod
     def from_string(base, string_representation):
-        # TODO: regex
         assert not "." in string_representation
         parts = string_representation.split("_")
         exact = [int(i) for i in parts[0]]
         repeating = []
         if len(parts) > 1:
             repeating = [int(i) for i in parts[1]]
-        return NaryFraction(base, exact, repeating)
+        return NaryFraction(base=base, exact=exact, repeating=repeating)
 
     def to_string(self):
         overflow_string = ""
@@ -176,7 +179,10 @@ class NaryFraction(UnitPoint):
         ret = self.without_enharmonics()
         return [
             NaryFraction(
-                self.base, [digit] + ret.exact, ret.repeating, self.visual_settings
+                base=self.base,
+                exact=[digit] + ret.exact,
+                repeating=ret.repeating,
+                visual_settings=self.visual_settings,
             )
             for digit in range(self.base)
         ]
@@ -197,14 +203,14 @@ class NaryFraction(UnitPoint):
         return value
 
 
-class CarryingFloatWrapper(FloatWrapper):
+class CarryingFloatWrapper(FloatWrapper, BaseModel):
     """like FloatWrapper, but keeps track of the most recent overflowed digit,
     mostly for purpose of animation"""
 
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
-        self.value = value
-        self.base = degree
-        self.visual_settings = visual_settings
+        super(FloatWrapper, self).__init__(
+            value=value, base=degree, visual_settings=visual_settings
+        )
 
     def cleared(self) -> "FloatWrapper":
         return FloatWrapper(self.value % 1, self.base, self.visual_settings)
@@ -221,3 +227,5 @@ class CarryingFloatWrapper(FloatWrapper):
         a = center.to_float()
         ret = x - floor(x - a + 0.5)
         return CarryingFloatWrapper(ret, self.base)
+
+Angle = Union[NaryFraction, FloatWrapper, CarryingFloatWrapper]
