@@ -4,14 +4,14 @@ from copy import deepcopy
 
 from typing import List
 from manim_lamination_builder import (
-    UnitPoint,
+    Angle,
     Lamination,
     HalfOpenArc,
     OccludedLamination,
 )
 
 
-def first_polygon(lam: Lamination) -> List[UnitPoint]:
+def first_polygon(lam: Lamination) -> List[Angle]:
     "select first polygon CCW"
     sorted_points = sorted(lam.points, key=lambda x: x.to_float())
     for p in sorted_points:

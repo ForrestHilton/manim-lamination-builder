@@ -96,7 +96,7 @@ from manim_lamination_builder import (
     Chord,
     FloatWrapper,
     Lamination,
-    UnitPoint,
+    Angle,
     parse_lamination,
     rabbit_nth_pullback,
 )
@@ -105,7 +105,7 @@ import cmath
 from manim_lamination_builder import custom_dump
 
 
-def get_convexity(in_list: List[UnitPoint]) -> Optional[List[CarryingFloatWrapper]]:
+def get_convexity(in_list: List[Angle]) -> Optional[List[CarryingFloatWrapper]]:
     """
     Retruns a sorted list of vetesies in CCW order such that the first is the boundary
     of the convex region. Wraping is handeld correctly and all points are taken from the same sheet
@@ -140,7 +140,7 @@ class CheatingPinch(Scene):
         self.polygons_handled = repeat(False, len(lamination.polygons))
         super().__init__()
 
-    def add_initial_curve(self, p: UnitPoint, next_p: UnitPoint):
+    def add_initial_curve(self, p: Angle, next_p: Angle):
         bigness = (next_p.to_float() - p.to_float()) % 1
         arc = Arc(
             start_angle=p.to_angle(),
@@ -149,7 +149,7 @@ class CheatingPinch(Scene):
         )
         self.initial_curves.append(arc)
 
-    def point_positioning_function(self, polygon: List[UnitPoint]):
+    def point_positioning_function(self, polygon: List[Angle]):
         points = []
         for angle in polygon:
             z = psi(1.000000001 * cmath.exp(angle.to_angle() * 1j))

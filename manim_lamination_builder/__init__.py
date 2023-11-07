@@ -8,7 +8,7 @@ from manim_lamination_builder.custom_json import (
     read_file_to_laminations,
     parse_lamination,
 )
-from manim_lamination_builder.points import FloatWrapper, UnitPoint, NaryFraction
+from manim_lamination_builder.points import FloatWrapper, NaryFraction, Angle
 from manim_lamination_builder.animation import AnimateLamination, SigmaAnimation
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.new_generate import (

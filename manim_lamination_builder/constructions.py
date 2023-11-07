@@ -4,14 +4,14 @@ This file brings together methods that would be needed for describing certain fi
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.lamination import AbstractLamination, LeafLamination
-from manim_lamination_builder.points import UnitPoint, NaryFraction
+from manim_lamination_builder.points import Angle, NaryFraction
 from manim_lamination_builder import Lamination
 from typing import Iterable, List, TypeVar, Union
 from manim_lamination_builder.visual_settings import get_color, VisualSettings
 import scipy
 
 
-def uniquely_color(list: List[UnitPoint]) -> List[UnitPoint]:
+def uniquely_color(list: List[Angle]) -> List[Angle]:
     "mutates and returns mutation"
     for i, p in enumerate(list):
         p.visual_settings = VisualSettings(point_color=get_color(i))
@@ -104,11 +104,11 @@ def fussCatalan(i, n):
     return scipy.special.binom(n * i, i) / ((n - 1) * i + 1)
 
 
-T = TypeVar("T", UnitPoint, Chord, Iterable[UnitPoint], AbstractLamination)
+T = TypeVar("T", Angle, Chord, Iterable[Angle], AbstractLamination)
 
 
 def sigma(input: T) -> T:
-    if isinstance(input, UnitPoint):
+    if isinstance(input, Angle):
         return input.after_sigma()
     elif isinstance(input, Chord):
         return Chord(input.min.after_sigma(), input.max.after_sigma())

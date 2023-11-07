@@ -8,7 +8,7 @@ from manim_lamination_builder.points import (
     Angle,
     CarryingFloatWrapper,
     FloatWrapper,
-    UnitPoint,
+    Angle,
 )
 from typing import Union
 
@@ -34,7 +34,7 @@ class HalfOpenArc(BaseModel):
 
     # TODO: make sure we are handling wrapping wright -- probably by asserting not carrying or by converting here
 
-    def included(self, point: UnitPoint):  # weather it is not occluded
+    def included(self, point: Angle):  # weather it is not occluded
         a, b = self.a.to_float(), self.b.to_float()
         if self.a == point:
             return self.left_is_closed
@@ -45,7 +45,7 @@ class HalfOpenArc(BaseModel):
         else:
             return point.to_float() < b or point.to_float() > a
 
-    def excluded(self, point: UnitPoint):
+    def excluded(self, point: Angle):
         return not self.included(point)
 
     def criticality(self) -> Union[bool, None, int]:
@@ -121,7 +121,7 @@ class OccludedLamination(BaseModel):
             else orriginal_degree
         )
 
-        def mapping(p: UnitPoint) -> UnitPoint:
+        def mapping(p: Angle) -> Angle:
             assert self.occlusion is not None
             return CarryingFloatWrapper(
                 self.occlusion.morph_function(p.to_float()),
