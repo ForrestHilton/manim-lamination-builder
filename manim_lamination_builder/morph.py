@@ -1,28 +1,38 @@
 from copy import deepcopy
-from manim import ORIGIN, RED, TAU, WHITE, Arc, Scene, tempconfig, Mobject, VMobject
+from manim import ORIGIN, RED, TAU, Arc, Mobject, VMobject
+from pydantic import BaseModel, field_validator
 from manim_lamination_builder.chord import make_and_append_bezier
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
-from manim_lamination_builder.lamination import AbstractLamination, Lamination
-from manim_lamination_builder.points import CarryingFloatWrapper, FloatWrapper, UnitPoint
-from typing import Tuple, Union
+from manim_lamination_builder.lamination import AbstractLamination, AgnosticLamination, Lamination
+from manim_lamination_builder.points import (
+    Angle,
+    CarryingFloatWrapper,
+    FloatWrapper,
+    UnitPoint,
+)
+from typing import Union
 
 
-class HalfOpenArc:
-    def __init__(self, a: UnitPoint, b: UnitPoint, left_is_closed: bool):
-        """a is the beginning(left), and b is the end(right).
-        This class represents the arc from a to the to b CCW
-        If a is greater than b, then 0 is included.
-        a and b should not be equal, and many kinds of degenerate intervals should not and can not
-        be represented with this class.
+class HalfOpenArc(BaseModel):
+    """a is the beginning(left), and b is the end(right).
+    This class represents the arc from a to the to b CCW
+    If a is greater than b, then 0 is included.
+    a and b should not be equal, and many kinds of degenerate intervals should not and can not
+    be represented with this class.
+    """
 
+    a: Angle
+    b: Angle
+    left_is_closed: bool
 
-        """
+    @field_validator("b")
+    @classmethod
+    def _check_values(cls, b, info):
+        a = info.data["a"]
+        assert b != a
+        return b
 
-        # TODO: make sure we are handling wrapping wright -- probably by asserting not carrying or by converting here
-        assert a != b
-        self.a = a
-        self.b = b
-        self.left_is_closed = left_is_closed
+    # TODO: make sure we are handling wrapping wright -- probably by asserting not carrying or by converting here
 
     def included(self, point: UnitPoint):  # weather it is not occluded
         a, b = self.a.to_float(), self.b.to_float()
@@ -83,7 +93,7 @@ class HalfOpenArc:
             return ((x - b) / remaining_length) + midpoint
 
 
-class OccludedLamination:
+class OccludedLamination(BaseModel):
     """Describes a lamination not of the unit disk, but of a part/region of the unit disk.
     In particular, the region is the complement of the region bounded by the circle arc
     stored in self.occlusion and the corresponding geodesic.
@@ -91,10 +101,14 @@ class OccludedLamination:
      that do something of the sort will be removed at time of initialization.
     """
 
-    def __init__(self, lam: AbstractLamination, occlusion: Union[HalfOpenArc, None]):
-        "filters at time of initialization"
-        self.lam = lam.filtered(occlusion.excluded) if occlusion else lam
-        self.occlusion = occlusion
+    occlusion: Union[HalfOpenArc, None]
+    lam: AgnosticLamination
+
+    @field_validator("lam")
+    @classmethod
+    def _filter(cls, lam, info):
+        occlusion = info.data["occlusion"]
+        return lam.filtered(occlusion.excluded) if occlusion else lam
 
     def result(self) -> AbstractLamination:
         if self.occlusion is None:
@@ -139,13 +153,15 @@ class OccludedLamination:
         ret.add(occlusion)
         return ret
 
+
 # TODO: data handling for this in custom_json
+
 
 def interpolate_quotent_of_region_under_the_first_listed_polygon(lam: Lamination):
     d = lam.radix
     critical_cord = HalfOpenArc(
-        lam.polygons[0][0],
-        FloatWrapper(lam.polygons[0][0].to_float() + 1 / d, d),  # TODO: change this
-        True,
+        a=lam.polygons[0][0],
+        b=FloatWrapper(lam.polygons[0][0].to_float() + 1 / d, d),  # TODO: change this
+        left_is_closed=True,
     )
-    return OccludedLamination(lam, critical_cord).result()
+    return OccludedLamination(lam=lam, occlusion=critical_cord).result()

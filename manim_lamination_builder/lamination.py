@@ -4,7 +4,7 @@
 
 
 from abc import ABC, abstractmethod
-from typing import List, Set, Callable
+from typing import Generic, List, Set, Callable, TypeVar, Union
 from manim import (
     ORIGIN,
     BLACK,
@@ -22,7 +22,8 @@ from manim_lamination_builder.chord import make_and_append_bezier, Chord
 background = BLACK
 
 
-class AbstractLamination(ABC):
+T = TypeVar("T", bound="AbstractLamination")
+class AbstractLamination(ABC, Generic[T]):
     points: List[Angle]
     radix: Degree
     dark_theme: bool
@@ -35,21 +36,21 @@ class AbstractLamination(ABC):
         return WHITE if self.dark_theme else BLACK
 
     @abstractmethod
-    def apply_function(self, f: Callable[[Angle], Angle]) -> "AbstractLamination":
+    def apply_function(self, f: Callable[[Angle], Angle]) -> T:
         pass
 
     @abstractmethod
-    def filtered(self, f: Callable[[Angle], bool]) -> "AbstractLamination":
+    def filtered(self, f: Callable[[Angle], bool]) -> T:
         pass
 
-    def convert_to_carrying(self):
+    def convert_to_carrying(self) -> T:
         return self.apply_function(lambda p: p.to_carrying())
 
     def to_polygons(self) -> "Lamination":
-        return self
+        return self # type: ignore
 
     def to_leafs(self) -> "LeafLamination":
-        return self
+        return self # type: ignore
 
 
 class Lamination(AbstractLamination, BaseModel):
@@ -78,7 +79,7 @@ class Lamination(AbstractLamination, BaseModel):
             shape = VMobject(
                 visual.polygon_color.value,
                 1,
-                stroke_width=visual.stroke_width,
+                stroke_width=visual.stroke_width, # type: ignore
                 color=stroke_color,
             )
             for i in range(len(polygon)):
@@ -182,7 +183,9 @@ class LeafLamination(AbstractLamination, BaseModel):
             new_leaf = Chord(f(leaf.min), f(leaf.max))
             new_leaves.append(new_leaf)
         new_points = [f(p) for p in self.points]
-        return LeafLamination(leafs=set(new_leaves), points=new_points, radix=self.radix)
+        return LeafLamination(
+            leafs=set(new_leaves), points=new_points, radix=self.radix
+        )
 
     def filtered(self, f: Callable[[Angle], bool]) -> "LeafLamination":
         new_leaves = []
@@ -190,4 +193,8 @@ class LeafLamination(AbstractLamination, BaseModel):
             if f(leaf.min) and f(leaf.max):
                 new_leaves.append(leaf)
         new_points = list(filter(f, self.points))
-        return LeafLamination(leafs=set(new_leaves), points=new_points, radix=self.radix)
+        return LeafLamination(
+            leafs=set(new_leaves), points=new_points, radix=self.radix
+        )
+
+AgnosticLamination = Union[LeafLamination, Lamination]

@@ -4,14 +4,17 @@ or if the end point is outside where the region where it may be placed.
 Otherwise, this works with just one end point of each critical cord and 
 wether that end point is the one to included with the inside. It infers 
 how far away the next end point should be by how many critical cords are inside 
-it. Moreover, it does so in a degree aware way.
+it. Moreover, it does so in a degree aware way. (It gets the degree from
+the point's radix).
 """
 from typing import Callable, List, Tuple, Optional
 
 from manim.animation.animation import config
+from pydantic import BaseModel, field_validator
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.main import Main
 from manim_lamination_builder.points import (
+    Angle,
     FloatWrapper,
     NaryFraction,
     UnitPoint,
@@ -24,24 +27,22 @@ from manim_lamination_builder.lamination import (
 )
 
 
-class CriticalTree:
-    def __init__(
-        self,
-        first_ccw_end_point: UnitPoint,
-        first_end_point_on_inside: bool,
-        inside: Optional["CriticalTree"] = None,
-        outside: Optional["CriticalTree"] = None,
-    ):
-        self.first_ccw_end_point = first_ccw_end_point
-        assert self.first_ccw_end_point.to_float() <= 0.5
-        self.first_end_point_on_inside = first_end_point_on_inside
-        self.inside = inside
-        self.outside = outside
+class CriticalTree(BaseModel):
+    first_ccw_end_point: Angle #TODO : non-lifted angle
+    first_end_point_on_inside: bool
+    inside: Optional["CriticalTree"] = None
+    outside: Optional["CriticalTree"] = None
+
+    @field_validator("first_ccw_end_point")
+    @classmethod
+    def _filter(cls, first_ccw_end_point):
+        assert first_ccw_end_point.to_float() <= 0.5
+        return first_ccw_end_point
 
     @staticmethod
     def default():
         "the one provided for the rabbit in lamination builder"
-        return CriticalTree(NaryFraction.from_string(2, "_001"), True)
+        return CriticalTree(first_ccw_end_point= NaryFraction.from_string(2, "_001"),first_end_point_on_inside= True)
 
     def actual_degree(self):
         degree = self.first_ccw_end_point.base
@@ -123,7 +124,7 @@ class CriticalTree:
             for f in branches:
                 leafs += lam.apply_function(f).leafs
                 points += lam.apply_function(f).points
-            return LeafLamination(leafs=leafs,points= points,radix= lam.radix)
+            return LeafLamination(leafs=set(leafs),points= points,radix= lam.radix)
 
     def pull_back_n(self, lam: AbstractLamination, n) -> AbstractLamination:
         ret = lam

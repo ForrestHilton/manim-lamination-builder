@@ -1,7 +1,7 @@
 """
 This is a re-implementation of lamination-builder that runs in python without dependencies on a browser and focusing on animations and convenient generation of figures. Instead it uses Manim, which has several dependencies, which you are responsible for installing in accordance with Manim's installation instructions.
 """
-from manim_lamination_builder.lamination import Lamination, LeafLamination
+from manim_lamination_builder.lamination import Lamination, LeafLamination, AgnosticLamination
 from manim_lamination_builder.custom_json import (
     custom_dump,
     custom_parse,

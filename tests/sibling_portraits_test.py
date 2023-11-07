@@ -27,7 +27,6 @@ def test_fuss_catalan():
                 )
             )
             assert len(filtered_options) == fussCatalan(d - 1, n)
-test_fuss_catalan()
 
 
 if __name__ == "__main__":

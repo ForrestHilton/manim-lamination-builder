@@ -18,13 +18,25 @@ def test_morph():
     "radix": 4}"""
     )
     assert isinstance(initial, Lamination)
-    occlusion = HalfOpenArc(initial.polygons[0][0], initial.polygons[0][2], True)
+    occlusion = HalfOpenArc(
+        a=initial.polygons[0][0], b=initial.polygons[0][2], left_is_closed=True
+    )
     assert occlusion.included(NaryFraction.from_string(4, "0_030"))
     assert occlusion.excluded(FloatWrapper(0.7))
     initial.auto_populate()
-    assert 3 == len(OccludedLamination(initial, occlusion).lam.to_polygons().polygons)
+    assert 3 == len(
+        OccludedLamination(lam=initial, occlusion=occlusion).lam.to_polygons().polygons
+    )
     assert occlusion.morph_function(NaryFraction.from_string(4, "3_300").to_float()) > 1
-    assert len(OccludedLamination(initial, occlusion).result().filtered(lambda p: p.to_float()>1).points) > 0
+    assert (
+        len(
+            OccludedLamination(lam=initial, occlusion=occlusion)
+            .result()
+            .filtered(lambda p: p.to_float() > 1)
+            .points
+        )
+        > 0
+    )
 
 
 class _MyScene(Scene):
@@ -40,9 +52,11 @@ class _MyScene(Scene):
         "radix": 4}"""
         )
         assert isinstance(initial, Lamination)
-        occlusion = HalfOpenArc(initial.polygons[0][0], initial.polygons[0][2], True)
+        occlusion = HalfOpenArc(
+            a=initial.polygons[0][0], b=initial.polygons[0][2], left_is_closed=True
+        )
         initial.auto_populate()
-        initial = OccludedLamination(initial, occlusion)
+        initial = OccludedLamination(lam=initial, occlusion=occlusion)
         assert (
             occlusion.morph_function(NaryFraction.from_string(4, "3_300").to_float())
             > 1
@@ -54,7 +68,6 @@ class _MyScene(Scene):
             AnimateLamination(initial, initial.result().to_polygons(), run_time=5)
         )
         self.wait(2)
-
 
 
 if __name__ == "__main__":

@@ -114,7 +114,8 @@ class NaryFraction(UnitPoint, BaseModel):
     visual_settings: VisualSettings = VisualSettings()
 
     @field_validator("exact", "repeating")
-    def check_values(cls, v, info: ValidationInfo):
+    @classmethod
+    def _check_values(cls, v, info: ValidationInfo):
         base = int(info.data["base"])
         for n in v:
             assert n >= 0 and n < base, "{} not a valid {}-ary digit".format(n,base)
