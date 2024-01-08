@@ -4,7 +4,7 @@
 
 
 from abc import ABC, abstractmethod
-from typing import Generic, List, Set, Callable, TypeVar, Union
+from typing import Generic, List, Sequence, Set, Callable, TypeVar, Union
 from manim import (
     ORIGIN,
     BLACK,
@@ -23,6 +23,8 @@ background = BLACK
 
 
 T = TypeVar("T", bound="AbstractLamination")
+
+
 class AbstractLamination(ABC, Generic[T]):
     points: List[Angle]
     radix: Degree
@@ -47,17 +49,33 @@ class AbstractLamination(ABC, Generic[T]):
         return self.apply_function(lambda p: p.to_carrying())
 
     def to_polygons(self) -> "Lamination":
-        return self # type: ignore
+        return self  # type: ignore
 
     def to_leafs(self) -> "LeafLamination":
-        return self # type: ignore
+        return self  # type: ignore
+
+
+Polygon = tuple[Angle, ...] # TODO: add validator to test if this is in order as needed.
 
 
 class Lamination(AbstractLamination, BaseModel):
     points: List[Angle]
     radix: Degree
     dark_theme: bool = True
-    polygons: List[List[Angle]]
+    polygons: List[Polygon]
+
+    def __init__(  # TODO: check if I still need this / switch to tuple only.
+        self,
+        polygons: List[
+            Sequence[Angle]
+        ],  # the only difrence with the auto gennerated code is here
+        points: List[Angle],
+        radix: Degree,
+        dark_theme: bool = True,
+    ):
+        super(Lamination, self).__init__(
+            polygons=polygons, points=points, radix=radix, dark_theme=dark_theme
+        )
 
     def auto_populate(self):
         for polygon in self.polygons:
@@ -79,7 +97,7 @@ class Lamination(AbstractLamination, BaseModel):
             shape = VMobject(
                 visual.polygon_color.value,
                 1,
-                stroke_width=visual.stroke_width, # type: ignore
+                stroke_width=visual.stroke_width,  # type: ignore
                 color=stroke_color,
             )
             for i in range(len(polygon)):
@@ -164,8 +182,12 @@ class LeafLamination(AbstractLamination, BaseModel):
             if not used_leaf:
                 polygons.append(set([leaf.min, leaf.max]))
 
-        polygons_ = list(map(lambda s: sorted(s, key=lambda p: p.to_float()), polygons))
-        return Lamination(polygons=polygons_, points=self.points, radix=self.radix)
+        polygons_ = list(
+            map(lambda s: tuple(sorted(s, key=lambda p: p.to_float())), polygons)
+        )
+        return Lamination(
+            polygons=polygons_, points=self.points, radix=self.radix  # type:ignore
+        )
 
     def crosses(self, target: Chord):
         return any([target.crosses(reference) for reference in self.leafs])
@@ -196,5 +218,6 @@ class LeafLamination(AbstractLamination, BaseModel):
         return LeafLamination(
             leafs=set(new_leaves), points=new_points, radix=self.radix
         )
+
 
 AgnosticLamination = Union[LeafLamination, Lamination]

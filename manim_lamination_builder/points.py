@@ -118,7 +118,7 @@ class NaryFraction(UnitPoint, BaseModel):
     def _check_values(cls, v, info: ValidationInfo):
         base = int(info.data["base"])
         for n in v:
-            assert n >= 0 and n < base, "{} not a valid {}-ary digit".format(n,base)
+            assert n >= 0 and n < base, "{} not a valid {}-ary digit".format(n, base)
         return v
 
     @staticmethod
@@ -204,6 +204,7 @@ class NaryFraction(UnitPoint, BaseModel):
         return value
 
 
+# TODO: its not right for this to be a subclass because there are times when it should not be used as a substiture
 class CarryingFloatWrapper(FloatWrapper, BaseModel):
     """like FloatWrapper, but keeps track of the most recent overflowed digit,
     mostly for purpose of animation"""
@@ -228,5 +229,6 @@ class CarryingFloatWrapper(FloatWrapper, BaseModel):
         a = center.to_float()
         ret = x - floor(x - a + 0.5)
         return CarryingFloatWrapper(ret, self.base)
+
 
 Angle = Union[NaryFraction, FloatWrapper, CarryingFloatWrapper]

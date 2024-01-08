@@ -12,6 +12,7 @@ from manim_lamination_builder.lamination import (
 from manim_lamination_builder.points import FloatWrapper, NaryFraction
 import json
 import json5
+# TODO: make custom_dump obsolete with good __repr__
 
 
 class CustomEncoder(json.JSONEncoder):

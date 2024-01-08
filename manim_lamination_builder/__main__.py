@@ -16,7 +16,7 @@ if __name__ == "__main__":
     if sys.argv[-2] == "-p":
         for lamination in laminations:
             lamination.auto_populate()
-    # TODO: command line args
+    # TODO: command line args and white theme? 
 
     with tempconfig(
         {"quality": "medium_quality", "preview": True} # , "background_color": WHITE
