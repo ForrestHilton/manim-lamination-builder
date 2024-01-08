@@ -20,13 +20,13 @@ def test_centering():
 def test_filter():
     thing = CriticalTree.default()
     rabbit_cord = thing.all_branches_identifyers()
-    shared_starting_point = rabbit_nth_pullback(4).convert_to_carrying()
+    shared_starting_point = rabbit_nth_pullback(4).lifted()
     init = shared_starting_point.filtered(rabbit_cord[0])
     assert len(init.polygons) == 4
 
     init = (
         shared_starting_point.filtered(rabbit_cord[1])
-        .convert_to_carrying()
+        .lifted()
         .apply_function(lambda p: p.centered(LiftedAngle(0)))
     )
 
@@ -36,7 +36,7 @@ test_filter()
 class _MyScene(Scene):
     def construct(self):
         rabbit_cord = CriticalTree.default().all_branches_identifyers()
-        shared_starting_point = rabbit_nth_pullback(7).convert_to_carrying()
+        shared_starting_point = rabbit_nth_pullback(7).lifted()
         init = shared_starting_point.filtered(rabbit_cord[0])
         final = sigma(init)
         mob = init.build()
@@ -48,7 +48,7 @@ class _MyScene(Scene):
         self.clear()
         init = (
             shared_starting_point.filtered(rabbit_cord[1])
-            .convert_to_carrying()
+            .lifted()
             .apply_function(lambda p: p.centered(LiftedAngle(0)))
         )
         final = sigma(init)

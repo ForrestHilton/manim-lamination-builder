@@ -57,8 +57,8 @@ class HalfOpenArc(BaseModel):
             return False
 
         return int(
-            self.b.to_carrying().after_sigma().to_float()
-            - self.a.to_carrying().after_sigma().to_float()
+            self.b.lifted().after_sigma().to_float()
+            - self.a.lifted().after_sigma().to_float()
         )
 
     def length_rotations(self) -> float:

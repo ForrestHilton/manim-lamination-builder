@@ -45,8 +45,8 @@ class AbstractLamination(ABC, Generic[T]):
     def filtered(self, f: Callable[[Angle], bool]) -> T:
         pass
 
-    def convert_to_carrying(self) -> T:
-        return self.apply_function(lambda p: p.to_carrying())
+    def lifted(self) -> T:
+        return self.apply_function(lambda p: p.lifted())
 
     def to_polygons(self) -> "GapLamination":
         return self  # type: ignore

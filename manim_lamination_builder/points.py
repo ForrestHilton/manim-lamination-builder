@@ -68,7 +68,7 @@ class _Angle(ABC):
     def pre_images(self) -> List["_Angle"]:
         pass
 
-    def to_carrying(self) -> "LiftedAngle":
+    def lifted(self) -> "LiftedAngle":
         return LiftedAngle(
             self.to_float(), self.degree, visual_settings=self.visual_settings
         )
@@ -216,7 +216,7 @@ class LiftedAngle(_Angle, BaseModel):
             value=value, degree=degree, visual_settings=visual_settings
         )
 
-    def cleared(self) -> "FloatWrapper":
+    def principal(self) -> "FloatWrapper":
         return FloatWrapper(self.value % 1, self.degree, self.visual_settings)
 
     def after_sigma(self) -> "LiftedAngle":

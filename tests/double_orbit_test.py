@@ -15,5 +15,5 @@ if __name__ == "__main__":
     config.preview = True
     # Main([double_orbit]).render()
     print(custom_dump(double_orbit))
-    SigmaAnimation(double_orbit.convert_to_carrying()).render()
+    SigmaAnimation(double_orbit.lifted()).render()
     
