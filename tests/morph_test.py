@@ -1,5 +1,5 @@
 from manim import *
-from manim_lamination_builder import custom_parse, Lamination
+from manim_lamination_builder import custom_parse, GapLamination
 from manim_lamination_builder.animation import AnimateLamination
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
@@ -15,9 +15,9 @@ def test_morph():
       ["3_003", "1_030", "1_300"]],
     "chords": [],
     "points": [],
-    "radix": 4}"""
+    "degree": 4}"""
     )
-    assert isinstance(initial, Lamination)
+    assert isinstance(initial, GapLamination)
     occlusion = HalfOpenArc(
         a=initial.polygons[0][0], b=initial.polygons[0][2], left_is_closed=True
     )
@@ -49,9 +49,9 @@ class _MyScene(Scene):
           ["3_003", "1_030", "1_300"]],
         "chords": [],
         "points": [],
-        "radix": 4}"""
+        "degree": 4}"""
         )
-        assert isinstance(initial, Lamination)
+        assert isinstance(initial, GapLamination)
         occlusion = HalfOpenArc(
             a=initial.polygons[0][0], b=initial.polygons[0][2], left_is_closed=True
         )

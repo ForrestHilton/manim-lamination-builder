@@ -19,7 +19,7 @@ The input format is as follows: A json or json5 list of laminations to be placed
     polygons:[["_001","_010","_100"]],
     chords:[["_1","2"]],
     points: ["3"],
-    radix: 4
+    degree: 4
   },
   {
     "polygons": [["0_003", "0_030", "0_300"], 
@@ -28,9 +28,9 @@ The input format is as follows: A json or json5 list of laminations to be placed
       ["3_003", "1_030", "1_300"]], 
     "chords": [], 
     "points": [], 
-    "radix": 4
+    "degree": 4
   },
-  { radix: 4}
+  { degree: 4}
 ]
 ```
 ![please enable images](https://github.com/ForrestHilton/python-lamination-builder/blob/main/contrived_example.png "Render of json above")
@@ -51,7 +51,7 @@ Alternately, you might want to specify the rotational shape by hand:
 from manim_lamination_builder import generate_sibling_portraits, parse_lamination, Main
 from manim import tempconfig
 
-shape = parse_lamination("""{polygons:[['_002','_020','_200']],radix:3}""").polygons[0]
+shape = parse_lamination("""{polygons:[['_002','_020','_200']],degree:3}""").polygons[0]
 
 portraits = generate_sibling_portraits(shape)
 
@@ -74,7 +74,7 @@ from manim_lamination_builder import (
 class MyScene(Scene):
     def construct(self):
         initial = parse_lamination(
-            '{polygons: [["_200","_002","_020"]], points:[0.1,"200","201"], radix: 3 }'
+            '{polygons: [["_200","_002","_020"]], points:[0.1,"200","201"], degree: 3 }'
         )
 
         initial.auto_populate()

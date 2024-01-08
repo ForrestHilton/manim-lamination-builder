@@ -14,7 +14,7 @@ from manim.animation.animation import config
 from manim_lamination_builder.chord import make_and_append_bezier
 from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
-from manim_lamination_builder.lamination import AbstractLamination, Lamination
+from manim_lamination_builder.lamination import AbstractLamination, GapLamination
 from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
 from manim_lamination_builder.points import FloatWrapper, angle_to_cartesian
 from typing import Optional, Union
@@ -26,19 +26,19 @@ def lerp(a: float, b: float, alpha: float) -> float:
 
 
 class AnimateLamination(Animation):
-    initial: Lamination
-    final: Lamination
+    initial: GapLamination
+    final: GapLamination
     initial_occlusion: Optional[HalfOpenArc] = None
 
     def __init__(
         self,
-        initial: Union[Lamination, OccludedLamination],
-        final: Lamination,
+        initial: Union[GapLamination, OccludedLamination],
+        final: GapLamination,
         start_mobject: Optional[Mobject] = None,
         **kwargs,
     ) -> None:
         super().__init__(start_mobject or initial.build(), **kwargs)
-        assert isinstance(final, Lamination)
+        assert isinstance(final, GapLamination)
         if isinstance(initial, OccludedLamination):
             self.initial = initial.lam.to_polygons()
             self.final = final.to_polygons()
@@ -47,8 +47,8 @@ class AnimateLamination(Animation):
             self.initial = initial
         self.final = final
         assert (
-            isinstance(self.initial, Lamination)
-            and isinstance(self.final, Lamination)
+            isinstance(self.initial, GapLamination)
+            and isinstance(self.final, GapLamination)
             and isinstance(self.initial_occlusion, Optional[HalfOpenArc])
         )
         # TODO: check if laminations are compatible in terms of same length of properys
@@ -132,6 +132,6 @@ class SigmaAnimation(Scene):
         self.add(mob)
         self.wait(1)
         final = sigma(self.lam)
-        assert isinstance(final, Lamination)
+        assert isinstance(final, GapLamination)
         self.play(AnimateLamination(self.lam, final, mob, run_time=5))
         self.wait(1)

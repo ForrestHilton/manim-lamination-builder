@@ -27,7 +27,7 @@ T = TypeVar("T", bound="AbstractLamination")
 
 class AbstractLamination(ABC, Generic[T]):
     points: List[Angle]
-    radix: Degree
+    degree: Degree
     dark_theme: bool
 
     @abstractmethod
@@ -48,7 +48,7 @@ class AbstractLamination(ABC, Generic[T]):
     def convert_to_carrying(self) -> T:
         return self.apply_function(lambda p: p.to_carrying())
 
-    def to_polygons(self) -> "Lamination":
+    def to_polygons(self) -> "GapLamination":
         return self  # type: ignore
 
     def to_leafs(self) -> "LeafLamination":
@@ -58,9 +58,9 @@ class AbstractLamination(ABC, Generic[T]):
 Polygon = tuple[Angle, ...] # TODO: add validator to test if this is in order as needed.
 
 
-class Lamination(AbstractLamination, BaseModel):
+class GapLamination(AbstractLamination, BaseModel):
     points: List[Angle]
-    radix: Degree
+    degree: Degree
     dark_theme: bool = True
     polygons: List[Polygon]
 
@@ -70,11 +70,11 @@ class Lamination(AbstractLamination, BaseModel):
             Sequence[Angle]
         ],  # the only difrence with the auto gennerated code is here
         points: List[Angle],
-        radix: Degree,
+        degree: Degree,
         dark_theme: bool = True,
     ):
-        super(Lamination, self).__init__(
-            polygons=polygons, points=points, radix=radix, dark_theme=dark_theme
+        super(GapLamination, self).__init__(
+            polygons=polygons, points=points, degree=degree, dark_theme=dark_theme
         )
 
     def auto_populate(self):
@@ -123,37 +123,37 @@ class Lamination(AbstractLamination, BaseModel):
 
         return ret
 
-    def apply_function(self, f: Callable[[Angle], Angle]) -> "Lamination":
+    def apply_function(self, f: Callable[[Angle], Angle]) -> "GapLamination":
         new_polygons = []
         for poly in self.polygons:
             new_poly = [f(p) for p in poly]
             new_polygons.append(new_poly)
         new_points = [f(p) for p in self.points]
-        return Lamination(polygons=new_polygons, points=new_points, radix=self.radix)
+        return GapLamination(polygons=new_polygons, points=new_points, degree=self.degree)
 
-    def filtered(self, f: Callable[[Angle], bool]) -> "Lamination":
+    def filtered(self, f: Callable[[Angle], bool]) -> "GapLamination":
         new_polygons = []
         for poly in self.polygons:
             if all([f(p) for p in poly]):
                 new_polygons.append(poly)
         new_points = list(filter(f, self.points))
-        return Lamination(polygons=new_polygons, points=new_points, radix=self.radix)
+        return GapLamination(polygons=new_polygons, points=new_points, degree=self.degree)
 
     def to_leafs(self) -> "LeafLamination":
         leafs: List[Chord] = []
         for polygon in self.polygons:
             for i in range(len(polygon)):
                 leafs.append(Chord(polygon[i], polygon[(i + 1) % len(polygon)]))
-        return LeafLamination(leafs=set(leafs), points=self.points, radix=self.radix)
+        return LeafLamination(leafs=set(leafs), points=self.points, degree=self.degree)
 
 
 class LeafLamination(AbstractLamination, BaseModel):
     points: List[Angle]
-    radix: Degree
+    degree: Degree
     dark_theme: bool = True
     leafs: Set[Chord]
 
-    def to_polygons(self) -> Lamination:
+    def to_polygons(self) -> GapLamination:
         "identifies finite gaps"
         polygons: List[Set[Angle]] = []
         for leaf in self.leafs:
@@ -185,8 +185,8 @@ class LeafLamination(AbstractLamination, BaseModel):
         polygons_ = list(
             map(lambda s: tuple(sorted(s, key=lambda p: p.to_float())), polygons)
         )
-        return Lamination(
-            polygons=polygons_, points=self.points, radix=self.radix  # type:ignore
+        return GapLamination(
+            polygons=polygons_, points=self.points, degree=self.degree  # type:ignore
         )
 
     def crosses(self, target: Chord):
@@ -197,7 +197,7 @@ class LeafLamination(AbstractLamination, BaseModel):
 
     @staticmethod
     def empty(d) -> "LeafLamination":
-        return LeafLamination(leafs=set(), points=[], radix=d)
+        return LeafLamination(leafs=set(), points=[], degree=d)
 
     def apply_function(self, f: Callable[[Angle], Angle]) -> "LeafLamination":
         new_leaves = []
@@ -206,7 +206,7 @@ class LeafLamination(AbstractLamination, BaseModel):
             new_leaves.append(new_leaf)
         new_points = [f(p) for p in self.points]
         return LeafLamination(
-            leafs=set(new_leaves), points=new_points, radix=self.radix
+            leafs=set(new_leaves), points=new_points, degree=self.degree
         )
 
     def filtered(self, f: Callable[[Angle], bool]) -> "LeafLamination":
@@ -216,8 +216,8 @@ class LeafLamination(AbstractLamination, BaseModel):
                 new_leaves.append(leaf)
         new_points = list(filter(f, self.points))
         return LeafLamination(
-            leafs=set(new_leaves), points=new_points, radix=self.radix
+            leafs=set(new_leaves), points=new_points, degree=self.degree
         )
 
 
-AgnosticLamination = Union[LeafLamination, Lamination]
+AgnosticLamination = Union[LeafLamination, GapLamination]

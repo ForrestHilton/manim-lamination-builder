@@ -6,7 +6,7 @@ from typing import List, Union
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.lamination import (
     AbstractLamination,
-    Lamination,
+    GapLamination,
     LeafLamination,
 )
 from manim_lamination_builder.points import FloatWrapper, NaryFraction
@@ -39,14 +39,14 @@ class CustomDecoder(json.JSONDecoder):
         super().__init__(object_hook=self.object_hook, *args, **kwargs)
 
     def object_hook(self, dct):
-        if "radix" in dct:
-            radix = dct["radix"]
+        if "degree" in dct:
+            degree = dct["degree"]
 
             def point_handler(v):
                 if isinstance(v, float):
-                    return FloatWrapper(v, radix)
+                    return FloatWrapper(v, degree)
                 else:
-                    return NaryFraction.from_string(radix, v)
+                    return NaryFraction.from_string(degree, v)
 
             def list_handler(ls):
                 assert isinstance(ls, List)
@@ -64,8 +64,8 @@ class CustomDecoder(json.JSONDecoder):
 
             if dct.get("leafs", None) is not None:
                 leafs = list(map(lambda l: Chord(l[0], l[1]), leafs))
-                return LeafLamination(leafs=leafs, points=points, radix=radix)
-            return Lamination(polygons=polygons, points=points, radix=radix)
+                return LeafLamination(leafs=leafs, points=points, degree=degree)
+            return GapLamination(polygons=polygons, points=points, degree=degree)
         return dct
 
 
@@ -75,7 +75,7 @@ def preprocess_for_json5(json5_str: str) -> str:
     return json_str
 
 
-def read_file_to_laminations(path) -> List[Lamination]:
+def read_file_to_laminations(path) -> List[GapLamination]:
     with open(path) as f:
         json_str = preprocess_for_json5(f.read())
         return json.loads(json_str, cls=CustomDecoder)
@@ -85,7 +85,7 @@ def custom_dump(data_of_a_type_defined_in_this_project) -> str:
     return json.dumps(data_of_a_type_defined_in_this_project, cls=CustomEncoder)
 
 
-def custom_parse(string: str) -> Union[Lamination, List[Lamination]]:
+def custom_parse(string: str) -> Union[GapLamination, List[GapLamination]]:
     json_str = preprocess_for_json5(string)
     return json.loads(json_str, cls=CustomDecoder)
 

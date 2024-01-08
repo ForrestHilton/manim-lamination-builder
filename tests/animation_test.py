@@ -1,5 +1,5 @@
 from manim import *
-from manim_lamination_builder import custom_parse, Lamination, AnimateLamination
+from manim_lamination_builder import custom_parse, GapLamination, AnimateLamination
 from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.points import CarryingFloatWrapper
 from manim_lamination_builder.pull_backs import CriticalTree, rabbit_nth_pullback

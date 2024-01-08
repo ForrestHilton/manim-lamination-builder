@@ -24,7 +24,7 @@ Degree = Annotated[int, Gt(1)]
 
 class UnitPoint(ABC):
     visual_settings: VisualSettings = VisualSettings()
-    base: Optional[Degree]
+    degree: Optional[Degree]
 
     def __repr__(self) -> str:
         return self.to_string()
@@ -70,7 +70,7 @@ class UnitPoint(ABC):
 
     def to_carrying(self) -> "CarryingFloatWrapper":
         return CarryingFloatWrapper(
-            self.to_float(), self.base, visual_settings=self.visual_settings
+            self.to_float(), self.degree, visual_settings=self.visual_settings
         )
 
 
@@ -80,7 +80,8 @@ class FloatWrapper(UnitPoint, BaseModel):
 
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
         super(FloatWrapper, self).__init__(
-            value=value % 1, base=degree, visual_settings=visual_settings
+            value=value % 1, degree
+            =degree, visual_settings=visual_settings
         )
 
     def to_float(self):
@@ -91,24 +92,24 @@ class FloatWrapper(UnitPoint, BaseModel):
 
     def after_sigma(self) -> "FloatWrapper":
         after = deepcopy(self)
-        assert self.base is not None
-        after.value *= self.base
+        assert self.degree is not None
+        after.value *= self.degree
         after.value %= 1
         return after
 
     def has_degree(self):
-        return self.base is not None
+        return self.degree is not None
 
     def pre_images(self) -> List["FloatWrapper"]:
-        assert self.base is not None
+        assert self.degree is not None
         return [
-            FloatWrapper(self.value / self.base + digit / self.base, self.base)
-            for digit in range(self.base)
+            FloatWrapper(self.value / self.degree + digit / self.degree, self.degree)
+            for digit in range(self.degree)
         ]
 
 
 class NaryFraction(UnitPoint, BaseModel):
-    base: Degree
+    degree: Degree
     exact: List[int]
     repeating: List[int]
     visual_settings: VisualSettings = VisualSettings()
@@ -116,20 +117,20 @@ class NaryFraction(UnitPoint, BaseModel):
     @field_validator("exact", "repeating")
     @classmethod
     def _check_values(cls, v, info: ValidationInfo):
-        base = int(info.data["base"])
+        degree = int(info.data["degree"])
         for n in v:
-            assert n >= 0 and n < base, "{} not a valid {}-ary digit".format(n, base)
+            assert n >= 0 and n < degree, "{} not a valid {}-ary digit".format(n, degree)
         return v
 
     @staticmethod
-    def from_string(base, string_representation):
+    def from_string(degree, string_representation):
         assert not "." in string_representation
         parts = string_representation.split("_")
         exact = [int(i) for i in parts[0]]
         repeating = []
         if len(parts) > 1:
             repeating = [int(i) for i in parts[1]]
-        return NaryFraction(base=base, exact=exact, repeating=repeating)
+        return NaryFraction(degree=degree, exact=exact, repeating=repeating)
 
     def to_string(self):
         overflow_string = ""
@@ -149,7 +150,7 @@ class NaryFraction(UnitPoint, BaseModel):
 
     def after_sigma(self) -> "NaryFraction":
         after = deepcopy(self)
-        # multiply the exact part by base
+        # multiply the exact part by degree
         if after.repeating:
             carry = after.repeating.pop(0)
             after.repeating.append(carry)
@@ -180,26 +181,26 @@ class NaryFraction(UnitPoint, BaseModel):
         ret = self.without_enharmonics()
         return [
             NaryFraction(
-                base=self.base,
+                degree=self.degree,
                 exact=[digit] + ret.exact,
                 repeating=ret.repeating,
                 visual_settings=self.visual_settings,
             )
-            for digit in range(self.base)
+            for digit in range(self.degree)
         ]
 
     def to_float(self) -> float:
-        value = sum([n / self.base ** (i + 1) for i, n in enumerate(self.exact)])
+        value = sum([n / self.degree ** (i + 1) for i, n in enumerate(self.exact)])
         if len(self.repeating) != 0:
             value += (
                 sum(
                     [
-                        n / self.base ** (i + 1 - len(self.repeating))
+                        n / self.degree ** (i + 1 - len(self.repeating))
                         for i, n in enumerate(self.repeating)
                     ]
                 )
-                / self.base ** len(self.exact)
-                / (self.base ** len(self.repeating) - 1)
+                / self.degree ** len(self.exact)
+                / (self.degree ** len(self.repeating) - 1)
             )
         return value
 
@@ -211,16 +212,16 @@ class CarryingFloatWrapper(FloatWrapper, BaseModel):
 
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
         super(FloatWrapper, self).__init__(
-            value=value, base=degree, visual_settings=visual_settings
+            value=value, degree=degree, visual_settings=visual_settings
         )
 
     def cleared(self) -> "FloatWrapper":
-        return FloatWrapper(self.value % 1, self.base, self.visual_settings)
+        return FloatWrapper(self.value % 1, self.degree, self.visual_settings)
 
     def after_sigma(self) -> "FloatWrapper":
         after = deepcopy(self)
-        assert self.base is not None
-        after.value *= self.base
+        assert self.degree is not None
+        after.value *= self.degree
         return after
 
     def centered(self, center: UnitPoint) -> "CarryingFloatWrapper":
@@ -228,7 +229,7 @@ class CarryingFloatWrapper(FloatWrapper, BaseModel):
         x = self.value % 1
         a = center.to_float()
         ret = x - floor(x - a + 0.5)
-        return CarryingFloatWrapper(ret, self.base)
+        return CarryingFloatWrapper(ret, self.degree)
 
 
 Angle = Union[NaryFraction, FloatWrapper, CarryingFloatWrapper]

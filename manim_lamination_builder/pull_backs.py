@@ -5,7 +5,7 @@ Otherwise, this works with just one end point of each critical cord and
 wether that end point is the one to included with the inside. It infers 
 how far away the next end point should be by how many critical cords are inside 
 it. Moreover, it does so in a degree aware way. (It gets the degree from
-the point's radix).
+the point's degree).
 """
 from typing import Callable, List, Optional
 
@@ -15,7 +15,7 @@ from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction
 from manim_lamination_builder.constructions import unicritical_polygon
 from manim_lamination_builder.lamination import (
     AbstractLamination,
-    Lamination,
+    GapLamination,
     LeafLamination,
 )
 
@@ -41,7 +41,7 @@ class CriticalTree(BaseModel):
         )
 
     def actual_degree(self):
-        degree = self.first_ccw_end_point.base
+        degree = self.first_ccw_end_point.degree
         assert degree is not None
         return degree
 
@@ -110,17 +110,17 @@ class CriticalTree(BaseModel):
         polygons = []
         leafs = []
         points = []
-        if isinstance(lam, Lamination):
+        if isinstance(lam, GapLamination):
             for f in branches:
                 polygons += lam.apply_function(f).polygons
                 points += lam.apply_function(f).points
-            return Lamination(polygons=polygons, points=points, radix=lam.radix)
+            return GapLamination(polygons=polygons, points=points, degree=lam.degree)
         else:
             assert isinstance(lam, LeafLamination)
             for f in branches:
                 leafs += lam.apply_function(f).leafs
                 points += lam.apply_function(f).points
-            return LeafLamination(leafs=set(leafs), points=points, radix=lam.radix)
+            return LeafLamination(leafs=set(leafs), points=points, degree=lam.degree)
 
     def pull_back_n(self, lam: AbstractLamination, n) -> AbstractLamination:
         ret = lam
@@ -129,7 +129,7 @@ class CriticalTree(BaseModel):
         return ret
 
 
-def rabbit_nth_pullback(n) -> Lamination:
-    rabbit_seed = Lamination(polygons=[unicritical_polygon(2, 3)], points=[], radix=2)
+def rabbit_nth_pullback(n) -> GapLamination:
+    rabbit_seed = GapLamination(polygons=[unicritical_polygon(2, 3)], points=[], degree=2)
     rabbit_cord = CriticalTree.default()
     return rabbit_cord.pull_back_n(rabbit_seed, n)

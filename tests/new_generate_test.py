@@ -65,7 +65,7 @@ def test_issolated_collections2():
 def test_preimage_dictionary():
     start = parse_lamination(
         """
-{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "radix": 2}
+{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
             """
     )
     dict = pre_image_dictionary(start)
@@ -81,7 +81,7 @@ def test_single_leavs1():
     l = Chord(
         NaryFraction.from_string(2, "1_010"), NaryFraction.from_string(2, "1_100")
     )
-    L = custom_parse('{"leafs": [], "points": [], "radix": 2}')
+    L = custom_parse('{"leafs": [], "points": [], "degree": 2}')
     required = custom_parse("[]")
 
     result = _sibling_collections_of_leaf_in_existing(l, L, required)
@@ -91,7 +91,7 @@ def test_single_leavs1():
 def test_single_leavs2():
     start = parse_lamination(
         """
-{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "radix": 2}
+{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
             """
     )
     existing_pre_images = pre_image_dictionary(start)
@@ -102,7 +102,7 @@ def test_single_leavs2():
     required = existing_pre_images.get(l, [])
 
     L = custom_parse(
-        '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "radix": 2}]'
+        '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "degree": 2}]'
     )
 
     assert all([sigma(l2) == l for l2 in required])
@@ -114,7 +114,7 @@ def test_single_leavs2():
 
 def test_new_sibling_portraits():
     start = parse_lamination(
-        """{polygons:[['_100','_010','_001']],radix:3}"""
+        """{polygons:[['_100','_010','_001']],degree:3}"""
     ).to_leafs()
     portraits = next_pull_back(start)
     assert len(portraits) == 4
@@ -122,7 +122,7 @@ def test_new_sibling_portraits():
 
 def test_rabbit_tree():
     start = parse_lamination(
-        """{polygons:[['_100','_010','_001']],radix:2}"""
+        """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
     tree = PullBackTree(start, 4)
     list_of_lists = tree.flaten()
@@ -136,7 +136,7 @@ def test_rabbit_tree():
 
 def test_rabbit_tree_one_to_one():
     start = parse_lamination(
-        """{polygons:[['_100','_010','_001']],radix:2}"""
+        """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
     tree = PullBackTree(start, 4)
     options = tree.flaten()[4]
@@ -152,7 +152,7 @@ def test_rabbit_tree_one_to_one():
 def show_rabbit_tree():
     config.preview = True
     start = parse_lamination(
-        """{polygons:[['_100','_010','_001']],radix:2}"""
+        """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
     tree = PullBackTree(start, 4)
     TreeRender(tree).render()
@@ -162,11 +162,11 @@ if __name__ == "__main__":
     show_rabbit_tree()
     config.preview = True
     # main = parse_lamination(
-    #     '{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}'
+    #     '{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}'
     # )
-    # leaf = parse_lamination('{"leafs": [["0_010", "0_100"]], "points": [], "radix": 2}')
+    # leaf = parse_lamination('{"leafs": [["0_010", "0_100"]], "points": [], "degree": 2}')
     # required = parse_lamination(
-    #     '{"leafs": [["0_001", "1_010"], ["0_010", "1_001"]], "points": [], "radix": 2}'
+    #     '{"leafs": [["0_001", "1_010"], ["0_010", "1_001"]], "points": [], "degree": 2}'
     # )
 
     # Main([main, leaf, required]).render()

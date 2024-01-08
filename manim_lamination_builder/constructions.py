@@ -5,7 +5,7 @@ from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.lamination import AbstractLamination, Polygon
 from manim_lamination_builder.points import Angle, NaryFraction
-from manim_lamination_builder import Lamination
+from manim_lamination_builder import GapLamination
 from typing import Iterable, List, TypeVar
 from manim_lamination_builder.visual_settings import get_color, VisualSettings
 import scipy
@@ -43,31 +43,31 @@ def inverted_rotational_polygon(degree, order) -> tuple[NaryFraction, ...]:
     return uniquely_color(tuple(original_shape)) # type: ignore
 
 
-def insert_criticality(x: Lamination, at: NaryFraction) -> Lamination:
+def insert_criticality(x: GapLamination, at: NaryFraction) -> GapLamination:
     "probably broken method" # TODO
     assert sum(at.repeating) == 0 and len(at.exact) == 1
 
     def shift(x: Angle) -> NaryFraction:
         assert isinstance(x, NaryFraction) # TODO
         return NaryFraction(
-            base=x.base + 1,
-            exact=[i if i < at.to_float() * at.base else i + 1 for i in x.exact],
+            degree=x.degree + 1,
+            exact=[i if i < at.to_float() * at.degree else i + 1 for i in x.exact],
             repeating=[
-                i if i < at.to_float() * at.base else i + 1 for i in x.repeating
+                i if i < at.to_float() * at.degree else i + 1 for i in x.repeating
             ],
         )
 
     ret = x.apply_function(shift)
-    x.radix += 1
+    x.degree += 1
     return ret
 
 
-start = Lamination(
+start = GapLamination(
     polygons=[
         [NaryFraction.from_string(3, "_012"), NaryFraction.from_string(3, "_112")]
     ],
     points=[],
-    radix=3,
+    degree=3,
 )
 
 insertion_points = [
@@ -75,7 +75,7 @@ insertion_points = [
     NaryFraction.from_string(3, "0"),
 ]
 
-double_orbit = Lamination(
+double_orbit = GapLamination(
     polygons=[
         uniquely_color(
             start.polygons[0] 
@@ -86,12 +86,12 @@ double_orbit = Lamination(
         )
     ],
     points=[],
-    radix=3,
+    degree=3,
 )
 double_orbit.auto_populate()
 
 
-def add_points_preimages(lam: Lamination) -> Lamination:
+def add_points_preimages(lam: GapLamination) -> GapLamination:
     "Mutates and returns mutation"
     for i in range(len(lam.points)):
         lam.points += lam.points[i].pre_images()
@@ -122,7 +122,7 @@ def sigma(input: T) -> T:
 
 def pollygons_are_one_to_one(lam: AbstractLamination) -> bool:
     "Tests weather all the polygons in a lamination map one to one"
-    _lam = lam if isinstance(lam, Lamination) else lam.to_polygons()
+    _lam = lam if isinstance(lam, GapLamination) else lam.to_polygons()
     return all(
         [len(set(pollygon)) == len(set(sigma(pollygon))) for pollygon in _lam.polygons]
     )

@@ -3,7 +3,7 @@ from manim import ORIGIN, RED, TAU, Arc, Mobject, VMobject
 from pydantic import BaseModel, field_validator
 from manim_lamination_builder.chord import make_and_append_bezier
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
-from manim_lamination_builder.lamination import AbstractLamination, AgnosticLamination, Lamination
+from manim_lamination_builder.lamination import AbstractLamination, AgnosticLamination, GapLamination
 from manim_lamination_builder.points import (
     Angle,
     CarryingFloatWrapper,
@@ -113,7 +113,7 @@ class OccludedLamination(BaseModel):
     def result(self) -> AbstractLamination:
         if self.occlusion is None:
             return self.lam
-        orriginal_degree = self.lam.radix
+        orriginal_degree = self.lam.degree
         lost_criticalitys = self.occlusion.criticality()
         remaining_degree = (
             orriginal_degree - lost_criticalitys
@@ -130,7 +130,7 @@ class OccludedLamination(BaseModel):
             )
 
         ret = self.lam.apply_function(mapping)
-        ret.radix = remaining_degree
+        ret.degree = remaining_degree
         return ret
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
@@ -157,8 +157,8 @@ class OccludedLamination(BaseModel):
 # TODO: data handling for this in custom_json
 
 
-def interpolate_quotent_of_region_under_the_first_listed_polygon(lam: Lamination):
-    d = lam.radix
+def interpolate_quotent_of_region_under_the_first_listed_polygon(lam: GapLamination):
+    d = lam.degree
     critical_cord = HalfOpenArc(
         a=lam.polygons[0][0],
         b=FloatWrapper(lam.polygons[0][0].to_float() + 1 / d, d),  # TODO: change this

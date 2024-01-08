@@ -2,7 +2,7 @@ from manim.animation.animation import config
 from manim.utils.testing.frames_comparison import frames_comparison
 
 from manim_lamination_builder import (
-    Lamination,
+    GapLamination,
     fussCatalan,
     unicritical_polygon,
     Main,
@@ -18,7 +18,7 @@ def test_fuss_catalan():
     for d in range(2, 5):
         for n in range(2, 5):
             shape = unicritical_polygon(d, n)
-            lamination = Lamination(polygons=[shape],points= [], radix=d)
+            lamination = GapLamination(polygons=[shape],points= [], degree=d)
             options = next_pull_back(lamination.to_leafs())
             filtered_options = list(
                 filter(
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     n = 4
     d = 3
     shape = unicritical_polygon(d, n)
-    lamination = Lamination([shape], [], d)
+    lamination = GapLamination([shape], [], d)
     config.preview = True
     options = next_pull_back(lamination.to_leafs())
     Main([lam.to_polygons() for lam in options]).render()

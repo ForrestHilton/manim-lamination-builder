@@ -95,7 +95,7 @@ from manim.mobject.geometry.arc import itertools
 from manim_lamination_builder import (
     Chord,
     FloatWrapper,
-    Lamination,
+    GapLamination,
     Angle,
     parse_lamination,
     rabbit_nth_pullback,
@@ -125,7 +125,7 @@ def get_convexity(in_list: List[Angle]) -> Optional[List[CarryingFloatWrapper]]:
 
 
 class CheatingPinch(Scene):
-    def __init__(self, lamination:Lamination):
+    def __init__(self, lamination:GapLamination):
         def change_color(p):
             p.visual_settings.stroke_width = 2
             return p

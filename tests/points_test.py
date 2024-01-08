@@ -3,11 +3,11 @@ from manim_lamination_builder.points import *
 
 
 def test_original_point_operations():
-    assert NaryFraction(base=3,exact= [1],repeating= [1, 0, 1]).to_string() == "1_101"
-    assert NaryFraction(base=2,exact= [1],repeating= []).to_string() == "1"
+    assert NaryFraction(degree=3,exact= [1],repeating= [1, 0, 1]).to_string() == "1_101"
+    assert NaryFraction(degree=2,exact= [1],repeating= []).to_string() == "1"
 
-    assert NaryFraction.from_string(3, "1_101") == NaryFraction(base=3, exact=[1], repeating= [1, 0, 1])
-    assert NaryFraction.from_string(2, "1") == NaryFraction(base=2,exact= [1],repeating= [])
+    assert NaryFraction.from_string(3, "1_101") == NaryFraction(degree=3, exact=[1], repeating= [1, 0, 1])
+    assert NaryFraction.from_string(2, "1") == NaryFraction(degree=2,exact= [1],repeating= [])
 
     assert NaryFraction.from_string(3, "_101").after_sigma().to_string() == "_011"
     assert (

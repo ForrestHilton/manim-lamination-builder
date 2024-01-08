@@ -5,13 +5,13 @@ from copy import deepcopy
 from typing import List
 from manim_lamination_builder import (
     Angle,
-    Lamination,
+    GapLamination,
     HalfOpenArc,
     OccludedLamination,
 )
 
 
-def first_polygon(lam: Lamination) -> List[Angle]:
+def first_polygon(lam: GapLamination) -> List[Angle]:
     "select first polygon CCW"
     sorted_points = sorted(lam.points, key=lambda x: x.to_float())
     for p in sorted_points:
@@ -24,7 +24,7 @@ def first_polygon(lam: Lamination) -> List[Angle]:
 def make_regions(lam: OccludedLamination) -> List[OccludedLamination]:
     "seperate the lamination into regions based on the first polygon"
     # use it partition into n pieces in CCW order
-    assert lam.lam is Lamination
+    assert lam.lam is GapLamination
     polygon = first_polygon(lam.lam)
 
     regions = []
@@ -37,22 +37,20 @@ def make_regions(lam: OccludedLamination) -> List[OccludedLamination]:
     return regions
 
 
-def construct_nested_tuple(lam: Lamination):
+def construct_nested_tuple(lam: GapLamination):
     if len(lam.polygons) == 0:
         return ()
 
     return tuple(
-        reversed(
-            [
-                construct_nested_tuple(lam)
-                for lam in make_regions(OccludedLamination(lam, None))
-            ]
-        )
+        reversed([
+            construct_nested_tuple(lam)
+            for lam in make_regions(OccludedLamination(lam, None))
+        ])
     )
 
 
 # make copy first
-def construct_tree(lam: Lamination) -> Mobject:
+def construct_tree(lam: GapLamination) -> Mobject:
     tuples = construct_nested_tuple(lam)
     G = nx.from_nested_tuple(tuples)
     return Graph(

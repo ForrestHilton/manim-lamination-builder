@@ -97,7 +97,7 @@ def next_pull_back(
     if cumulative:
         ret = [deepcopy(lam)]
     else:
-        ret = [LeafLamination.empty(lam.radix)]
+        ret = [LeafLamination.empty(lam.degree)]
     for l in list(lam.leafs):
         required_pre_images = existing_pre_images.get(l, [])
         new_ret = []
@@ -163,13 +163,13 @@ if __name__ == "__main__":
     config.preview = True
 
     # start = parse_lamination(
-    #     """{polygons:[['_100','_010','_001']],radix:2}"""
+    #     """{polygons:[['_100','_010','_001']],degree:2}"""
     # ).to_leafs()
     # print(custom_dump(next_pull_back(start)[0]))
 
     start = parse_lamination(
         """
-{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "radix": 2}
+{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
             """
     )
     # assert start is LeafLamination
@@ -178,13 +178,13 @@ if __name__ == "__main__":
     #         """
     #                       [
 
-    # {"leafs": [["01_100", "11_010"], ["01_010", "11_100"], ["0_010", "1_100"]], "points": [], "radix": 2}
+    # {"leafs": [["01_100", "11_010"], ["01_010", "11_100"], ["0_010", "1_100"]], "points": [], "degree": 2}
     # ]
     # """
     #     )
     #     for lam in res:
     #         lam.leafs.update(start.leafs)
 
-    existing = '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "radix": 2}]'
+    existing = '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "degree": 2}]'
 
-    # Main(custom_parse('[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "radix": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "radix": 2}]')).render()
+    # Main(custom_parse('[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "degree": 2}]')).render()
