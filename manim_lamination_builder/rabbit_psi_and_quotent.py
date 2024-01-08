@@ -4,7 +4,7 @@ import cmath
 
 import functools
 
-from manim_lamination_builder.points import CarryingFloatWrapper
+from manim_lamination_builder.points import LiftedAngle
 
 c = -0.122561166876657 + 0.744861766619737j
 
@@ -105,7 +105,7 @@ import cmath
 from manim_lamination_builder import custom_dump
 
 
-def get_convexity(in_list: List[Angle]) -> Optional[List[CarryingFloatWrapper]]:
+def get_convexity(in_list: List[Angle]) -> Optional[List[LiftedAngle]]:
     """
     Retruns a sorted list of vetesies in CCW order such that the first is the boundary
     of the convex region. Wraping is handeld correctly and all points are taken from the same sheet
@@ -119,7 +119,7 @@ def get_convexity(in_list: List[Angle]) -> Optional[List[CarryingFloatWrapper]]:
         distance_ccw = (next_p - p) % 1
         if distance_ccw > 0.5:
             sorted_list = sorted([1 + p2 if p2 < next_p else p2 for p2 in sorted_list])
-            return list(map(lambda p: CarryingFloatWrapper(p), sorted_list))
+            return list(map(lambda p: LiftedAngle(p), sorted_list))
 
     return None
 

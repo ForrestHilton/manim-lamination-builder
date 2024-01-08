@@ -22,7 +22,7 @@ def angle_to_cartesian(angle: float):
 Degree = Annotated[int, Gt(1)]
 
 
-class UnitPoint(ABC):
+class _Angle(ABC):
     visual_settings: VisualSettings = VisualSettings()
     degree: Optional[Degree]
 
@@ -41,7 +41,7 @@ class UnitPoint(ABC):
         pass
 
     @abstractmethod
-    def after_sigma(self) -> "UnitPoint":
+    def after_sigma(self) -> "_Angle":
         pass
 
     def to_angle(self) -> float:
@@ -59,29 +59,28 @@ class UnitPoint(ABC):
     def has_degree(self):
         return True
 
-    def siblings(self) -> List["UnitPoint"]:
+    def siblings(self) -> List["_Angle"]:
         ret = self.after_sigma().pre_images()
         assert self in ret
         return ret
 
     @abstractmethod
-    def pre_images(self) -> List["UnitPoint"]:
+    def pre_images(self) -> List["_Angle"]:
         pass
 
-    def to_carrying(self) -> "CarryingFloatWrapper":
-        return CarryingFloatWrapper(
+    def to_carrying(self) -> "LiftedAngle":
+        return LiftedAngle(
             self.to_float(), self.degree, visual_settings=self.visual_settings
         )
 
 
-class FloatWrapper(UnitPoint, BaseModel):
+class FloatWrapper(_Angle, BaseModel):
     value: float
     visual_settings: VisualSettings = VisualSettings()
 
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
         super(FloatWrapper, self).__init__(
-            value=value % 1, degree
-            =degree, visual_settings=visual_settings
+            value=value % 1, degree=degree, visual_settings=visual_settings
         )
 
     def to_float(self):
@@ -108,7 +107,7 @@ class FloatWrapper(UnitPoint, BaseModel):
         ]
 
 
-class NaryFraction(UnitPoint, BaseModel):
+class NaryFraction(_Angle, BaseModel):
     degree: Degree
     exact: List[int]
     repeating: List[int]
@@ -119,7 +118,9 @@ class NaryFraction(UnitPoint, BaseModel):
     def _check_values(cls, v, info: ValidationInfo):
         degree = int(info.data["degree"])
         for n in v:
-            assert n >= 0 and n < degree, "{} not a valid {}-ary digit".format(n, degree)
+            assert n >= 0 and n < degree, "{} not a valid {}-ary digit".format(
+                n, degree
+            )
         return v
 
     @staticmethod
@@ -193,43 +194,60 @@ class NaryFraction(UnitPoint, BaseModel):
         value = sum([n / self.degree ** (i + 1) for i, n in enumerate(self.exact)])
         if len(self.repeating) != 0:
             value += (
-                sum(
-                    [
-                        n / self.degree ** (i + 1 - len(self.repeating))
-                        for i, n in enumerate(self.repeating)
-                    ]
-                )
+                sum([
+                    n / self.degree ** (i + 1 - len(self.repeating))
+                    for i, n in enumerate(self.repeating)
+                ])
                 / self.degree ** len(self.exact)
                 / (self.degree ** len(self.repeating) - 1)
             )
         return value
 
 
-# TODO: its not right for this to be a subclass because there are times when it should not be used as a substiture
-class CarryingFloatWrapper(FloatWrapper, BaseModel):
+class LiftedAngle(_Angle, BaseModel):
     """like FloatWrapper, but keeps track of the most recent overflowed digit,
     mostly for purpose of animation"""
 
+    value: float
+    visual_settings: VisualSettings = VisualSettings()
+
     def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
-        super(FloatWrapper, self).__init__(
+        super(LiftedAngle, self).__init__(
             value=value, degree=degree, visual_settings=visual_settings
         )
 
     def cleared(self) -> "FloatWrapper":
         return FloatWrapper(self.value % 1, self.degree, self.visual_settings)
 
-    def after_sigma(self) -> "FloatWrapper":
+    def after_sigma(self) -> "LiftedAngle":
         after = deepcopy(self)
         assert self.degree is not None
         after.value *= self.degree
         return after
 
-    def centered(self, center: UnitPoint) -> "CarryingFloatWrapper":
+    def centered(self, center: _Angle) -> "LiftedAngle":
         # https://www.desmos.com/calculator/jrc4g7ljum
         x = self.value % 1
         a = center.to_float()
         ret = x - floor(x - a + 0.5)
-        return CarryingFloatWrapper(ret, self.degree)
+        return LiftedAngle(ret, self.degree)
+
+    def to_float(self):
+        return self.value
+
+    def to_string(self):
+        return str(self.value)
+
+    def has_degree(self):
+        return self.degree is not None
+
+    def pre_images(self) -> List["LiftedAngle"]:
+        assert self.degree is not None
+        return [
+            LiftedAngle(self.value / self.degree + digit / self.degree, self.degree)
+            for digit in range(self.degree)
+        ]
 
 
-Angle = Union[NaryFraction, FloatWrapper, CarryingFloatWrapper]
+Angle = Union[NaryFraction, FloatWrapper, LiftedAngle]
+PrincipalAngle = Union[NaryFraction, FloatWrapper]

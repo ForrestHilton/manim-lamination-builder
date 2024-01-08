@@ -6,7 +6,7 @@ from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from manim_lamination_builder.lamination import AbstractLamination, AgnosticLamination, GapLamination
 from manim_lamination_builder.points import (
     Angle,
-    CarryingFloatWrapper,
+    LiftedAngle,
     FloatWrapper,
     Angle,
 )
@@ -123,7 +123,7 @@ class OccludedLamination(BaseModel):
 
         def mapping(p: Angle) -> Angle:
             assert self.occlusion is not None
-            return CarryingFloatWrapper(
+            return LiftedAngle(
                 self.occlusion.morph_function(p.to_float()),
                 remaining_degree,
                 p.visual_settings,
