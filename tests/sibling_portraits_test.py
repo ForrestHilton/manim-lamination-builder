@@ -13,12 +13,12 @@ from manim_lamination_builder import (
 from manim_lamination_builder.constructions import pollygons_are_one_to_one
 
 
-def test_fuss_catalan():
+def test_all_portraits():
     "For reasons described in my may 18th talk at the Nippising Topology workshop, this can be predicted using the Fuss-Catillan numbers."
     for d in range(2, 5):
         for n in range(2, 5):
             shape = unicritical_polygon(d, n)
-            lamination = GapLamination(polygons=[shape],points= [], degree=d)
+            lamination = GapLamination(polygons=[shape], points=[], degree=d)
             options = next_pull_back(lamination.to_leafs())
             filtered_options = list(
                 filter(
@@ -29,17 +29,15 @@ def test_fuss_catalan():
             assert len(filtered_options) == fussCatalan(d - 1, n)
 
 
+def test_all_portraits():
+    "This test will pass for reasons explained in my talk at The 57th Spring Topology and Dynamics Conference"
+    for d in range(2, 3):
+        for n in range(3, 5):
+            shape = unicritical_polygon(d, n)
+            lamination = GapLamination(polygons=[shape], points=[], degree=d)
+            options = next_pull_back(lamination.to_leafs())
+            assert len(options) == fussCatalan(d - 1, n + 1)
+
+
 if __name__ == "__main__":
-    n = 4
-    d = 3
-    shape = unicritical_polygon(d, n)
-    lamination = GapLamination([shape], [], d)
-    config.preview = True
-    options = next_pull_back(lamination.to_leafs())
-    Main([lam.to_polygons() for lam in options]).render()
-    filtered_options = list(
-        filter(
-            lambda lam: n == max([len(poly) for poly in lam.to_polygons().polygons]),
-            options,
-        )
-    )
+    pass

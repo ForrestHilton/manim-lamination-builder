@@ -92,6 +92,7 @@ def next_pull_back(
     lam: LeafLamination, cumulative=False
 ) -> List[LeafLamination]:
     existing_pre_images = pre_image_dictionary(lam)
+    assert not cumulative
     # TODO: auto create included_images???
     # TODO: deal make non-cumulative
     if cumulative:
