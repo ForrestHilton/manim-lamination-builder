@@ -1,6 +1,7 @@
 """
 Most of the tests here were needed to diagnose an issue that is no longer present in the code.
 """
+
 from manim.animation.animation import config
 from manim.utils.file_ops import config
 from manim_lamination_builder import parse_lamination
@@ -63,11 +64,9 @@ def test_issolated_collections2():
 
 
 def test_preimage_dictionary():
-    start = parse_lamination(
-        """
+    start = parse_lamination("""
 {"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
-            """
-    )
+            """)
     dict = pre_image_dictionary(start)
     hist = [0, 0, 0]
     for l, v in dict.items():
@@ -89,11 +88,9 @@ def test_single_leavs1():
 
 
 def test_single_leavs2():
-    start = parse_lamination(
-        """
+    start = parse_lamination("""
 {"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
-            """
-    )
+            """)
     existing_pre_images = pre_image_dictionary(start)
 
     l = Chord(
@@ -102,7 +99,9 @@ def test_single_leavs2():
     required = existing_pre_images.get(l, [])
 
     L = custom_parse(
-        '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "degree": 2}]'
+        '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [],'
+        ' "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]],'
+        ' "points": [], "degree": 2}]'
     )
 
     assert all([sigma(l2) == l for l2 in required])
@@ -158,9 +157,23 @@ def show_rabbit_tree():
     TreeRender(tree).render()
 
 
-if __name__ == "__main__":
-    show_rabbit_tree()
+if True:  # __name__ == "__main__":
+    # show_rabbit_tree()
     config.preview = True
+    start = parse_lamination(
+        """{polygons:[['_100','_010','_001']],degree:2}"""
+    ).to_leafs()
+    tree = PullBackTree(start, 2)
+    for steps, list_at_level in enumerate(tree.flaten()):
+        print(len(list_at_level))
+    for steps, list_at_level in enumerate(tree.flaten()):
+        condensed = [L.to_polygons() for L in list_at_level]
+        print(custom_dump(condensed))
+    
+    # TreeRender(tree).render()
+    # for steps, list_at_level in enumerate(tree.flaten()):
+    #     print(len(list_at_level))
+
     # main = parse_lamination(
     #     '{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}'
     # )
@@ -169,4 +182,4 @@ if __name__ == "__main__":
     #     '{"leafs": [["0_001", "1_010"], ["0_010", "1_001"]], "points": [], "degree": 2}'
     # )
 
-    # Main([main, leaf, required]).render()
+    # Main(tree.flaten()[-1]).render()

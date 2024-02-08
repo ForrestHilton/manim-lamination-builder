@@ -1,0 +1,8 @@
+AbstractLamination -> _AgnosticLamination
+AngleSet instead of polygon the idea is to insist that its in ascending order
+
+
+Maybe points should be imbued with a lable that we can interpret at render time instead of a visual_setting propery
+
+
+

@@ -88,9 +88,7 @@ def pre_image_dictionary(lam: LeafLamination) -> Dict[Chord, List[Chord]]:
     return ret
 
 
-def next_pull_back(
-    lam: LeafLamination, cumulative=False
-) -> List[LeafLamination]:
+def next_pull_back(lam: LeafLamination, cumulative=False) -> List[LeafLamination]:
     existing_pre_images = pre_image_dictionary(lam)
     assert not cumulative
     # TODO: auto create included_images???
@@ -168,11 +166,9 @@ if __name__ == "__main__":
     # ).to_leafs()
     # print(custom_dump(next_pull_back(start)[0]))
 
-    start = parse_lamination(
-        """
+    start = parse_lamination("""
 {"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
-            """
-    )
+            """)
     # assert start is LeafLamination
     Main(next_pull_back(start)).render()
     #     res = custom_parse(
@@ -186,6 +182,10 @@ if __name__ == "__main__":
     #     for lam in res:
     #         lam.leafs.update(start.leafs)
 
-    existing = '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "degree": 2}]'
+    existing = (
+        '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [],'
+        ' "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]],'
+        ' "points": [], "degree": 2}]'
+    )
 
     # Main(custom_parse('[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "degree": 2}]')).render()

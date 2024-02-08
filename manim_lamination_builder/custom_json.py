@@ -19,7 +19,7 @@ class CustomEncoder(json.JSONEncoder):
     def default(self, v):
         types = {"NaryFraction": lambda v: v.to_string()}
         vtype = type(v).__name__
-        if vtype in ["LeafLamination", "Lamination"]:
+        if vtype in ["LeafLamination", "GapLamination"]:
             ret = v.__dict__.copy()
             return ret
         if vtype == "Chord":
