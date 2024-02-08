@@ -16,10 +16,10 @@ class Chord(BaseModel):
     max: Angle
 
     def __init__(self, a: Angle, b: Angle):
-        min,max = b,a
+        min, max = b, a
         if a.to_float() < b.to_float():
-            min,max = max,min
-        super(Chord,self).__init__(min=min,max=max)
+            min, max = max, min
+        super(Chord, self).__init__(min=min, max=max)
 
     def __hash__(self):
         return hash((self.min, self.max))
@@ -84,5 +84,3 @@ def handle_length(theta1: float, theta2: float) -> float:
     r = tan(alpha - theta1)
     k = 4 / 3 * tan(delta_angle / 4)
     return r * k
-
-
