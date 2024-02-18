@@ -9,9 +9,11 @@ from manim_lamination_builder.lamination import (
     GapLamination,
     LeafLamination,
 )
+from manim_lamination_builder.new_generate import PullBackTree
 from manim_lamination_builder.points import FloatWrapper, NaryFraction
 import json
 import json5
+
 # TODO: make custom_dump obsolete with good __repr__
 
 
@@ -19,7 +21,7 @@ class CustomEncoder(json.JSONEncoder):
     def default(self, v):
         types = {"NaryFraction": lambda v: v.to_string()}
         vtype = type(v).__name__
-        if vtype in ["LeafLamination", "GapLamination"]:
+        if vtype in ["LeafLamination", "GapLamination", "PullBackTree"]:
             ret = v.__dict__.copy()
             return ret
         if vtype == "Chord":
@@ -38,34 +40,48 @@ class CustomDecoder(json.JSONDecoder):
     def __init__(self, *args, **kwargs):
         super().__init__(object_hook=self.object_hook, *args, **kwargs)
 
-    def object_hook(self, dct):
-        if "degree" in dct:
-            degree = dct["degree"]
+    @staticmethod
+    def inner_parse_lamination(dct):
+        degree = dct["degree"]
 
-            def point_handler(v):
-                if isinstance(v, float):
-                    return FloatWrapper(v, degree)
-                else:
-                    return NaryFraction.from_string(degree, v)
-
-            def list_handler(ls):
-                assert isinstance(ls, List)
-                return [*map(point_handler, ls)]
-
-            polygons = [*map(list_handler, dct.get("polygons", []))]
-            leafs = [*map(list_handler, dct.get("leafs", []))]
-            points = list_handler(dct.get("points", []))
-            occlusion = list_handler(dct.get("occlusion", []))
-            if len(occlusion) == 0:
-                occlusion = None
+        def point_handler(v):
+            if isinstance(v, float):
+                return FloatWrapper(v, degree)
             else:
-                assert len(occlusion) == 2
-                occlusion = (occlusion[0], occlusion[1])
+                return NaryFraction.from_string(degree, v)
 
-            if dct.get("leafs", None) is not None:
-                leafs = list(map(lambda l: Chord(l[0], l[1]), leafs))
-                return LeafLamination(leafs=leafs, points=points, degree=degree)
-            return GapLamination(polygons=polygons, points=points, degree=degree)
+        def list_handler(ls):
+            assert isinstance(ls, List)
+            return [*map(point_handler, ls)]
+
+        polygons = [*map(list_handler, dct.get("polygons", []))]
+        leafs = [*map(list_handler, dct.get("leafs", []))]
+        points = list_handler(dct.get("points", []))
+        occlusion = list_handler(dct.get("occlusion", []))
+        if len(occlusion) == 0:
+            occlusion = None
+        else:
+            assert len(occlusion) == 2
+            occlusion = (occlusion[0], occlusion[1])
+
+        if dct.get("leafs", None) is not None:
+            leafs = list(map(lambda l: Chord(l[0], l[1]), leafs))
+            return LeafLamination(leafs=leafs, points=points, degree=degree)
+        return GapLamination(polygons=polygons, points=points, degree=degree)
+
+    @staticmethod
+    def parse_tree(dct):
+        node = dct.get("node")
+        children = dct.get("children")
+
+        return PullBackTree(node=node, children=children)
+
+    def object_hook(self, dct):
+        if "node" in dct:
+            return CustomDecoder.parse_tree(dct)
+
+        if "degree" in dct:
+            return CustomDecoder.inner_parse_lamination(dct)
         return dct
 
 

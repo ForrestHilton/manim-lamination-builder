@@ -10,19 +10,12 @@ from manim import (
 )
 
 from manim.utils.file_ops import config
-from manim_lamination_builder.custom_json import custom_parse
+from pydantic import BaseModel
 
-from manim_lamination_builder.lamination import AbstractLamination
+from manim_lamination_builder.lamination import AbstractLamination, LeafLamination
 
-from manim_lamination_builder import (
-    LeafLamination,
-    Chord,
-    parse_lamination,
-)
+from manim_lamination_builder.chord import Chord
 
-from manim_lamination_builder import custom_dump
-from manim_lamination_builder.main import Main
-from manim_lamination_builder.points import NaryFraction
 
 
 def _sibling_collections_of_leaf(leaf) -> Iterator[List[Chord]]:
@@ -110,19 +103,21 @@ def next_pull_back(lam: LeafLamination, cumulative=False) -> List[LeafLamination
     return ret
 
 
-class PullBackTree:
+class PullBackTree(BaseModel):
     node: LeafLamination
     children: List["PullBackTree"]
 
-    def __init__(self, lam: LeafLamination, depth: int):
-        self.node = lam
+    @staticmethod
+    def build(lam: LeafLamination, depth: int) -> "PullBackTree":
+        node = lam
         if depth == 0:
-            self.children = []
-            return
+            children = []
+            return PullBackTree(node=node, children=[])
         children = next_pull_back(lam)
-        self.children = list(
-            map(lambda child: PullBackTree(child, depth - 1), children)
+        children = list(
+            map(lambda child: PullBackTree.build(child, depth - 1), children)
         )
+        return PullBackTree(node=node, children=children)
 
     def flaten(self) -> List[List[LeafLamination]]:
         ret = [[self.node]]
@@ -159,6 +154,10 @@ class TreeRender(Scene):
 
 
 if __name__ == "__main__":
+
+    from manim_lamination_builder.custom_json import custom_parse, parse_lamination
+    from manim_lamination_builder.main import Main
+
     config.preview = True
 
     # start = parse_lamination(

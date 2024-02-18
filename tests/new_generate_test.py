@@ -123,7 +123,22 @@ def test_rabbit_tree():
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
-    tree = PullBackTree(start, 4)
+    tree = PullBackTree.build(start, 4)
+    list_of_lists = tree.flaten()
+    assert len(list_of_lists) == 5
+    assert len(list_of_lists[0]) == 1
+    assert len(list_of_lists[1]) == 1
+    assert len(list_of_lists[2]) == 1
+    assert len(list_of_lists[3]) == 1
+    assert len(list_of_lists[4]) == 4
+
+
+def test_restore_rabbit_tree():
+    start = parse_lamination(
+        """{polygons:[['_100','_010','_001']],degree:2}"""
+    ).to_leafs()
+    tree = custom_parse(custom_dump(PullBackTree.build(start, 4)))
+    assert isinstance(tree, PullBackTree)
     list_of_lists = tree.flaten()
     assert len(list_of_lists) == 5
     assert len(list_of_lists[0]) == 1
@@ -137,9 +152,8 @@ def test_rabbit_tree_one_to_one():
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
-    tree = PullBackTree(start, 4)
+    tree = PullBackTree.build(start, 4)
     options = tree.flaten()[4]
-    # print([len(o.to_polygons().polygons) for o in options])
     for o in [options[0], options[2], options[3]]:
         assert len(o.to_polygons().polygons) == 16
         assert pollygons_are_one_to_one(o)
@@ -153,25 +167,25 @@ def show_rabbit_tree():
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
-    tree = PullBackTree(start, 4)
+    tree = PullBackTree.build(start, 4)
     TreeRender(tree).render()
 
 
-# if True:  
-if __name__ == "__main__":
+if True:
+# if __name__ == "__main__":
     # show_rabbit_tree()
     config.preview = True
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
-    tree = PullBackTree(start, 7)
-    # custom_dump(tree)
+    tree = PullBackTree.build(start, 7)
+    print(custom_dump(tree))
     # for steps, list_at_level in enumerate(tree.flaten()):
     #     print(len(list_at_level))
     # for steps, list_at_level in enumerate(tree.flaten()):
     #     condensed = [L.to_polygons() for L in list_at_level]
     #     print(custom_dump(condensed))
-    
+
     # TreeRender(tree).render()
     # for steps, list_at_level in enumerate(tree.flaten()):
     #     print(len(list_at_level))
