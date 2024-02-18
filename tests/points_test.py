@@ -17,10 +17,6 @@ def test_original_point_operations():
 
     assert NaryFraction.from_string(10, "_9").to_float() == 1.0
 
-    assert (
-        NaryFraction.from_string(4, "0_300").without_enharmonics().to_string() == "_030"
-    )
-
     a = NaryFraction.from_string(4, "_230")
     assert a.after_sigma().to_string() == "_302"
     assert a.to_string() == "_230"

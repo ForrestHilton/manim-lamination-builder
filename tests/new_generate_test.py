@@ -157,18 +157,20 @@ def show_rabbit_tree():
     TreeRender(tree).render()
 
 
-if True:  # __name__ == "__main__":
+# if True:  
+if __name__ == "__main__":
     # show_rabbit_tree()
     config.preview = True
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
-    tree = PullBackTree(start, 2)
-    for steps, list_at_level in enumerate(tree.flaten()):
-        print(len(list_at_level))
-    for steps, list_at_level in enumerate(tree.flaten()):
-        condensed = [L.to_polygons() for L in list_at_level]
-        print(custom_dump(condensed))
+    tree = PullBackTree(start, 3)
+    custom_dump(tree)
+    # for steps, list_at_level in enumerate(tree.flaten()):
+    #     print(len(list_at_level))
+    # for steps, list_at_level in enumerate(tree.flaten()):
+    #     condensed = [L.to_polygons() for L in list_at_level]
+    #     print(custom_dump(condensed))
     
     # TreeRender(tree).render()
     # for steps, list_at_level in enumerate(tree.flaten()):

@@ -2,7 +2,9 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from typing import Annotated, List, Optional, Union
+from functools import lru_cache
+
+from typing import Annotated, List, Optional, Sequence, Union
 
 from math import cos, pi, sin, floor
 
@@ -56,16 +58,16 @@ class _Angle(ABC):
     def __hash__(self):
         return hash(floor(self.to_float() / 0.0000002))
 
-    def has_degree(self):
+    def has_degree(self) -> bool:
         return True
 
-    def siblings(self) -> List["_Angle"]:
+    def siblings(self) -> Sequence["_Angle"]:
         ret = self.after_sigma().pre_images()
         assert self in ret
         return ret
 
     @abstractmethod
-    def pre_images(self) -> List["_Angle"]:
+    def pre_images(self) -> Sequence["_Angle"]:
         pass
 
     def lifted(self) -> "LiftedAngle":
@@ -109,8 +111,8 @@ class FloatWrapper(_Angle, BaseModel):
 
 class NaryFraction(_Angle, BaseModel):
     degree: Degree
-    exact: List[int]
-    repeating: List[int]
+    exact: tuple[int, ...]
+    repeating: tuple[int, ...]
     visual_settings: VisualSettings = VisualSettings()
 
     @field_validator("exact", "repeating")
@@ -125,12 +127,12 @@ class NaryFraction(_Angle, BaseModel):
 
     @staticmethod
     def from_string(degree, string_representation):
-        assert not "." in string_representation
+        assert "." not in string_representation
         parts = string_representation.split("_")
-        exact = [int(i) for i in parts[0]]
-        repeating = []
+        exact = tuple([int(i) for i in parts[0]])
+        repeating = ()
         if len(parts) > 1:
-            repeating = [int(i) for i in parts[1]]
+            repeating = tuple([int(i) for i in parts[1]])
         return NaryFraction(degree=degree, exact=exact, repeating=repeating)
 
     def to_string(self):
@@ -150,45 +152,35 @@ class NaryFraction(_Angle, BaseModel):
         return overflow_string + exact_string + repeating_string
 
     def after_sigma(self) -> "NaryFraction":
-        after = deepcopy(self)
         # multiply the exact part by degree
-        if after.repeating:
-            carry = after.repeating.pop(0)
-            after.repeating.append(carry)
-            after.exact.append(carry)
-        after.exact.pop(0)
-        return after
-
-    def without_enharmonics(self):
-        # TODO: refer to original to do more of this
-        ret = deepcopy(self)
-        while (
-            len(ret.exact) != 0
-            and len(ret.repeating) != 0
-            and ret.repeating[-1] == ret.exact[-1]
-        ):
-            ret.exact.pop(-1)
-            ret.repeating.insert(0, ret.repeating.pop(-1))
-        # to many zeros
-        while len(ret.exact) != 0 and ret.exact[-1] == 0 and sum(ret.repeating) == 0:
-            ret.exact.pop(-1)
-
-        assert (
-            abs(self.to_float() - ret.to_float()) < 1e-9
-        ), "Assertion Error: self not equal to ret after converting to float."
-        return ret
+        exact = self.exact
+        repeating = self.repeating
+        if self.repeating:
+            carry = repeating[0]
+            repeating = repeating[1:] + (carry,)
+            exact = exact + (carry,)
+        exact = exact[1:]
+        return NaryFraction(
+            degree=self.degree,
+            exact=exact,
+            repeating=repeating,
+            visual_settings=self.visual_settings,
+        )
 
     def pre_images(self) -> List["NaryFraction"]:
-        ret = self.without_enharmonics()
+        ret = self
         return [
             NaryFraction(
                 degree=self.degree,
-                exact=[digit] + ret.exact,
+                exact=(digit,) + ret.exact,
                 repeating=ret.repeating,
                 visual_settings=self.visual_settings,
             )
             for digit in range(self.degree)
         ]
+
+    # @classmethod
+    # def cached_to_float(self)
 
     def to_float(self) -> float:
         value = sum([n / self.degree ** (i + 1) for i, n in enumerate(self.exact)])
