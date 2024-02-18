@@ -164,8 +164,8 @@ if __name__ == "__main__":
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
-    tree = PullBackTree(start, 3)
-    custom_dump(tree)
+    tree = PullBackTree(start, 7)
+    # custom_dump(tree)
     # for steps, list_at_level in enumerate(tree.flaten()):
     #     print(len(list_at_level))
     # for steps, list_at_level in enumerate(tree.flaten()):

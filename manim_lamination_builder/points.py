@@ -179,21 +179,25 @@ class NaryFraction(_Angle, BaseModel):
             for digit in range(self.degree)
         ]
 
-    # @classmethod
-    # def cached_to_float(self)
-
-    def to_float(self) -> float:
-        value = sum([n / self.degree ** (i + 1) for i, n in enumerate(self.exact)])
-        if len(self.repeating) != 0:
+    @lru_cache(maxsize=None)
+    @staticmethod
+    def _cached_to_float(
+        degree: Degree, exact: tuple[int, ...], repeating: tuple[int, ...]
+    ) -> float:
+        value = sum([n / degree ** (i + 1) for i, n in enumerate(exact)])
+        if len(repeating) != 0:
             value += (
                 sum([
-                    n / self.degree ** (i + 1 - len(self.repeating))
-                    for i, n in enumerate(self.repeating)
+                    n / degree ** (i + 1 - len(repeating))
+                    for i, n in enumerate(repeating)
                 ])
-                / self.degree ** len(self.exact)
-                / (self.degree ** len(self.repeating) - 1)
+                / degree ** len(exact)
+                / (degree ** len(repeating) - 1)
             )
         return value
+
+    def to_float(self) -> float:
+        return NaryFraction._cached_to_float(self.degree, self.exact, self.repeating)
 
 
 class LiftedAngle(_Angle, BaseModel):
