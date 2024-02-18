@@ -1,21 +1,8 @@
 from copy import deepcopy
-from typing import Dict, Iterable, Iterator, List, Callable, Sequence, Set
-from manim.animation.animation import config
-from itertools import product, permutations
-from manim import (
-    DOWN,
-    WHITE,
-    Scene,
-    Group,
-)
-
-from manim.utils.file_ops import config
-from pydantic import BaseModel
-
-from manim_lamination_builder.lamination import AbstractLamination, LeafLamination
-
+from typing import Dict, Iterator, List
+from itertools import permutations
+from manim_lamination_builder.lamination import LeafLamination
 from manim_lamination_builder.chord import Chord
-
 
 
 def _sibling_collections_of_leaf(leaf) -> Iterator[List[Chord]]:
@@ -101,90 +88,3 @@ def next_pull_back(lam: LeafLamination, cumulative=False) -> List[LeafLamination
         if len(ret) == 0:
             return []
     return ret
-
-
-class PullBackTree(BaseModel):
-    node: LeafLamination
-    children: List["PullBackTree"]
-
-    @staticmethod
-    def build(lam: LeafLamination, depth: int) -> "PullBackTree":
-        node = lam
-        if depth == 0:
-            children = []
-            return PullBackTree(node=node, children=[])
-        children = next_pull_back(lam)
-        children = list(
-            map(lambda child: PullBackTree.build(child, depth - 1), children)
-        )
-        return PullBackTree(node=node, children=children)
-
-    def flaten(self) -> List[List[LeafLamination]]:
-        ret = [[self.node]]
-        for child in self.children:
-            for i, lam in enumerate(child.flaten()):
-                if i + 1 >= len(ret):
-                    ret.append(lam)
-                else:
-                    ret[i + 1] += lam
-        return ret
-
-
-class TreeRender(Scene):
-    def __init__(self, tree: PullBackTree):
-        self.tree = tree
-        super().__init__()
-
-    def construct(self):
-        list_of_groups = []
-        for row in self.tree.flaten():
-            outer_group = Group(*[lamination.build() for lamination in row])
-            outer_group.arrange()
-            list_of_groups.append(outer_group)
-        outer_group = Group(*list_of_groups)
-        outer_group.arrange(DOWN)
-        outer_group.scale(
-            1
-            / max(
-                outer_group.width / config.frame_width + 0.01,
-                outer_group.height / config.frame_height + 0.01,
-            )
-        )
-        self.add(outer_group)
-
-
-if __name__ == "__main__":
-
-    from manim_lamination_builder.custom_json import custom_parse, parse_lamination
-    from manim_lamination_builder.main import Main
-
-    config.preview = True
-
-    # start = parse_lamination(
-    #     """{polygons:[['_100','_010','_001']],degree:2}"""
-    # ).to_leafs()
-    # print(custom_dump(next_pull_back(start)[0]))
-
-    start = parse_lamination("""
-{"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
-            """)
-    # assert start is LeafLamination
-    Main(next_pull_back(start)).render()
-    #     res = custom_parse(
-    #         """
-    #                       [
-
-    # {"leafs": [["01_100", "11_010"], ["01_010", "11_100"], ["0_010", "1_100"]], "points": [], "degree": 2}
-    # ]
-    # """
-    #     )
-    #     for lam in res:
-    #         lam.leafs.update(start.leafs)
-
-    existing = (
-        '[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [],'
-        ' "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]],'
-        ' "points": [], "degree": 2}]'
-    )
-
-    # Main(custom_parse('[{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}, {"leafs": [["01_100", "11_010"], ["01_010", "11_100"]], "points": [], "degree": 2}]')).render()

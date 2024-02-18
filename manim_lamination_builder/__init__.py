@@ -1,7 +1,13 @@
 """
 This is a re-implementation of lamination-builder that runs in python without dependencies on a browser and focusing on animations and convenient generation of figures. Instead it uses Manim, which has several dependencies, which you are responsible for installing in accordance with Manim's installation instructions.
 """
-from manim_lamination_builder.lamination import GapLamination, LeafLamination, AgnosticLamination, Polygon
+
+from manim_lamination_builder.lamination import (
+    GapLamination,
+    LeafLamination,
+    AgnosticLamination,
+    Polygon,
+)
 from manim_lamination_builder.custom_json import (
     custom_dump,
     custom_parse,
@@ -11,11 +17,8 @@ from manim_lamination_builder.custom_json import (
 from manim_lamination_builder.points import FloatWrapper, NaryFraction, Angle
 from manim_lamination_builder.animation import AnimateLamination, SigmaAnimation
 from manim_lamination_builder.chord import Chord
-from manim_lamination_builder.new_generate import (
-    TreeRender,
-    next_pull_back,
-    PullBackTree,
-)
+from manim_lamination_builder.new_generate import next_pull_back
+from manim_lamination_builder.pull_back_tree import TreeRender, PullBackTree
 from manim_lamination_builder.main import group, Main
 from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
 import manim_lamination_builder.__main__

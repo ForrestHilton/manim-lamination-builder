@@ -9,7 +9,7 @@ from manim_lamination_builder.lamination import (
     GapLamination,
     LeafLamination,
 )
-from manim_lamination_builder.new_generate import PullBackTree
+from manim_lamination_builder.pull_back_tree import PullBackTree
 from manim_lamination_builder.points import FloatWrapper, NaryFraction
 import json
 import json5
