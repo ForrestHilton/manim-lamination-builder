@@ -1,0 +1,18 @@
+methods to add:
+minor: I need to know the minor of an FDL.
+
+
+
+
+refactoring ideas:
+AbstractLamination -> _AgnosticLamination
+AngleSet instead of polygon the idea is to insist that its in ascending order
+
+
+Maybe points should be imbued with a label that we can interpret at render time instead of a visual_setting property.
+The lamination shouldn't need to know if there is a dark theme.
+
+Should I make laminations into a tree structure by default so that I can quickly check for crossings? It would seam that I would need to establish what are now the components of the structure as its observers.
+
+
+
