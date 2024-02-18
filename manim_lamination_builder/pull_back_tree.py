@@ -34,8 +34,18 @@ class PullBackTree(BaseModel):
                     ret[i + 1] += lam
         return ret
 
-    # def nx_tree(self) -> nx.Graph:
-    #     nx_tree
+    def nx_tree(
+        self, G=nx.DiGraph(), table=[], parent=None
+    ) -> tuple[nx.DiGraph, List[LeafLamination]]:
+        i = len(table)
+        table.append(self.node)
+        G.add_node(i)
+        if parent is not None:
+            G.add_edge(parent, i)
+
+        for child in self.children:
+            child.nx_tree(G, table, i)
+        return (G, table)
 
 
 class TreeRender(Scene):
