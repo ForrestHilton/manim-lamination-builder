@@ -55,7 +55,9 @@ class AbstractLamination(ABC, Generic[T]):
         return self  # type: ignore
 
 
-Polygon = tuple[Angle, ...] # TODO: add validator to test if this is in order as needed.
+Polygon = tuple[
+    Angle, ...
+]  # TODO: add validator to test if this is in order as needed.
 
 
 class GapLamination(AbstractLamination, BaseModel):
@@ -85,7 +87,13 @@ class GapLamination(AbstractLamination, BaseModel):
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         ret = Mobject()
-        unit_circle = Circle(color=self.edge_color(), radius=radius, stroke_width=2)
+        unit_circle = Circle(
+            color=self.edge_color(),
+            radius=radius,
+            stroke_width=2,
+            fill_color=BLACK,
+            fill_opacity=1,
+        )
         unit_circle.move_arc_center_to(center)
         ret.add(unit_circle)
 
@@ -129,7 +137,9 @@ class GapLamination(AbstractLamination, BaseModel):
             new_poly = [f(p) for p in poly]
             new_polygons.append(new_poly)
         new_points = [f(p) for p in self.points]
-        return GapLamination(polygons=new_polygons, points=new_points, degree=self.degree)
+        return GapLamination(
+            polygons=new_polygons, points=new_points, degree=self.degree
+        )
 
     def filtered(self, f: Callable[[Angle], bool]) -> "GapLamination":
         new_polygons = []
@@ -137,7 +147,9 @@ class GapLamination(AbstractLamination, BaseModel):
             if all([f(p) for p in poly]):
                 new_polygons.append(poly)
         new_points = list(filter(f, self.points))
-        return GapLamination(polygons=new_polygons, points=new_points, degree=self.degree)
+        return GapLamination(
+            polygons=new_polygons, points=new_points, degree=self.degree
+        )
 
     def to_leafs(self) -> "LeafLamination":
         leafs: List[Chord] = []
@@ -218,6 +230,15 @@ class LeafLamination(AbstractLamination, BaseModel):
         return LeafLamination(
             leafs=set(new_leaves), points=new_points, degree=self.degree
         )
+
+    def major(self) -> Chord:
+        return max(
+            self.leafs, key=lambda leaf: leaf.max.to_float() - leaf.min.to_float()
+        )
+
+    def minor(self) -> Chord:
+        M = self.major()
+        return Chord(M.min.after_sigma(), M.max.after_sigma())
 
 
 AgnosticLamination = Union[LeafLamination, GapLamination]

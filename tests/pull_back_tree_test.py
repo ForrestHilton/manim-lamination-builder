@@ -73,30 +73,8 @@ def test_nxtree():
     
 
 
-# test_nxtree()
-# if True:
 if __name__ == "__main__":
-    # show_rabbit_tree()
     config.preview = True
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
-    # for steps, list_at_level in enumerate(tree.flaten()):
-    #     print(len(list_at_level))
-    # for steps, list_at_level in enumerate(tree.flaten()):
-    #     condensed = [L.to_polygons() for L in list_at_level]
-    #     print(custom_dump(condensed))
-
-    # TreeRender(tree).render()
-    # for steps, list_at_level in enumerate(tree.flaten()):
-    #     print(len(list_at_level))
-
-    # main = parse_lamination(
-    #     '{"leafs": [["11_010", "11_100"], ["01_010", "01_100"]], "points": [], "degree": 2}'
-    # )
-    # leaf = parse_lamination('{"leafs": [["0_010", "0_100"]], "points": [], "degree": 2}')
-    # required = parse_lamination(
-    #     '{"leafs": [["0_001", "1_010"], ["0_010", "1_001"]], "points": [], "degree": 2}'
-    # )
-
-    # Main(tree.flaten()[-1]).render()

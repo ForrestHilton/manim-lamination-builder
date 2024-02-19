@@ -43,7 +43,7 @@ class PullBackTree(BaseModel):
         if parent is not None:
             G.add_edge(parent, i)
 
-        for child in self.children:
+        for child in reversed(self.children):
             child.nx_tree(G, table, i)
         return (G, table)
 
