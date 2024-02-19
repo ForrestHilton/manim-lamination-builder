@@ -1,21 +1,26 @@
-from manim import PURE_RED, PURE_GREEN, PURE_BLUE, YELLOW, PURPLE, RED, BLACK, BLUE_C
-from manim.utils.color.core import ManimColor
+from manim.utils.color import Colors
 from pydantic import BaseModel
 
-colors_list = [PURE_RED, PURE_GREEN, PURE_BLUE, YELLOW, PURPLE]
+colors_list = [
+    Colors.pure_red,
+    Colors.pure_green,
+    Colors.pure_blue,
+    Colors.yellow,
+    Colors.purple,
+]
 
 
 def get_color(i: int):
     if i >= len(colors_list):
         # TODO: test if dark theme
-        return ManimColors.white
+        return Colors.white
     return colors_list[i]
 
 
 class VisualSettings(BaseModel):
-    point_color: ManimColor = RED
-    stroke_color: ManimColor = BLACK
-    polygon_color: ManimColor = BLUE_C
+    point_color: Colors = Colors.red
+    stroke_color: Colors = Colors.black
+    polygon_color: Colors = Colors.blue_c
     point_size: float = 0.04
     stroke_width: float = 2
 
