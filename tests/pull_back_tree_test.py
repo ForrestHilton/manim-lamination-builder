@@ -16,7 +16,7 @@ def test_rabbit_tree():
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
     tree = PullBackTree.build(start, 4)
-    list_of_lists = tree.flaten()
+    list_of_lists = tree.flatten()
     assert len(list_of_lists) == 5
     assert len(list_of_lists[0]) == 1
     assert len(list_of_lists[1]) == 1
@@ -31,7 +31,7 @@ def test_restore_rabbit_tree():
     ).to_leafs()
     tree = custom_parse(custom_dump(PullBackTree.build(start, 4)))
     assert isinstance(tree, PullBackTree)
-    list_of_lists = tree.flaten()
+    list_of_lists = tree.flatten()
     assert len(list_of_lists) == 5
     assert len(list_of_lists[0]) == 1
     assert len(list_of_lists[1]) == 1
@@ -45,7 +45,7 @@ def test_rabbit_tree_one_to_one():
         """{polygons:[['_100','_010','_001']],degree:2}"""
     ).to_leafs()
     tree = PullBackTree.build(start, 4)
-    options = tree.flaten()[4]
+    options = tree.flatten()[4]
     for o in [options[0], options[2], options[3]]:
         assert len(o.to_polygons().polygons) == 16
         assert pollygons_are_one_to_one(o)

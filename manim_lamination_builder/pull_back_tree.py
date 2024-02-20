@@ -24,10 +24,10 @@ class PullBackTree(BaseModel):
         )
         return PullBackTree(node=node, children=children)
 
-    def flaten(self) -> List[List[LeafLamination]]:
+    def flatten(self) -> List[List[LeafLamination]]:
         ret = [[self.node]]
         for child in self.children:
-            for i, lam in enumerate(child.flaten()):
+            for i, lam in enumerate(child.flatten()):
                 if i + 1 >= len(ret):
                     ret.append(lam)
                 else:
@@ -55,7 +55,7 @@ class TreeRender(Scene):
 
     def construct(self):
         list_of_groups = []
-        for row in self.tree.flaten():
+        for row in self.tree.flatten():
             outer_group = Group(*[lamination.build() for lamination in row])
             outer_group.arrange()
             list_of_groups.append(outer_group)
