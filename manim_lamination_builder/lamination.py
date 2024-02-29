@@ -30,9 +30,8 @@ class AbstractLamination(ABC, Generic[T]):
     degree: Degree
     dark_theme: bool
 
-    @abstractmethod
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
-        pass
+        return self.to_polygons().build(radius, center)
 
     def edge_color(self):
         return WHITE if self.dark_theme else BLACK
@@ -203,9 +202,6 @@ class LeafLamination(AbstractLamination, BaseModel):
 
     def crosses(self, target: Chord):
         return any([target.crosses(reference) for reference in self.leafs])
-
-    def build(self) -> Mobject:
-        return self.to_polygons().build()
 
     @staticmethod
     def empty(d) -> "LeafLamination":

@@ -13,7 +13,7 @@ from manim_lamination_builder import (
 from manim_lamination_builder.constructions import pollygons_are_one_to_one
 
 
-def test_all_portraits():
+def test_full_portraits():
     "For reasons described in my may 18th talk at the Nippising Topology workshop, this can be predicted using the Fuss-Catillan numbers."
     for d in range(2, 5):
         for n in range(2, 5):
