@@ -2,8 +2,13 @@ from copy import deepcopy
 from manim import ORIGIN, RED, TAU, Arc, Mobject, VMobject
 from pydantic import BaseModel, field_validator
 from manim_lamination_builder.chord import make_and_append_bezier
+from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
-from manim_lamination_builder.lamination import AbstractLamination, AgnosticLamination, GapLamination
+from manim_lamination_builder.lamination import (
+    AbstractLamination,
+    AgnosticLamination,
+    GapLamination,
+)
 from manim_lamination_builder.points import (
     Angle,
     LiftedAngle,
@@ -157,11 +162,18 @@ class OccludedLamination(BaseModel):
 # TODO: data handling for this in custom_json
 
 
-def interpolate_quotent_of_region_under_the_first_listed_polygon(lam: GapLamination):
+def interpolate_quotent_of_region_of_rotational_polygon(lam: GapLamination):
+    fixed = sigma(lam.polygons[0])
+    start = min(fixed, key=lambda v: v.to_float())
+
     d = lam.degree
     critical_cord = HalfOpenArc(
-        a=lam.polygons[0][0],
-        b=FloatWrapper(lam.polygons[0][0].to_float() + 1 / d, d),  # TODO: change this
+        a=start,
+        b=FloatWrapper(start.to_float() + 1 / d, d),
         left_is_closed=True,
     )
+
+    for v in fixed:
+        assert critical_cord.included(v)
+
     return OccludedLamination(lam=lam, occlusion=critical_cord).result()

@@ -20,7 +20,11 @@ from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.new_generate import next_pull_back
 from manim_lamination_builder.pull_back_tree import TreeRender, PullBackTree
 from manim_lamination_builder.main import group, Main
-from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
+from manim_lamination_builder.morph import (
+    HalfOpenArc,
+    OccludedLamination,
+    interpolate_quotent_of_region_of_rotational_polygon,
+)
 import manim_lamination_builder.__main__
 from manim_lamination_builder.visual_settings import VisualSettings, get_color
 from manim_lamination_builder.sibling_trees import (
@@ -36,5 +40,6 @@ from manim_lamination_builder.constructions import (
     add_points_preimages,
     fussCatalan,
     sigma,
+    pollygons_are_one_to_one
 )
 from manim_lamination_builder.pull_backs import CriticalTree, rabbit_nth_pullback
