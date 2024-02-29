@@ -1,6 +1,7 @@
 """
 This file brings together methods that would be needed for describing certain finite laminations. Its methods are particularly un-trustworthy.
 """
+
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.lamination import AbstractLamination, Polygon
@@ -28,7 +29,7 @@ def unicritical_polygon(d, q) -> tuple[NaryFraction, ...]:
         point: NaryFraction = original_shape[i]
         original_shape.append(point.after_sigma())
 
-    return uniquely_color(tuple(original_shape)) # type: ignore
+    return uniquely_color(tuple(original_shape))  # type: ignore
 
 
 def inverted_rotational_polygon(degree, order) -> tuple[NaryFraction, ...]:
@@ -40,15 +41,15 @@ def inverted_rotational_polygon(degree, order) -> tuple[NaryFraction, ...]:
         point = original_shape[i]
         original_shape.append(point.after_sigma())
 
-    return uniquely_color(tuple(original_shape)) # type: ignore
+    return uniquely_color(tuple(original_shape))  # type: ignore
 
 
 def insert_criticality(x: GapLamination, at: NaryFraction) -> GapLamination:
-    "probably broken method" # TODO
+    "probably broken method"  # TODO
     assert sum(at.repeating) == 0 and len(at.exact) == 1
 
     def shift(x: Angle) -> NaryFraction:
-        assert isinstance(x, NaryFraction) # TODO
+        assert isinstance(x, NaryFraction)  # TODO
         return NaryFraction(
             degree=x.degree + 1,
             exact=[i if i < at.to_float() * at.degree else i + 1 for i in x.exact],
@@ -78,7 +79,7 @@ insertion_points = [
 double_orbit = GapLamination(
     polygons=[
         uniquely_color(
-            start.polygons[0] 
+            start.polygons[0]
             + start.apply_function(lambda x: x.after_sigma()).polygons[0]
             + start.apply_function(lambda x: x.after_sigma())
             .apply_function(lambda x: x.after_sigma())
@@ -106,18 +107,18 @@ def fussCatalan(i, n):
     return scipy.special.binom(n * i, i) / ((n - 1) * i + 1)
 
 
-T = TypeVar("T", Angle, Chord, Polygon, AbstractLamination) # TODO: rename
+T = TypeVar("T", Angle, Chord, Polygon, AbstractLamination)  # TODO: rename
 
 
 def sigma(input: T) -> T:
     if isinstance(input, Angle):
         return input.after_sigma()
     elif isinstance(input, Chord):
-        return Chord(input.min.after_sigma(), input.max.after_sigma()) # type: ignore
+        return Chord(input.min.after_sigma(), input.max.after_sigma())  # type: ignore
     elif isinstance(input, AbstractLamination):
         return input.apply_function(sigma)
     else:
-        return tuple([p.after_sigma() for p in input]) #type: ignore
+        return tuple([p.after_sigma() for p in input])  # type: ignore
 
 
 def pollygons_are_one_to_one(lam: AbstractLamination) -> bool:
