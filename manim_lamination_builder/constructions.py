@@ -88,8 +88,7 @@ double_orbit = GapLamination(
     ],
     points=[],
     degree=3,
-)
-double_orbit.auto_populate()
+).auto_populated()
 
 
 def add_points_preimages(lam: GapLamination) -> GapLamination:

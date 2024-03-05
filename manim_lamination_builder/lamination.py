@@ -78,11 +78,18 @@ class GapLamination(AbstractLamination, BaseModel):
             polygons=polygons, points=points, degree=degree, dark_theme=dark_theme
         )
 
-    def auto_populate(self):
+    def auto_populated(self) -> "GapLamination":
+        new_points = self.points.copy()
         for polygon in self.polygons:
             for point in polygon:
                 if point not in self.points:
-                    self.points.append(point)
+                    new_points.append(point)
+        return GapLamination(
+            polygons=self.polygons,  # type: ignore
+            points=new_points,
+            degree=self.degree,
+            dark_theme=self.dark_theme,
+        )
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         ret = Mobject()

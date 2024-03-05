@@ -1,6 +1,5 @@
 import networkx as nx
 from manim import BLACK, Graph, Mobject
-from copy import deepcopy
 
 from typing import List
 from manim_lamination_builder import (

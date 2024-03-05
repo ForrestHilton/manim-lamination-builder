@@ -23,7 +23,7 @@ def test_morph():
     )
     assert occlusion.included(NaryFraction.from_string(4, "0_030"))
     assert occlusion.excluded(FloatWrapper(0.7))
-    initial.auto_populate()
+    initial = initial.auto_populated()
     assert 3 == len(
         OccludedLamination(lam=initial, occlusion=occlusion).lam.to_polygons().polygons
     )
@@ -55,7 +55,7 @@ class _MyScene(Scene):
         occlusion = HalfOpenArc(
             a=initial.polygons[0][0], b=initial.polygons[0][2], left_is_closed=True
         )
-        initial.auto_populate()
+        initial = initial.auto_populated()
         initial = OccludedLamination(lam=initial, occlusion=occlusion)
         assert (
             occlusion.morph_function(NaryFraction.from_string(4, "3_300").to_float())
