@@ -178,7 +178,7 @@ class CheatingPinch(Scene):
                 polygon_sorted
             )
 
-            broad_index = self.all_vertecies_sorted.index(p.cleared())
+            broad_index = self.all_vertecies_sorted.index(p.principal())
             next_p = self.all_vertecies_sorted[
                 (broad_index + 1) % len(self.all_vertecies_sorted)
             ]
@@ -207,7 +207,7 @@ class CheatingPinch(Scene):
                 angle_of_this_cut_point_from_other = self.angle_of_last_fatu_gap_rotaitions(
                     adjacent_polygon
                 ) + list(
-                    map(lambda p: p.cleared(), get_convexity(adjacent_polygon))
+                    map(lambda p: p.principal(), get_convexity(adjacent_polygon))
                 ).index(
                     next_p
                 ) / len(
