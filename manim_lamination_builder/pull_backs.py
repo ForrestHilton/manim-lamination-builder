@@ -1,12 +1,13 @@
 """
 some invalid states are representable such as misalignment of the end points
 or if the end point is outside where the region where it may be placed.
-Otherwise, this works with just one end point of each critical cord and 
-wether that end point is the one to included with the inside. It infers 
-how far away the next end point should be by how many critical cords are inside 
+Otherwise, this works with just one end point of each critical cord and
+wether that end point is the one to included with the inside. It infers
+how far away the next end point should be by how many critical cords are inside
 it. Moreover, it does so in a degree aware way. (It gets the degree from
 the point's degree).
 """
+
 from typing import Callable, List, Optional
 
 from pydantic import BaseModel, field_validator
@@ -68,8 +69,8 @@ class CriticalTree(BaseModel):
             )
         else:
             return (
-                self.first_ccw_end_point.to_float() < a.to_float.to_float()
-                and a.to_float.to_float() <= self.opposite_end().to_float()
+                self.first_ccw_end_point.to_float() < a.to_float()
+                and a.to_float() <= self.opposite_end().to_float()
             )
 
     def depth_first_traversal(self) -> List["CriticalTree"]:
@@ -130,6 +131,8 @@ class CriticalTree(BaseModel):
 
 
 def rabbit_nth_pullback(n) -> GapLamination:
-    rabbit_seed = GapLamination(polygons=[unicritical_polygon(2, 3)], points=[], degree=2)
+    rabbit_seed = GapLamination(
+        polygons=[unicritical_polygon(2, 3)], points=[], degree=2
+    )
     rabbit_cord = CriticalTree.default()
-    return rabbit_cord.pull_back_n(rabbit_seed, n)
+    return rabbit_cord.pull_back_n(rabbit_seed, n)  # type: ignore

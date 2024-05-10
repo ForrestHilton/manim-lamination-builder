@@ -14,7 +14,7 @@ from manim import (
     VMobject,
     Circle,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from manim_lamination_builder.points import Degree, Angle
 from manim_lamination_builder.chord import make_and_append_bezier, Chord
 
@@ -64,6 +64,14 @@ class GapLamination(AbstractLamination, BaseModel):
     degree: Degree
     dark_theme: bool = True
     polygons: List[Polygon]
+
+    @field_validator("polygons")
+    @classmethod
+    def check_polygons_order(cls, polygons):
+        sorted_polygons = []
+        for polygon in polygons:
+            sorted_polygons.append(sorted(polygon, key=lambda a: a.to_float()))
+        return sorted_polygons
 
     def __init__(  # TODO: check if I still need this / switch to tuple only.
         self,
