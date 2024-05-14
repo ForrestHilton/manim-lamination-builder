@@ -106,27 +106,36 @@ class CriticalTree(BaseModel):
         identifyers = self.all_branches_identifyers()
         return [create_branch(identifyer) for identifyer in identifyers]
 
-    def pull_back1(self, lam: AbstractLamination) -> AbstractLamination:
+    def pull_back1(self, lam: AbstractLamination, cumulative=False) -> AbstractLamination:
         branches = self.all_branches()
+
         polygons = []
         leafs = []
         points = []
+        if cumulative:
+            points = lam.points
         if isinstance(lam, GapLamination):
             for f in branches:
+                if cumulative:
+                    polygons = lam.polygons
                 polygons += lam.apply_function(f).polygons
                 points += lam.apply_function(f).points
             return GapLamination(polygons=polygons, points=points, degree=lam.degree)
         else:
             assert isinstance(lam, LeafLamination)
             for f in branches:
+                if cumulative:
+                    leafs += lam.leafs
                 leafs += lam.apply_function(f).leafs
                 points += lam.apply_function(f).points
             return LeafLamination(leafs=set(leafs), points=points, degree=lam.degree)
 
-    def pull_back_n(self, lam: AbstractLamination, n) -> AbstractLamination:
+    def pull_back_n(
+        self, lam: AbstractLamination, n, cumulative=False
+    ) -> AbstractLamination:
         ret = lam
         for _ in range(n - 1):
-            ret = self.pull_back1(ret)
+            ret = self.pull_back1(ret, cumulative)
         return ret
 
 
