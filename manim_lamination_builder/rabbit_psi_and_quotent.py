@@ -6,7 +6,9 @@ import functools
 
 from manim_lamination_builder.points import LiftedAngle
 
-c = -0.122561166876657 + 0.744861766619737j
+# c = -0.122561166876657 + 0.744861766619737j
+c = -0.1266 + 0.7533j
+# fixed = -0.276553111345748  +0.478734759495814j
 
 
 def f(z):
@@ -33,6 +35,9 @@ def psi(w):
     return inversef(psi(f0(w)), w)
 
 
+print(abs(psi(1 + 1e-15) - (1.280678851446479 - 0.482486064492154j)))
+exit()
+
 # import time
 # start = time.perf_counter_ns()
 # ret = psi(1.025+1.2875j)
@@ -43,7 +48,7 @@ def psi(w):
 if False:
     from multiprocessing import Pool
 
-    def process_point(p,function):
+    def process_point(p, function):
         out = function(complex(p[0], p[1]))
         return out.real * RIGHT + out.imag * UP
 
@@ -51,15 +56,19 @@ if False:
         ret = mob.copy()
 
         with Pool() as pool:
-            out_points = pool.map(functools.partial(process_point, function=function), mob.points)
+            out_points = pool.map(
+                functools.partial(process_point, function=function), mob.points
+            )
 
-        for i,p in enumerate(out_points):
+        for i, p in enumerate(out_points):
             ret.points[i] = p
-        
+
         for i, submob in enumerate(ret.submobjects):
             ret.submobjects[i] = apply_complex_function(submob, function)
         return ret
+
 else:
+
     def apply_complex_function(mob: Mobject, function) -> Mobject:
         ret = mob.copy()
         for i, p in enumerate(mob.points):
@@ -69,6 +78,8 @@ else:
         for i, submob in enumerate(ret.submobjects):
             ret.submobjects[i] = apply_complex_function(submob, function)
         return ret
+
+
 """
 This approach cheats in the sense that it looks at the actual Julia set.
 """
@@ -125,10 +136,11 @@ def get_convexity(in_list: List[Angle]) -> Optional[List[LiftedAngle]]:
 
 
 class CheatingPinch(Scene):
-    def __init__(self, lamination:GapLamination):
+    def __init__(self, lamination: GapLamination):
         def change_color(p):
             p.visual_settings.stroke_width = 2
             return p
+
         self.lamination = lamination.apply_function(change_color)
         self.all_vertecies_sorted = sorted(
             itertools.chain.from_iterable(self.lamination.polygons),
@@ -204,14 +216,12 @@ class CheatingPinch(Scene):
                 adjacent_polygon = next(
                     filter(lambda poly: next_p in poly, self.lamination.polygons)
                 )
-                angle_of_this_cut_point_from_other = self.angle_of_last_fatu_gap_rotaitions(
-                    adjacent_polygon
-                ) + list(
-                    map(lambda p: p.principal(), get_convexity(adjacent_polygon))
-                ).index(
-                    next_p
-                ) / len(
-                    adjacent_polygon
+                angle_of_this_cut_point_from_other = (
+                    self.angle_of_last_fatu_gap_rotaitions(adjacent_polygon)
+                    + list(
+                        map(lambda p: p.principal(), get_convexity(adjacent_polygon))
+                    ).index(next_p)
+                    / len(adjacent_polygon)
                 )
 
                 b = angle_of_this_cut_point_from_other + (0.33) / len(polygon_sorted)
@@ -248,8 +258,8 @@ class CheatingPinch(Scene):
                 cut_point_position,
                 cut_point_position,
                 cut_point_position,
-                stroke_color= WHITE,
-                stroke_width = 2,
+                stroke_color=WHITE,
+                stroke_width=2,
                 color=BLUE,
             )
 

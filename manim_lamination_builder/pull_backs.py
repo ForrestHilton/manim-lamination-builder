@@ -21,6 +21,19 @@ from manim_lamination_builder.lamination import (
 )
 
 
+class FDL(BaseModel):
+    """A lamination conforming to the definition of FDL paired with its depth"""
+
+    # TODO : abundance of validators
+
+    lam: GapLamination
+    n: int
+
+    @staticmethod
+    def rabbit_root() -> "FDL":
+        return FDL(lam=rabbit_nth_pullback(0), n=0)
+
+
 class CriticalTree(BaseModel):
     first_ccw_end_point: Angle  # TODO : non-lifted angle
     first_end_point_on_inside: bool
@@ -106,7 +119,9 @@ class CriticalTree(BaseModel):
         identifyers = self.all_branches_identifyers()
         return [create_branch(identifyer) for identifyer in identifyers]
 
-    def pull_back1(self, lam: AbstractLamination, cumulative=False) -> AbstractLamination:
+    def pull_back1(
+        self, lam: AbstractLamination, cumulative=False
+    ) -> AbstractLamination:
         branches = self.all_branches()
 
         polygons = []
@@ -137,6 +152,13 @@ class CriticalTree(BaseModel):
         for _ in range(n - 1):
             ret = self.pull_back1(ret, cumulative)
         return ret
+
+    # def FDL_child(self, lam: FDL) -> FDL:
+    #     def in_image(a: Angle) -> bool:
+    #         assert isinstance(a, NaryFraction):
+    #             a.pre_period()
+
+    #     stuff = lam.lam.filtered()
 
 
 def rabbit_nth_pullback(n) -> GapLamination:

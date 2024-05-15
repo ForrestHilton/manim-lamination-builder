@@ -9,7 +9,7 @@ from typing import Annotated, List, Optional, Sequence, Union
 from math import cos, pi, sin, floor
 
 from manim.animation.animation import deepcopy
-from pydantic import BaseModel, ValidationInfo, field_validator
+from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
 from annotated_types import Gt
 from abc import ABC, abstractmethod
 import numpy as np
@@ -109,6 +109,33 @@ class FloatWrapper(_Angle, BaseModel):
         ]
 
 
+def test_redundant_exact_suffix():
+    # Test case for redundant exact suffix
+    fraction = NaryFraction(degree=Degree(), exact=(1,), repeating=(1, 0, 1))
+    assert fraction.exact == ()
+    assert fraction.repeating == (1, 1, 0)
+
+
+def test_over_specified_repeating_part():
+    # Test case for over-specified repeating part
+    fraction = NaryFraction(degree=Degree(), exact=(3, 0, 2), repeating=(1, 0, 2))
+    assert fraction.exact == (3,)
+    assert fraction.repeating == (0, 2, 1)
+
+
+def test_repeating_d_minus_1_in_base_d():
+    # Test case for repeating d-1 in base d
+    fraction = NaryFraction(degree=Degree(base=3), exact=(2, 1), repeating=(2,))
+    assert fraction.exact == (2, 2)
+    assert fraction.repeating == ()
+
+
+def test_trailing_zeroes():
+    # Test case for trailing zeroes
+    fraction = NaryFraction(degree=Degree(), exact=(1, 0, 0), repeating=())
+    assert fraction.exact == (1,)
+
+
 class NaryFraction(_Angle, BaseModel):
     degree: Degree
     exact: tuple[int, ...]
@@ -124,6 +151,64 @@ class NaryFraction(_Angle, BaseModel):
                 n, degree
             )
         return v
+
+    # https://github.com/csfalcione/laminations-lib/blob/master/src/fractions.ts
+    # @model_validator(mode='before')
+    # @classmethod
+    # def _simplify(cls, v: dict) -> dict:
+
+    #     def reduce_circular_sequence(seq):
+    #         return seq[: len(seq) // 2] + seq[len(seq) // 2 :]
+
+    #     def find_circular_repeating_suffix(exact, repeating):
+    #         for i in range(len(exact)):
+    #             if exact[i:] == repeating[: len(exact) - i]:
+    #                 return i
+    #         return len(exact)
+
+    #     def rotate_right(lst, n):
+    #         return lst[-n:] + lst[:-n]
+
+    #     repeating = reduce_circular_sequence(v["repeating"])
+    #     repeating_suffix_start = find_circular_repeating_suffix(v["exact"], repeating)
+    #     new_exact = v["exact"][:repeating_suffix_start]
+
+    #     repeating_suffix_len = len(v["exact"]) - repeating_suffix_start
+    #     new_repeating = rotate_right(repeating, repeating_suffix_len % len(repeating))
+
+    #     # Additional simplification steps
+    #     if len(new_repeating) == 1 and new_repeating[0] == v["degree"] - 1:
+    #         new_repeating = []
+    #         new_exact = NaryFraction.increment_digit_sequence(v["degree"], new_exact)
+    #     elif len(new_repeating) == 1 and new_repeating[0] == 0:
+    #         new_repeating = []
+
+    #     if len(new_repeating) == 0:
+    #         new_exact = NaryFraction.remove_trailing_zeroes(new_exact)
+
+    #     return {"degree": v["degree"], "exact": new_exact, "repeating": new_repeating}
+
+    # @staticmethod
+    # def increment_digit_sequence(base, digits):
+    #     """Increment the last digit of the sequence."""
+    #     carry = 1
+    #     for i in reversed(range(len(digits))):
+    #         digits[i] += carry
+    #         if digits[i] < base:
+    #             break
+    #         else:
+    #             digits[i] = 0
+    #             carry = 1
+    #     else:
+    #         digits.append(1)
+    #     return digits
+
+    # @staticmethod
+    # def remove_trailing_zeroes(digits):
+    #     """Remove trailing zeroes from the sequence."""
+    #     while digits and digits[-1] == 0:
+    #         digits.pop()
+    #     return digits
 
     @staticmethod
     def from_string(degree, string_representation):
@@ -187,10 +272,12 @@ class NaryFraction(_Angle, BaseModel):
         value = sum([n / degree ** (i + 1) for i, n in enumerate(exact)])
         if len(repeating) != 0:
             value += (
-                sum([
-                    n / degree ** (i + 1 - len(repeating))
-                    for i, n in enumerate(repeating)
-                ])
+                sum(
+                    [
+                        n / degree ** (i + 1 - len(repeating))
+                        for i, n in enumerate(repeating)
+                    ]
+                )
                 / degree ** len(exact)
                 / (degree ** len(repeating) - 1)
             )
@@ -198,6 +285,9 @@ class NaryFraction(_Angle, BaseModel):
 
     def to_float(self) -> float:
         return NaryFraction._cached_to_float(self.degree, self.exact, self.repeating)
+
+    def pre_period(self) -> int:
+        pass
 
 
 class LiftedAngle(_Angle, BaseModel):

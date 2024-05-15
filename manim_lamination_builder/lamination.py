@@ -67,7 +67,7 @@ class GapLamination(AbstractLamination, BaseModel):
 
     @field_validator("polygons")
     @classmethod
-    def check_polygons_order(cls, polygons):
+    def _check_polygons_order(cls, polygons):
         sorted_polygons = []
         for polygon in polygons:
             sorted_polygons.append(sorted(polygon, key=lambda a: a.to_float()))
