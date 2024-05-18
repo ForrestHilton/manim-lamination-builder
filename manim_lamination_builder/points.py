@@ -126,62 +126,17 @@ class NaryFraction(_Angle, BaseModel):
         return v
 
     # https://github.com/csfalcione/laminations-lib/blob/master/src/fractions.ts
-    # @model_validator(mode='before')
-    # @classmethod
-    # def _simplify(cls, v: dict) -> dict:
+    @model_validator(mode="before")
+    @classmethod
+    def _simplify(cls, v: dict) -> dict:
+        degree = v["degree"]
+        exact = v["exact"]
+        repeating = v["repeating"]
+        while len(exact) > 0 and len(repeating) > 0 and exact[-1] == repeating[-1]:
+            exact = exact[:-1]
+            repeating = (repeating[-1],) + tuple(repeating[:-1])
 
-    #     def reduce_circular_sequence(seq):
-    #         return seq[: len(seq) // 2] + seq[len(seq) // 2 :]
-
-    #     def find_circular_repeating_suffix(exact, repeating):
-    #         for i in range(len(exact)):
-    #             if exact[i:] == repeating[: len(exact) - i]:
-    #                 return i
-    #         return len(exact)
-
-    #     def rotate_right(lst, n):
-    #         return lst[-n:] + lst[:-n]
-
-    #     repeating = reduce_circular_sequence(v["repeating"])
-    #     repeating_suffix_start = find_circular_repeating_suffix(v["exact"], repeating)
-    #     new_exact = v["exact"][:repeating_suffix_start]
-
-    #     repeating_suffix_len = len(v["exact"]) - repeating_suffix_start
-    #     new_repeating = rotate_right(repeating, repeating_suffix_len % len(repeating))
-
-    #     # Additional simplification steps
-    #     if len(new_repeating) == 1 and new_repeating[0] == v["degree"] - 1:
-    #         new_repeating = []
-    #         new_exact = NaryFraction.increment_digit_sequence(v["degree"], new_exact)
-    #     elif len(new_repeating) == 1 and new_repeating[0] == 0:
-    #         new_repeating = []
-
-    #     if len(new_repeating) == 0:
-    #         new_exact = NaryFraction.remove_trailing_zeroes(new_exact)
-
-    #     return {"degree": v["degree"], "exact": new_exact, "repeating": new_repeating}
-
-    # @staticmethod
-    # def increment_digit_sequence(base, digits):
-    #     """Increment the last digit of the sequence."""
-    #     carry = 1
-    #     for i in reversed(range(len(digits))):
-    #         digits[i] += carry
-    #         if digits[i] < base:
-    #             break
-    #         else:
-    #             digits[i] = 0
-    #             carry = 1
-    #     else:
-    #         digits.append(1)
-    #     return digits
-
-    # @staticmethod
-    # def remove_trailing_zeroes(digits):
-    #     """Remove trailing zeroes from the sequence."""
-    #     while digits and digits[-1] == 0:
-    #         digits.pop()
-    #     return digits
+        return {"degree": degree, "exact": exact, "repeating": repeating}
 
     @staticmethod
     def from_string(degree, string_representation):

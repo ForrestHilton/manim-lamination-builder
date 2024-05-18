@@ -3,7 +3,7 @@ from manim_lamination_builder.points import *
 
 
 def test_original_point_operations():
-    assert NaryFraction(degree=3, exact=[1], repeating=[1, 0, 1]).to_string() == "1_101"
+    assert NaryFraction(degree=3, exact=[0], repeating=[1, 0, 1]).to_string() == "0_101"
     assert NaryFraction(degree=2, exact=[1], repeating=[]).to_string() == "1"
 
     assert NaryFraction.from_string(3, "1_101") == NaryFraction(
