@@ -10,7 +10,7 @@ the point's degree).
 
 from typing import Callable, List, Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction
 from manim_lamination_builder.constructions import unicritical_polygon
@@ -19,19 +19,6 @@ from manim_lamination_builder.lamination import (
     GapLamination,
     LeafLamination,
 )
-
-
-class FDL(BaseModel):
-    """A lamination conforming to the definition of FDL paired with its depth"""
-
-    # TODO : abundance of validators
-
-    lam: GapLamination
-    n: int
-
-    @staticmethod
-    def rabbit_root() -> "FDL":
-        return FDL(lam=rabbit_nth_pullback(0), n=0)
 
 
 class CriticalTree(BaseModel):
@@ -149,7 +136,7 @@ class CriticalTree(BaseModel):
         self, lam: AbstractLamination, n, cumulative=False
     ) -> AbstractLamination:
         ret = lam
-        for _ in range(n - 1):
+        for _ in range(n):
             ret = self.pull_back1(ret, cumulative)
         return ret
 
@@ -167,3 +154,51 @@ def rabbit_nth_pullback(n) -> GapLamination:
     )
     rabbit_cord = CriticalTree.default()
     return rabbit_cord.pull_back_n(rabbit_seed, n)  # type: ignore
+
+
+class FDL(BaseModel):
+    """A lamination conforming to the definition of FDL paired with its depth"""
+
+    # TODO : abundance of validators
+    @model_validator(mode="before")
+    @classmethod
+    def _simplify(cls, v: dict) -> dict:
+        n = v["n"]
+        lam = v["lam"]
+        assert(n == max([poly[0].pre_period() for poly in lam.polygons]), "incorect depth")
+        return v
+
+    lam: GapLamination
+    n: int
+
+    @staticmethod
+    def rabbit_root() -> "FDL":
+        return FDL(lam=rabbit_nth_pullback(0), n=0)
+
+    def pulled_back1(self, critical: CriticalTree) -> "FDL":
+        polygons = []
+        points = []
+        if self.n > 0:
+            polygons = self.lam.polygons
+            points = self.lam.points
+
+        branches = critical.all_branches()
+
+        def preperiod_predicate(a: Angle):
+            assert isinstance(a, NaryFraction)
+            return a.pre_period() >= self.n
+
+        recent = self.lam.filtered(preperiod_predicate)
+        for f in branches:
+            polygons += recent.apply_function(f).polygons
+            points += recent.apply_function(f).points
+        return FDL(
+            lam=GapLamination(polygons=polygons, points=points, degree=self.lam.degree),
+            n=self.n + 1,
+        )
+
+    def pulled_back_n(self, critical: CriticalTree, n: int) -> "FDL":
+        ret = self
+        for _ in range(n):
+            ret = ret.pulled_back1(critical)
+        return ret

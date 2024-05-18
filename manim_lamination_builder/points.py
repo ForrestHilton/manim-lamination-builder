@@ -215,7 +215,7 @@ class NaryFraction(_Angle, BaseModel):
         return NaryFraction._cached_to_float(self.degree, self.exact, self.repeating)
 
     def pre_period(self) -> int:
-        pass
+        return len(self.exact)
 
 
 class LiftedAngle(_Angle, BaseModel):

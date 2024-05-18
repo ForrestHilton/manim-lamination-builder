@@ -42,4 +42,4 @@ from manim_lamination_builder.constructions import (
     sigma,
     pollygons_are_one_to_one
 )
-from manim_lamination_builder.pull_backs import CriticalTree, rabbit_nth_pullback
+from manim_lamination_builder.pull_backs import CriticalTree, rabbit_nth_pullback, FDL
