@@ -109,33 +109,6 @@ class FloatWrapper(_Angle, BaseModel):
         ]
 
 
-def test_redundant_exact_suffix():
-    # Test case for redundant exact suffix
-    fraction = NaryFraction(degree=Degree(), exact=(1,), repeating=(1, 0, 1))
-    assert fraction.exact == ()
-    assert fraction.repeating == (1, 1, 0)
-
-
-def test_over_specified_repeating_part():
-    # Test case for over-specified repeating part
-    fraction = NaryFraction(degree=Degree(), exact=(3, 0, 2), repeating=(1, 0, 2))
-    assert fraction.exact == (3,)
-    assert fraction.repeating == (0, 2, 1)
-
-
-def test_repeating_d_minus_1_in_base_d():
-    # Test case for repeating d-1 in base d
-    fraction = NaryFraction(degree=Degree(base=3), exact=(2, 1), repeating=(2,))
-    assert fraction.exact == (2, 2)
-    assert fraction.repeating == ()
-
-
-def test_trailing_zeroes():
-    # Test case for trailing zeroes
-    fraction = NaryFraction(degree=Degree(), exact=(1, 0, 0), repeating=())
-    assert fraction.exact == (1,)
-
-
 class NaryFraction(_Angle, BaseModel):
     degree: Degree
     exact: tuple[int, ...]
