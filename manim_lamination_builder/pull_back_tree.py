@@ -13,14 +13,23 @@ class PullBackTree(BaseModel):
     children: List["PullBackTree"]
 
     @staticmethod
-    def build(lam: LeafLamination, depth: int) -> "PullBackTree":
+    def build(lam: LeafLamination, depth: int, lone_leaf=False) -> "PullBackTree":
         node = lam
         if depth == 0:
             children = []
             return PullBackTree(node=node, children=[])
         children = next_pull_back(lam)
+        if (
+            lone_leaf
+        ):  # TODO: this is a hack to give sub hyperbolic laminations starting from lone leaves
+            assert lam.degree == 2
+            if len(children) == 2:
+                leafs = children[0].leafs.union(children[1].leafs)
+                children.append(
+                    LeafLamination(points=[], degree=lam.degree, leafs=leafs)
+                )
         children = list(
-            map(lambda child: PullBackTree.build(child, depth - 1), children)
+            map(lambda child: PullBackTree.build(child, depth - 1, lone_leaf), children)
         )
         return PullBackTree(node=node, children=children)
 
