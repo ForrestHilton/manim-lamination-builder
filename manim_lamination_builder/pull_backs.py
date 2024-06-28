@@ -58,7 +58,8 @@ class CriticalTree(BaseModel):
     def opposite_end(self):
         degree = self.actual_degree()
         return FloatWrapper(
-            self.recursive_degree() / degree + self.first_ccw_end_point.to_float()
+            self.recursive_degree() / degree + self.first_ccw_end_point.to_float(),
+            degree,
         )
 
     def is_inside(self, a: Angle) -> bool:
@@ -165,7 +166,10 @@ class FDL(BaseModel):
     def _simplify(cls, v: dict) -> dict:
         n = v["n"]
         lam = v["lam"]
-        assert(n == max([poly[0].pre_period() for poly in lam.polygons]), "incorect depth")
+        assert (
+            n == max([poly[0].pre_period() for poly in lam.polygons]),
+            "incorect depth",
+        )
         return v
 
     lam: GapLamination

@@ -66,6 +66,9 @@ def test_issolated_collections2():
     assert len(actuall) == 2
 
 
+# test_issolated_collections2()
+
+
 def test_preimage_dictionary():
     start = parse_lamination("""
 {"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}

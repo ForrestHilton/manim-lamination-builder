@@ -22,7 +22,7 @@ def test_morph():
         a=initial.polygons[0][0], b=initial.polygons[0][2], left_is_closed=True
     )
     assert occlusion.included(NaryFraction.from_string(4, "0_030"))
-    assert occlusion.excluded(FloatWrapper(0.7))
+    assert occlusion.excluded(FloatWrapper(0.7, 4))
     initial = initial.auto_populated()
     assert 3 == len(
         OccludedLamination(lam=initial, occlusion=occlusion).lam.to_polygons().polygons

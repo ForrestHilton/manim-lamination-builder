@@ -26,7 +26,7 @@ Degree = Annotated[int, Gt(1)]
 
 class _Angle(ABC):
     visual_settings: VisualSettings = VisualSettings()
-    degree: Optional[Degree]
+    degree: Degree
 
     def __repr__(self) -> str:
         return self.to_string()
@@ -80,7 +80,7 @@ class FloatWrapper(_Angle, BaseModel):
     value: float
     visual_settings: VisualSettings = VisualSettings()
 
-    def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
+    def __init__(self, value: float, degree: Degree, visual_settings=VisualSettings()):
         super(FloatWrapper, self).__init__(
             value=value % 1, degree=degree, visual_settings=visual_settings
         )
@@ -225,7 +225,7 @@ class LiftedAngle(_Angle, BaseModel):
     value: float
     visual_settings: VisualSettings = VisualSettings()
 
-    def __init__(self, value: float, degree=None, visual_settings=VisualSettings()):
+    def __init__(self, value: float, degree: Degree, visual_settings=VisualSettings()):
         super(LiftedAngle, self).__init__(
             value=value, degree=degree, visual_settings=visual_settings
         )

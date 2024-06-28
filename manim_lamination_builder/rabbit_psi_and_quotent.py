@@ -130,7 +130,7 @@ def get_convexity(in_list: List[Angle]) -> Optional[List[LiftedAngle]]:
         distance_ccw = (next_p - p) % 1
         if distance_ccw > 0.5:
             sorted_list = sorted([1 + p2 if p2 < next_p else p2 for p2 in sorted_list])
-            return list(map(lambda p: LiftedAngle(p), sorted_list))
+            return list(map(lambda p: LiftedAngle(p, 2), sorted_list))
 
     return None
 
@@ -199,11 +199,11 @@ class CheatingPinch(Scene):
             self.add_initial_curve(p, next_p)
 
             a = angle_of_this_fatue_gap + (-0.33) / len(polygon_sorted)
-            A = FloatWrapper(a).to_cartesian() * bigness * 3
+            A = FloatWrapper(a, 2).to_cartesian() * bigness * 3
             if next_p in polygon:
                 # repeated code
                 b = a + 1 / len(polygon_sorted) * 0.66
-                B = FloatWrapper(b).to_cartesian() * bigness * 3
+                B = FloatWrapper(b, 2).to_cartesian() * bigness * 3
 
                 self.destination_curves += CubicBezier(
                     cut_point_position,
@@ -225,7 +225,7 @@ class CheatingPinch(Scene):
                 )
 
                 b = angle_of_this_cut_point_from_other + (0.33) / len(polygon_sorted)
-                B = FloatWrapper(b).to_cartesian() * bigness * 3
+                B = FloatWrapper(b, 2).to_cartesian() * bigness * 3
 
                 # destination curve
                 other_cut_point_position = self.point_positioning_function(

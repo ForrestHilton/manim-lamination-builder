@@ -10,7 +10,7 @@ config.frame_width /= 3.7
 
 
 def test_centering():
-    center = LiftedAngle(0)
+    center = LiftedAngle(0, 2)
     x = LiftedAngle(0.9, 2)
     res = x.centered(center)
     assert abs(res.to_float() - -0.1) < 0.000001
@@ -27,10 +27,14 @@ def test_filter():
     init = (
         shared_starting_point.filtered(rabbit_cord[1])
         .lifted()
-        .apply_function(lambda p: p.centered(LiftedAngle(0)))
+        .apply_function(lambda p: p.centered(LiftedAngle(0, 2)))
     )
 
     assert len(init.polygons) == 4
+
+
+test_filter()
+
 
 class _MyScene(Scene):
     def construct(self):
@@ -48,7 +52,7 @@ class _MyScene(Scene):
         init = (
             shared_starting_point.filtered(rabbit_cord[1])
             .lifted()
-            .apply_function(lambda p: p.centered(LiftedAngle(0)))
+            .apply_function(lambda p: p.centered(LiftedAngle(0, 2)))
         )
         final = sigma(init)
         mob = init.build()
