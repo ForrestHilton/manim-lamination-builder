@@ -21,3 +21,5 @@ dependencies = [
 ]
 [project.urls]
 "Homepage" = "https://github.com/ForrestHilton/manim-lamination-builder"
+[tool.setuptools.packages]
+find = {}

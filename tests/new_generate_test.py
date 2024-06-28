@@ -50,6 +50,9 @@ def test_issolated_collections():
         assert l == Chord(FloatWrapper(num1, d), FloatWrapper(num2, d))
 
 
+# test_issolated_collections()
+
+
 def test_issolated_collections2():
     l = Chord(
         NaryFraction.from_string(2, "0_010"), NaryFraction.from_string(2, "0_100")

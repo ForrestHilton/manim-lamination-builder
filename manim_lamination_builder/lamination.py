@@ -59,7 +59,7 @@ Polygon = tuple[
 ]  # TODO: add validator to test if this is in order as needed.
 
 
-class GapLamination(AbstractLamination, BaseModel):
+class GapLamination(BaseModel, AbstractLamination):
     points: List[Angle]
     degree: Degree
     dark_theme: bool = True
@@ -173,7 +173,7 @@ class GapLamination(AbstractLamination, BaseModel):
         return LeafLamination(leafs=set(leafs), points=self.points, degree=self.degree)
 
 
-class LeafLamination(AbstractLamination, BaseModel):
+class LeafLamination(BaseModel, AbstractLamination):
     points: List[Angle]
     degree: Degree
     dark_theme: bool = True
