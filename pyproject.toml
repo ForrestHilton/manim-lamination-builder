@@ -23,3 +23,8 @@ dependencies = [
 "Homepage" = "https://github.com/ForrestHilton/manim-lamination-builder"
 [tool.setuptools.packages]
 find = {}
+[tool.pytest.ini_options]
+filterwarnings = [
+    # note the use of single quote below to denote "raw" strings in TOML
+    'ignore::DeprecationWarning',
+]

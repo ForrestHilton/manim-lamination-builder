@@ -78,7 +78,6 @@ class _Angle(ABC):
 
 class FloatWrapper(_Angle, BaseModel):
     value: float
-    visual_settings: VisualSettings = VisualSettings()
 
     def __init__(self, value: float, degree: Degree, visual_settings=VisualSettings()):
         super(FloatWrapper, self).__init__(
@@ -113,7 +112,6 @@ class NaryFraction(_Angle, BaseModel):
     degree: Degree
     exact: tuple[int, ...]
     repeating: tuple[int, ...]
-    visual_settings: VisualSettings = VisualSettings()
 
     @field_validator("exact", "repeating")
     @classmethod
@@ -178,7 +176,7 @@ class NaryFraction(_Angle, BaseModel):
             degree=self.degree,
             exact=exact,
             repeating=repeating,
-            visual_settings=self.visual_settings,
+            visual_settings=self.visual_settings,  # pyright: ignore
         )
 
     def pre_images(self) -> List["NaryFraction"]:
@@ -188,7 +186,7 @@ class NaryFraction(_Angle, BaseModel):
                 degree=self.degree,
                 exact=(digit,) + ret.exact,
                 repeating=ret.repeating,
-                visual_settings=self.visual_settings,
+                visual_settings=self.visual_settings,  # pyright: ignore
             )
             for digit in range(self.degree)
         ]
@@ -224,7 +222,6 @@ class LiftedAngle(_Angle, BaseModel):
     mostly for purpose of animation"""
 
     value: float
-    visual_settings: VisualSettings = VisualSettings()
 
     def __init__(self, value: float, degree: Degree, visual_settings=VisualSettings()):
         super(LiftedAngle, self).__init__(
