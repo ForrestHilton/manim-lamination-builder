@@ -129,6 +129,7 @@ class NaryFraction(_Angle, BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _simplify(cls, v: dict) -> dict:
+        assert isinstance(v, dict)
         degree = v["degree"]
         exact = v["exact"]
         repeating = v["repeating"]
