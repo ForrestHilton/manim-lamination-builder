@@ -13,23 +13,14 @@ class PullBackTree(BaseModel):
     children: List["PullBackTree"]
 
     @staticmethod
-    def build(lam: LeafLamination, depth: int, lone_leaf=False) -> "PullBackTree":
+    def build(lam: LeafLamination, depth: int) -> "PullBackTree":
         node = lam
         if depth == 0:
             children = []
             return PullBackTree(node=node, children=[])
         children = next_pull_back(lam)
-        if (
-            lone_leaf
-        ):  # TODO: this is a hack to give sub hyperbolic laminations starting from lone leaves
-            assert lam.degree == 2
-            if len(children) == 2:
-                leafs = children[0].leafs.union(children[1].leafs)
-                children.append(
-                    LeafLamination(points=[], degree=lam.degree, leafs=leafs)
-                )
         children = list(
-            map(lambda child: PullBackTree.build(child, depth - 1, lone_leaf), children)
+            map(lambda child: PullBackTree.build(child, depth - 1), children)
         )
         return PullBackTree(node=node, children=children)
 
@@ -81,7 +72,6 @@ class TreeRender(Scene):
 
 
 if __name__ == "__main__":
-
     from manim_lamination_builder.custom_json import custom_parse, parse_lamination
     from manim_lamination_builder.main import Main
 

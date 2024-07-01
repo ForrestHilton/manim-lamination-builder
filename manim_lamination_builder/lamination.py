@@ -113,11 +113,11 @@ class GapLamination(BaseModel, AbstractLamination):
 
         for polygon in self.polygons:
             visual = polygon[0].visual_settings
-            stroke_color = visual.stroke_color.value
+            stroke_color = visual.stroke_color
             if stroke_color == BLACK and self.dark_theme:
                 stroke_color = WHITE
             shape = VMobject(
-                visual.polygon_color.value,
+                visual.polygon_color,
                 1,
                 stroke_width=visual.stroke_width,  # type: ignore
                 color=stroke_color,
@@ -132,7 +132,7 @@ class GapLamination(BaseModel, AbstractLamination):
             ret.add(
                 Dot(
                     point.to_cartesian(),
-                    color=point.visual_settings.point_color.value,
+                    color=point.visual_settings.point_color,
                     radius=0.04,
                 )
             )
@@ -212,7 +212,9 @@ class LeafLamination(BaseModel, AbstractLamination):
             map(lambda s: tuple(sorted(s, key=lambda p: p.to_float())), polygons)
         )
         return GapLamination(
-            polygons=polygons_, points=self.points, degree=self.degree  # type:ignore
+            polygons=polygons_,
+            points=self.points,
+            degree=self.degree,  # type:ignore
         )
 
     def crosses(self, target: Chord):
