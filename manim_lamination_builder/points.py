@@ -103,7 +103,11 @@ class FloatWrapper(_Angle, BaseModel):
     def pre_images(self) -> List["FloatWrapper"]:
         assert self.degree is not None
         return [
-            FloatWrapper(self.value / self.degree + digit / self.degree, self.degree)
+            FloatWrapper(
+                self.value / self.degree + digit / self.degree,
+                self.degree,
+                visual_settings=self.visual_settings,
+            )
             for digit in range(self.degree)
         ]
 
@@ -112,6 +116,20 @@ class NaryFraction(_Angle, BaseModel):
     degree: Degree
     exact: tuple[int, ...]
     repeating: tuple[int, ...]
+
+    def __init__(
+        self,
+        exact: tuple[int, ...],
+        repeating: tuple[int, ...],
+        degree: Degree,
+        visual_settings=VisualSettings(),
+    ):
+        super(NaryFraction, self).__init__(
+            exact=exact,
+            repeating=repeating,
+            degree=degree,
+            visual_settings=visual_settings,
+        )
 
     @field_validator("exact", "repeating")
     @classmethod
@@ -135,7 +153,12 @@ class NaryFraction(_Angle, BaseModel):
             exact = exact[:-1]
             repeating = (repeating[-1],) + tuple(repeating[:-1])
 
-        return {"degree": degree, "exact": exact, "repeating": repeating}
+        return {
+            "degree": degree,
+            "exact": exact,
+            "repeating": repeating,
+            "visual_settings": v["visual_settings"],
+        }
 
     @staticmethod
     def from_string(degree, string_representation):
@@ -176,20 +199,21 @@ class NaryFraction(_Angle, BaseModel):
             degree=self.degree,
             exact=exact,
             repeating=repeating,
-            visual_settings=self.visual_settings,  # pyright: ignore
+            visual_settings=self.visual_settings,
         )
 
     def pre_images(self) -> List["NaryFraction"]:
-        ret = self
-        return [
+        ret = [
             NaryFraction(
                 degree=self.degree,
-                exact=(digit,) + ret.exact,
-                repeating=ret.repeating,
-                visual_settings=self.visual_settings,  # pyright: ignore
+                exact=(digit,) + self.exact,
+                repeating=self.repeating,
+                visual_settings=self.visual_settings,
             )
             for digit in range(self.degree)
         ]
+        assert ret[0].visual_settings == self.visual_settings
+        return ret
 
     @lru_cache(maxsize=None)
     @staticmethod
@@ -242,7 +266,7 @@ class LiftedAngle(_Angle, BaseModel):
         x = self.value % 1
         a = center.to_float()
         ret = x - floor(x - a + 0.5)
-        return LiftedAngle(ret, self.degree)
+        return LiftedAngle(ret, self.degree, visual_settings=self.visual_settings)
 
     def to_float(self):
         return self.value
@@ -256,7 +280,11 @@ class LiftedAngle(_Angle, BaseModel):
     def pre_images(self) -> List["LiftedAngle"]:
         assert self.degree is not None
         return [
-            LiftedAngle(self.value / self.degree + digit / self.degree, self.degree)
+            LiftedAngle(
+                self.value / self.degree + digit / self.degree,
+                self.degree,
+                visual_settings=self.visual_settings,
+            )
             for digit in range(self.degree)
         ]
 

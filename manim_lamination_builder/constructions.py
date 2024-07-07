@@ -98,7 +98,8 @@ def add_points_preimages(lam: GapLamination) -> GapLamination:
     return lam
 
 
-add_points_preimages(double_orbit)
+#
+# add_points_preimages(double_orbit)
 
 
 def fussCatalan(i, n):

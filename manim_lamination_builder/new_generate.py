@@ -12,6 +12,7 @@ def _sibling_collections_of_leaf(leaf) -> Iterator[List[Chord]]:
     """
     pre_a = leaf.min.pre_images()
     pre_b = leaf.max.pre_images()
+    assert pre_a[0].visual_settings == leaf.min.visual_settings
 
     for indexes in permutations(range(len(pre_b))):
         ret = []

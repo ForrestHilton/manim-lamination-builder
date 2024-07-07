@@ -5,15 +5,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Generic, List, Sequence, Set, Callable, TypeVar, Union
-from manim import (
-    ORIGIN,
-    BLACK,
-    WHITE,
-    Dot,
-    Mobject,
-    VMobject,
-    Circle,
-)
+from manim import ORIGIN, BLACK, WHITE, Dot, Mobject, VMobject, Circle, config
 from pydantic import BaseModel, field_validator
 from manim_lamination_builder.points import Degree, Angle
 from manim_lamination_builder.chord import make_and_append_bezier, Chord
@@ -25,16 +17,20 @@ background = BLACK
 T = TypeVar("T", bound="AbstractLamination")
 
 
+def dark_theme() -> bool:
+    return config.background_color == BLACK
+
+
 class AbstractLamination(ABC, Generic[T]):
     points: List[Angle]
     degree: Degree
-    dark_theme: bool
+    # dark_theme: bool
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         return self.to_polygons().build(radius, center)
 
     def edge_color(self):
-        return WHITE if self.dark_theme else BLACK
+        return WHITE if dark_theme() else BLACK
 
     @abstractmethod
     def apply_function(self, f: Callable[[Angle], Angle]) -> T:
@@ -62,7 +58,7 @@ Polygon = tuple[
 class GapLamination(BaseModel, AbstractLamination):
     points: List[Angle]
     degree: Degree
-    dark_theme: bool = True
+    # dark_theme: bool = True
     polygons: List[Polygon]
 
     @field_validator("polygons")
@@ -70,7 +66,8 @@ class GapLamination(BaseModel, AbstractLamination):
     def _check_polygons_order(cls, polygons):
         sorted_polygons = []
         for polygon in polygons:
-            sorted_polygons.append(sorted(polygon, key=lambda a: a.to_float()))
+            if len(polygon) > 0:
+                sorted_polygons.append(sorted(polygon, key=lambda a: a.to_float()))
         return sorted_polygons
 
     def __init__(  # TODO: check if I still need this / switch to tuple only.
@@ -80,10 +77,12 @@ class GapLamination(BaseModel, AbstractLamination):
         ],  # the only difrence with the auto gennerated code is here
         points: List[Angle],
         degree: Degree,
-        dark_theme: bool = True,
+        # dark_theme: bool = True,
     ):
         super(GapLamination, self).__init__(
-            polygons=polygons, points=points, degree=degree, dark_theme=dark_theme
+            polygons=polygons,
+            points=points,
+            degree=degree,  # , dark_theme=dark_theme
         )
 
     def auto_populated(self) -> "GapLamination":
@@ -96,7 +95,7 @@ class GapLamination(BaseModel, AbstractLamination):
             polygons=self.polygons,  # type: ignore
             points=new_points,
             degree=self.degree,
-            dark_theme=self.dark_theme,
+            # dark_theme=self.dark_theme,
         )
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
@@ -105,7 +104,7 @@ class GapLamination(BaseModel, AbstractLamination):
             color=self.edge_color(),
             radius=radius,
             stroke_width=2,
-            fill_color=BLACK,
+            fill_color=BLACK if dark_theme() else WHITE,
             fill_opacity=1,
         )
         unit_circle.move_arc_center_to(center)
@@ -114,7 +113,7 @@ class GapLamination(BaseModel, AbstractLamination):
         for polygon in self.polygons:
             visual = polygon[0].visual_settings
             stroke_color = visual.stroke_color
-            if stroke_color == BLACK and self.dark_theme:
+            if stroke_color == BLACK and dark_theme():
                 stroke_color = WHITE
             shape = VMobject(
                 visual.polygon_color,
@@ -133,7 +132,7 @@ class GapLamination(BaseModel, AbstractLamination):
                 Dot(
                     point.to_cartesian(),
                     color=point.visual_settings.point_color,
-                    radius=0.04,
+                    radius=point.visual_settings.point_size,
                 )
             )
 
@@ -176,7 +175,7 @@ class GapLamination(BaseModel, AbstractLamination):
 class LeafLamination(BaseModel, AbstractLamination):
     points: List[Angle]
     degree: Degree
-    dark_theme: bool = True
+    # dark_theme: bool = True
     leafs: Set[Chord]
 
     def to_polygons(self) -> GapLamination:
