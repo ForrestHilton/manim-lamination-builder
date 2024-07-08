@@ -171,6 +171,28 @@ class GapLamination(BaseModel, AbstractLamination):
                 leafs.append(Chord(polygon[i], polygon[(i + 1) % len(polygon)]))
         return LeafLamination(leafs=set(leafs), points=self.points, degree=self.degree)
 
+    def trapped_criticality(self) -> int:
+        from manim_lamination_builder.constructions import sigma
+
+        def degree(p: Polygon) -> int:
+            return int(len(p) / len(set(sigma(p))))
+
+        return sum([degree(p) - 1 for p in self.polygons])
+
+    def finer(self, other: "GapLamination") -> bool:
+        "return wether self is finer than other"
+        for poly in self.polygons:
+            parent = next(
+                filter(lambda parent: poly[0] in parent, other.polygons), None
+            )
+            if parent is None:
+                return False
+            for theta in poly:
+                if theta not in parent:
+                    return False
+
+        return True
+
 
 class LeafLamination(BaseModel, AbstractLamination):
     points: List[Angle]
