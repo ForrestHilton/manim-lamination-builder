@@ -1,8 +1,9 @@
 from typing import List
 from manim import DOWN, Scene, Group, config
 import networkx as nx
-
+from math import ceil
 from pydantic import BaseModel
+from manim import Graph, tempconfig
 
 from manim_lamination_builder.lamination import LeafLamination
 from manim_lamination_builder.new_generate import next_pull_back
@@ -46,6 +47,38 @@ class PullBackTree(BaseModel):
         for child in reversed(self.children):
             child.nx_tree(G, table, i)
         return (G, table)
+
+    def show_pullback_tree(self):
+        (G, table) = self.nx_tree()
+        graphMob = Graph(
+            G.nodes,  # type:ignore
+            G.edges,  # type:ignore
+            layout="tree",
+            vertex_mobjects=dict(
+                enumerate(map(lambda lam: lam.to_polygons().build(2), table))
+            ),
+            root_vertex=0,
+            layout_scale=len(self.flatten()[-1]) * 2.4,
+        )
+
+        class CustomTree(Scene):
+            def construct(self):
+                self.add(graphMob)
+
+        A = ceil(graphMob.height)
+        B = ceil(graphMob.width)
+        pix = 200
+        with tempconfig(
+            {
+                # "preview": True,
+                "pixel_height": A * pix,
+                "pixel_width": B * pix,
+                "frame_height": A,
+                "frame_width": B,
+                "disable_caching": True,
+            }
+        ):
+            CustomTree().render()
 
 
 class TreeRender(Scene):
