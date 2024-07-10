@@ -166,10 +166,10 @@ class FDL(BaseModel):
     def _simplify(cls, v: dict) -> dict:
         n = v["n"]
         lam = v["lam"]
-        assert (
-            n == max([poly[0].pre_period() for poly in lam.polygons]),
-            "incorect depth",
-        )
+        assert n == max(
+            [poly[0].pre_period() for poly in lam.polygons]
+        ), "incorect depth"
+
         return v
 
     lam: GapLamination

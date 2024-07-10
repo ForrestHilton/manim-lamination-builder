@@ -9,13 +9,14 @@ from manim_lamination_builder import TreeRender, next_pull_back, PullBackTree
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.constructions import fussCatalan, pollygons_are_one_to_one
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
-from manim_lamination_builder.lamination import LeafLamination
+from manim_lamination_builder.lamination import GapLamination, LeafLamination
 from manim_lamination_builder.main import Main
 from manim_lamination_builder import FloatWrapper, NaryFraction, sigma
 from manim_lamination_builder.new_generate import (
     _sibling_collections_of_leaf_in_existing,
     _sibling_collections_of_leaf,
     pre_image_dictionary,
+    sibling_portraits,
 )
 
 import random
@@ -49,6 +50,40 @@ def test_issolated_collections():
         assert len(actuall) == fussCatalan(d, 2)
         assert l == Chord(FloatWrapper(num1, d), FloatWrapper(num2, d))
 
+
+def test_sibling_portraits():
+    for d in range(2, 4):
+        for order in range(2, 5):
+            # random_set = set()
+            random_set = [i / (5 * d) for i in range(order)]
+            # while len(random_set) < i:
+            #     random_set.add(random.random() % 1)
+            polygon = sorted(random_set)
+            polygon = [FloatWrapper(n, d) for n in polygon]
+            new_verticies = [p.pre_images() for p in polygon]
+            actuall = sibling_portraits(new_verticies)
+            for portrait in actuall:
+                # test that the polygons have the corect image and their degree's
+                # are d in total
+                acc = 0
+                for poly in portrait.polygons:
+                    image = sorted([p.to_float() for p in sigma(poly)])
+                    di = len(poly) // order
+                    acc += di
+                    for i in range(order):
+                        for j in range(di):
+                            assert (
+                                abs(polygon[i].to_float() - image[i * di + j])
+                                < 0.0000001
+                            )
+                assert acc == d
+
+                leafs = portrait.to_leafs()
+                assert len(portrait.polygons) == len(leafs.to_polygons().polygons)
+            assert len(actuall) == fussCatalan(d, order + 1)
+
+
+test_sibling_portraits()
 
 # test_issolated_collections()
 

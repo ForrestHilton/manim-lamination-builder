@@ -66,8 +66,10 @@ class GapLamination(BaseModel, AbstractLamination):
     def _check_polygons_order(cls, polygons):
         sorted_polygons = []
         for polygon in polygons:
-            if len(polygon) > 0:
-                sorted_polygons.append(sorted(polygon, key=lambda a: a.to_float()))
+            if len(polygon) > 1:
+                sorted_polygons.append(
+                    tuple(sorted(polygon, key=lambda a: a.to_float()))
+                )
         return sorted_polygons
 
     def __init__(  # TODO: check if I still need this / switch to tuple only.
