@@ -119,7 +119,7 @@ def sigma(input: T) -> T:
         return input.apply_function(sigma)
     else:
         return tuple(
-            sorted([p.after_sigma() for p in input], key=lambda p: p.to_float())
+            sorted(set([p.after_sigma() for p in input]), key=lambda p: p.to_float())
         )  # type: ignore
 
 

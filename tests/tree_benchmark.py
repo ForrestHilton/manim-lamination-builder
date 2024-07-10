@@ -34,3 +34,13 @@ for d in range(2, 7):
 # real    2m0.175s
 # user    2m2.563s
 # sys     0m1.508s
+
+# 2 4 4
+# 3 3 28
+# 4 2 247
+# 5 1 140
+# 6 0 1
+#
+# real    0m39.653s
+# user    0m42.247s
+# sys     0m1.518s
