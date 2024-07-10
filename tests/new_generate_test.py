@@ -56,10 +56,10 @@ def test_issolated_collections():
 def test_sibling_portraits():
     for d in range(2, 4):
         for order in range(2, 5):
-            # random_set = set()
-            random_set = [i / (5 * d) for i in range(order)]
-            # while len(random_set) < i:
-            #     random_set.add(random.random() % 1)
+            random_set = set()
+            # random_set = [i / (5 * d) for i in range(order)]
+            while len(random_set) < order:
+                random_set.add(random.random() % 1)
             polygon = sorted(random_set)
             polygon = [FloatWrapper(n, d) for n in polygon]
             new_verticies = [p.pre_images() for p in polygon]
@@ -86,10 +86,6 @@ def test_sibling_portraits():
                 assert leafs.unlinked()
                 assert len(portrait.polygons) == len(leafs.to_polygons().polygons)
             assert len(actuall) == fussCatalan(d, order + 1)
-
-
-# test_sibling_portraits()
-# test_issolated_collections()
 
 
 def test_issolated_collections2():
