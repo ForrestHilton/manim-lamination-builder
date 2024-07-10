@@ -118,7 +118,9 @@ def sigma(input: T) -> T:
     elif isinstance(input, AbstractLamination):
         return input.apply_function(sigma)
     else:
-        return tuple([p.after_sigma() for p in input])  # type: ignore
+        return tuple(
+            sorted([p.after_sigma() for p in input], key=lambda p: p.to_float())
+        )  # type: ignore
 
 
 def pollygons_are_one_to_one(lam: AbstractLamination) -> bool:

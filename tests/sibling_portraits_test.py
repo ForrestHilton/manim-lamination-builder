@@ -19,7 +19,7 @@ def test_full_portraits():
         for n in range(2, 5):
             shape = unicritical_polygon(d, n)
             lamination = GapLamination(polygons=[shape], points=[], degree=d)
-            options = next_pull_back(lamination.to_leafs())
+            options = next_pull_back(lamination)
             filtered_options = list(
                 filter(
                     lambda lam: pollygons_are_one_to_one(lam),
@@ -35,7 +35,7 @@ def test_all_portraits():
         for n in range(3, 5):
             shape = unicritical_polygon(d, n)
             lamination = GapLamination(polygons=[shape], points=[], degree=d)
-            options = next_pull_back(lamination.to_leafs())
+            options = next_pull_back(lamination)
             assert len(options) == fussCatalan(d - 1, n + 1)
 
 

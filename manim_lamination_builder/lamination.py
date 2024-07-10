@@ -196,6 +196,10 @@ class GapLamination(BaseModel, AbstractLamination):
 
         return True
 
+    @staticmethod
+    def empty(d) -> "GapLamination":
+        return GapLamination(polygons=[], points=[], degree=d)
+
 
 class LeafLamination(BaseModel, AbstractLamination):
     points: List[Angle]

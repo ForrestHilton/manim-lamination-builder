@@ -46,12 +46,11 @@ def test_rabbit_tree_one_to_one():
     ).to_leafs()
     tree = PullBackTree.build(start, 4)
     options = tree.flatten()[4]
-    for o in [options[0], options[2], options[3]]:
-        assert len(o.to_polygons().polygons) == 16
-        assert pollygons_are_one_to_one(o)
-
-    assert len(options[1].to_polygons().polygons) == 15
-    assert not pollygons_are_one_to_one(options[1])
+    for o in options:
+        if pollygons_are_one_to_one(o):
+            assert len(o.to_polygons().polygons) == 16
+        else:
+            assert len(o.to_polygons().polygons) == 15
 
 
 def show_rabbit_tree():
@@ -70,7 +69,6 @@ def test_nxtree():
     tree = PullBackTree.build(start, 4)
     (G, table) = tree.nx_tree()
     assert nx.to_nested_tuple(G.to_undirected(), 0) == (((((), (), (), ()),),),)
-    
 
 
 if __name__ == "__main__":

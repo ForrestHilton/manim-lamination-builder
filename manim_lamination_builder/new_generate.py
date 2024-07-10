@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Dict, Iterator, List, Sequence
 from itertools import combinations, combinations_with_replacement, permutations, product
-from manim_lamination_builder.lamination import GapLamination, LeafLamination
+from manim_lamination_builder.lamination import GapLamination, LeafLamination, Polygon
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.points import PrincipalAngle
 
@@ -133,19 +133,22 @@ def _sibling_collections_of_leaf_in_existing(
     return contextual_collections
 
 
-def pre_image_dictionary(lam: LeafLamination) -> Dict[Chord, List[Chord]]:
+def pre_image_dictionary(lam: GapLamination) -> Dict[Polygon, List[Polygon]]:
     "maps each cord to any preimages it might already have"
+
+    from manim_lamination_builder.constructions import sigma
+
     ret = {}
-    for l in lam.leafs:
-        image = Chord(l.min.after_sigma(), l.max.after_sigma())
+    for poly in lam.polygons:
+        image = sigma(poly)
         if image in ret.keys():
-            ret[image].append(l)
+            ret[image].append(poly)
         else:
-            ret[image] = [l]
+            ret[image] = [poly]
     return ret
 
 
-def next_pull_back(lam: LeafLamination, cumulative=False) -> List[LeafLamination]:
+def next_pull_back(lam: GapLamination, cumulative=False) -> List[GapLamination]:
     existing_pre_images = pre_image_dictionary(lam)
     assert not cumulative
     # TODO: auto create included_images???
@@ -153,15 +156,34 @@ def next_pull_back(lam: LeafLamination, cumulative=False) -> List[LeafLamination
     if cumulative:
         ret = [deepcopy(lam)]
     else:
-        ret = [LeafLamination.empty(lam.degree)]
-    for l in list(lam.leafs):
-        required_pre_images = existing_pre_images.get(l, [])
+        ret = [GapLamination.empty(lam.degree)]
+    for poly in list(lam.polygons):
         new_ret = []
-        for lam2 in ret:
-            new_ret += _sibling_collections_of_leaf_in_existing(
-                l, lam2, required_pre_images, cumulative
-            )
+        required_pre_images = existing_pre_images.get(poly, [])
+        verticies = [p.pre_images() for p in poly]
+        for portrait in sibling_portraits(verticies):
+            if not all([req in portrait.polygons for req in required_pre_images]):
+                continue
+            for existing in ret:
+                new = (
+                    GapLamination(
+                        polygons=existing.polygons + portrait.polygons,
+                        points=[],
+                        degree=lam.degree,
+                    )
+                    .to_leafs()
+                    .to_polygons()
+                )
+                if new.to_leafs().unlinked():
+                    new_ret.append(new)
         ret = new_ret
-        if len(ret) == 0:
-            return []
     return ret
+
+
+if __name__ == "__main__":
+    from manim_lamination_builder.custom_json import parse_lamination
+
+    start = parse_lamination(
+        """{polygons:[['_100','_010','_001'],['1_100','1_010','0_001']],degree:2}"""
+    ).to_polygons()
+    start = next_pull_back(start)[0]

@@ -16,12 +16,12 @@ from manim_lamination_builder.new_generate import next_pull_back
 
 
 class PullBackTree(BaseModel):
-    node: LeafLamination
+    node: GapLamination
     children: List["PullBackTree"]
 
     @staticmethod
     def build(lam: AbstractLamination, depth: int) -> "PullBackTree":
-        node = lam.to_leafs()
+        node = lam.to_polygons()
         if depth == 0:
             children = []
             return PullBackTree(node=node, children=[])
@@ -31,7 +31,7 @@ class PullBackTree(BaseModel):
         )
         return PullBackTree(node=node, children=children)
 
-    def flatten(self) -> List[List[LeafLamination]]:
+    def flatten(self) -> List[List[GapLamination]]:
         ret = [[self.node]]
         for child in self.children:
             for i, lam in enumerate(child.flatten()):
@@ -43,7 +43,7 @@ class PullBackTree(BaseModel):
 
     def nx_tree(
         self, G=nx.DiGraph(), table=[], parent=None
-    ) -> tuple[nx.DiGraph, List[LeafLamination]]:
+    ) -> tuple[nx.DiGraph, List[GapLamination]]:
         i = len(table)
         table.append(self.node)
         G.add_node(i)
