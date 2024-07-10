@@ -7,7 +7,11 @@ from numpy import inf
 from pydantic import BaseModel
 from manim import Graph, tempconfig
 
-from manim_lamination_builder.lamination import LeafLamination, GapLamination
+from manim_lamination_builder.lamination import (
+    AbstractLamination,
+    LeafLamination,
+    GapLamination,
+)
 from manim_lamination_builder.new_generate import next_pull_back
 
 
@@ -16,12 +20,12 @@ class PullBackTree(BaseModel):
     children: List["PullBackTree"]
 
     @staticmethod
-    def build(lam: LeafLamination, depth: int) -> "PullBackTree":
-        node = lam
+    def build(lam: AbstractLamination, depth: int) -> "PullBackTree":
+        node = lam.to_leafs()
         if depth == 0:
             children = []
             return PullBackTree(node=node, children=[])
-        children = next_pull_back(lam)
+        children = next_pull_back(node)
         children = list(
             map(lambda child: PullBackTree.build(child, depth - 1), children)
         )
