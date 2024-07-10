@@ -3,6 +3,8 @@ Most of the tests here were needed to diagnose an issue that is no longer presen
 """
 
 from manim.animation.animation import config
+
+config.preview = True
 from manim.utils.file_ops import config
 from manim_lamination_builder import parse_lamination
 from manim_lamination_builder import TreeRender, next_pull_back, PullBackTree
@@ -79,12 +81,14 @@ def test_sibling_portraits():
                 assert acc == d
 
                 leafs = portrait.to_leafs()
+                if not leafs.unlinked():
+                    Main([leafs]).render()
+                assert leafs.unlinked()
                 assert len(portrait.polygons) == len(leafs.to_polygons().polygons)
             assert len(actuall) == fussCatalan(d, order + 1)
 
 
-test_sibling_portraits()
-
+# test_sibling_portraits()
 # test_issolated_collections()
 
 

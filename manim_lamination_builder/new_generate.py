@@ -39,6 +39,7 @@ def sibling_portraits(
     degree = len(verticies[0])
     if degree == 0:
         return [GapLamination([], [], 2)]  # the 2 here will not be
+    verticies = sorted(verticies, key=lambda lst: lst[0].to_float())
     print(verticies)
     lam_degree = verticies[0][0].degree
     assert all([len(verticies[i]) == degree for i in range(len(verticies))])
@@ -69,14 +70,15 @@ def sibling_portraits(
                     child_options,
                     sibling_portraits(subtended_arc),
                 ):
-                    new_child_options.append(
-                        GapLamination(a.polygons + b.polygons, [], lam_degree)
-                    )
+                    new = GapLamination(a.polygons + b.polygons, [], lam_degree)
+                    assert new.to_leafs().unlinked()
+                    new_child_options.append(new)
                 child_options = new_child_options
             assert di + lens == degree
             for lam in child_options:
                 lam.polygons.append(tuple(polygon))
                 # assert set(sum(verticies, [])) == set(sum(lam.polygons, ()))
+                assert lam.to_leafs().unlinked()
             ret += child_options
 
     return ret

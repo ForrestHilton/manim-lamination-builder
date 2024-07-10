@@ -4,6 +4,7 @@
 
 
 from abc import ABC, abstractmethod
+from itertools import combinations
 from typing import Generic, List, Sequence, Set, Callable, TypeVar, Union
 from manim import ORIGIN, BLACK, WHITE, Dot, Mobject, VMobject, Circle, config
 from pydantic import BaseModel, field_validator
@@ -240,8 +241,14 @@ class LeafLamination(BaseModel, AbstractLamination):
             degree=self.degree,  # type:ignore
         )
 
-    def crosses(self, target: Chord):
+    def crosses(self, target: Chord) -> bool:
         return any([target.crosses(reference) for reference in self.leafs])
+
+    def unlinked(self) -> bool:
+        for i, j in combinations(range(len(self.leafs)), 2):
+            if list(self.leafs)[i].crosses(list(self.leafs)[j]):
+                return False
+        return True
 
     @staticmethod
     def empty(d) -> "LeafLamination":
