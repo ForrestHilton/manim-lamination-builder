@@ -9,12 +9,17 @@ from manim_lamination_builder.points import PrincipalAngle
 def valid_polygon_indices(degree, di, order):
     for indices in combinations_with_replacement(range(degree), di * order - 1):
         indices = (0,) + indices
-        # check if polygon is valid
         valid = True
+        # check if any vertex is used twice
         for color in range(order):
             if len(set(indices[color::order])) != di:
                 valid = False
                 break
+        # check that it doesn't jump back at end of cycle
+        for edge in range(1, di):
+            if indices[edge * order] == indices[edge * order - 1]:
+                valid = False
+
         if valid:
             yield indices
 
@@ -58,11 +63,6 @@ def sibling_portraits(
 
                 lens += len(subtended_arc[0])
                 assert di + len(subtended_arc[0]) <= degree
-
-                if indices == (0, 1, 1, 2) and len(subtended_arc[0]) > 0:
-                    assert (
-                        0.3333333333333333 - subtended_arc[0][0].to_float()
-                    ) ** 2 < 0.000001
 
                 new_child_options = []
                 for a, b in product(
