@@ -75,7 +75,7 @@ class GapLamination(BaseModel, AbstractLamination):
 
     def __init__(  # TODO: check if I still need this / switch to tuple only.
         self,
-        polygons: List[
+        polygons: Sequence[
             Sequence[Angle]
         ],  # the only difrence with the auto gennerated code is here
         points: List[Angle],

@@ -149,30 +149,35 @@ def pre_image_dictionary(lam: GapLamination) -> Dict[Polygon, List[Polygon]]:
 
 
 def next_pull_back(lam: GapLamination, cumulative=False) -> List[GapLamination]:
+    d = lam.degree
     existing_pre_images = pre_image_dictionary(lam)
     assert not cumulative
-    # TODO: auto create included_images???
     # TODO: deal make non-cumulative
     if cumulative:
         ret = [deepcopy(lam)]
     else:
-        ret = [GapLamination.empty(lam.degree)]
+        ret = [GapLamination.empty(d)]
     for poly in list(lam.polygons):
         new_ret = []
         required_pre_images = existing_pre_images.get(poly, [])
-        verticies = [p.pre_images() for p in poly]
-        for portrait in sibling_portraits(verticies):
-            if not all([req in portrait.polygons for req in required_pre_images]):
-                continue
+        portraits = []
+        if sum([len(p) for p in required_pre_images]) == d * len(poly):
+            portraits = [
+                GapLamination(polygons=required_pre_images, points=[], degree=d)
+            ]
+        else:
+            verticies = [p.pre_images() for p in poly]
+            portraits = sibling_portraits(verticies)
+            portraits = filter(
+                lambda port: all([req in port.polygons for req in required_pre_images]),
+                portraits,
+            )
+        for portrait in portraits:
             for existing in ret:
-                new = (
-                    GapLamination(
-                        polygons=existing.polygons + portrait.polygons,
-                        points=[],
-                        degree=lam.degree,
-                    )
-                    .to_leafs()
-                    .to_polygons()
+                new = GapLamination(
+                    polygons=existing.polygons + portrait.polygons,
+                    points=[],
+                    degree=d,
                 )
                 if new.to_leafs().unlinked():
                     new_ret.append(new)
