@@ -10,6 +10,7 @@ from manim import ORIGIN, BLACK, WHITE, Dot, Mobject, VMobject, Circle, config
 from pydantic import BaseModel, field_validator
 from manim_lamination_builder.points import Degree, Angle
 from manim_lamination_builder.chord import make_and_append_bezier, Chord
+import bisect
 
 
 background = BLACK
@@ -199,6 +200,39 @@ class GapLamination(BaseModel, AbstractLamination):
     @staticmethod
     def empty(d) -> "GapLamination":
         return GapLamination(polygons=[], points=[], degree=d)
+
+    @staticmethod
+    def polygons_unlinked(a: Polygon, b: Polygon) -> bool:
+        assert len(set(a).intersection(set(b))) == 0
+        if a[-1].to_float() < b[0].to_float() or b[-1].to_float() < a[0].to_float():
+            return True
+        return (
+            b[-1].to_float()
+            < a[
+                bisect.bisect_left(a, b[0].to_float(), key=lambda p: p.to_float())
+            ].to_float()
+            or a[-1].to_float()
+            < b[
+                bisect.bisect_left(b, a[0].to_float(), key=lambda p: p.to_float())
+            ].to_float()
+        )
+
+    def unlinked(self) -> bool:
+        for i, j in combinations(range(len(self.polygons)), 2):
+            if not GapLamination.polygons_unlinked(
+                list(self.polygons)[i], list(self.polygons)[j]
+            ):
+                return False
+        return True
+
+    def coexists(self, other: "GapLamination") -> bool:
+        for i in range(len(self.polygons)):
+            for j in range(len(other.polygons)):
+                if not GapLamination.polygons_unlinked(
+                    self.polygons[i], other.polygons[j]
+                ):
+                    return False
+        return True
 
 
 class LeafLamination(BaseModel, AbstractLamination):

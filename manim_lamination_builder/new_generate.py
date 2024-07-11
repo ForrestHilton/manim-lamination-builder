@@ -174,12 +174,12 @@ def next_pull_back(lam: GapLamination, cumulative=False) -> List[GapLamination]:
             )
         for portrait in portraits:
             for existing in ret:
-                new = GapLamination(
-                    polygons=existing.polygons + portrait.polygons,
-                    points=[],
-                    degree=d,
-                )
-                if new.to_leafs().unlinked():
+                if portrait.coexists(existing):
+                    new = GapLamination(
+                        polygons=existing.polygons + portrait.polygons,
+                        points=[],
+                        degree=d,
+                    )
                     new_ret.append(new)
         ret = new_ret
     return ret

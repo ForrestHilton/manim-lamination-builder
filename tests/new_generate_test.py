@@ -84,6 +84,31 @@ def test_sibling_portraits():
             assert len(actuall) == fussCatalan(d, order + 1)
 
 
+def random_polygons(number, sides) -> GapLamination:
+    polygons = [
+        [FloatWrapper(random.random() % 1, 2) for _ in range(sides)]
+        for _ in range(number)
+    ]
+    return GapLamination(polygons=polygons, points=[], degree=2)
+
+
+def test_polygons_unlinked():
+    for numpoly in range(2, 5):
+        for sides in range(2, 5):
+            lam = random_polygons(numpoly, sides)
+            assert lam.unlinked() == lam.to_leafs().unlinked()
+
+
+def test_polygons_coexist():
+    for numpoly in range(2, 4):
+        for sides in range(2, 4):
+            b = random_polygons(numpoly, sides)
+            a = random_polygons(numpoly, sides)
+            assert GapLamination(
+                polygons=a.polygons + b.polygons, points=[], degree=2
+            ).unlinked() == a.coexists(b)
+
+
 def test_issolated_collections2():
     l = Chord(
         NaryFraction.from_string(2, "0_010"), NaryFraction.from_string(2, "0_100")

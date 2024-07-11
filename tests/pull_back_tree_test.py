@@ -25,6 +25,21 @@ def test_rabbit_tree():
     assert len(list_of_lists[4]) == 4
 
 
+def test_rabbit_tree_extend():
+    start = parse_lamination(
+        """{polygons:[['_100','_010','_001']],degree:2}"""
+    ).to_leafs()
+    tree = PullBackTree.build(start, 3)
+    tree = tree.extend_by_one_level()
+    list_of_lists = tree.flatten()
+    assert len(list_of_lists) == 5
+    assert len(list_of_lists[0]) == 1
+    assert len(list_of_lists[1]) == 1
+    assert len(list_of_lists[2]) == 1
+    assert len(list_of_lists[3]) == 1
+    assert len(list_of_lists[4]) == 4
+
+
 def test_restore_rabbit_tree():
     start = parse_lamination(
         """{polygons:[['_100','_010','_001']],degree:2}"""

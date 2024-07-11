@@ -31,6 +31,15 @@ class PullBackTree(BaseModel):
         )
         return PullBackTree(node=node, children=children)
 
+    def extend_by_one_level(self) -> "PullBackTree":
+        if not self.children:
+            new_children = next_pull_back(self.node)
+            children = [PullBackTree(node=child, children=[]) for child in new_children]
+        else:
+            children = [child.extend_by_one_level() for child in self.children]
+
+        return PullBackTree(node=self.node, children=children)
+
     def flatten(self) -> List[List[GapLamination]]:
         ret = [[self.node]]
         for child in self.children:
