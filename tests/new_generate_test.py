@@ -73,11 +73,7 @@ def test_sibling_portraits():
                     di = len(poly) // order
                     acc += di
                     for i in range(order):
-                        for j in range(di):
-                            assert (
-                                abs(polygon[i].to_float() - image[i * di + j])
-                                < 0.0000001
-                            )
+                        assert abs(polygon[i].to_float() - image[i]) < 0.0000001
                 assert acc == d
 
                 leafs = portrait.to_leafs()
