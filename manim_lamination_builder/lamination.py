@@ -6,7 +6,18 @@
 from abc import ABC, abstractmethod
 from itertools import combinations
 from typing import Generic, List, Sequence, Set, Callable, TypeVar, Union
-from manim import ORIGIN, BLACK, WHITE, Dot, Mobject, VMobject, Circle, config
+from manim import (
+    LEFT,
+    ORIGIN,
+    BLACK,
+    RIGHT,
+    WHITE,
+    Dot,
+    Mobject,
+    VMobject,
+    Circle,
+    config,
+)
 from pydantic import BaseModel, field_validator
 from manim_lamination_builder.points import Degree, Angle
 from manim_lamination_builder.chord import make_and_append_bezier, Chord
@@ -102,7 +113,7 @@ class GapLamination(BaseModel, AbstractLamination):
             # dark_theme=self.dark_theme,
         )
 
-    def build(self, radius=1.0, center=ORIGIN) -> Mobject:
+    def build(self, radius=1.0, center=ORIGIN, labels=None) -> Mobject:
         ret = Mobject()
         unit_circle = Circle(
             color=self.edge_color(),
@@ -139,6 +150,18 @@ class GapLamination(BaseModel, AbstractLamination):
                     radius=point.visual_settings.point_size,
                 )
             )
+
+        if labels is not None:
+            points = self.points + list(sum(self.polygons, ()))
+            points = sorted(set(points))
+            for theta, mob in zip(points, labels):
+                left = theta.to_float() > 0.25 and theta.to_float() < 0.75
+                ret.add(
+                    mob.move_to(
+                        theta.to_cartesian() * 1.65,
+                        aligned_edge=LEFT if not left else RIGHT,
+                    )
+                )
 
         for submobject in ret.submobjects:
             if submobject is unit_circle:

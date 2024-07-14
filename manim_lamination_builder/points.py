@@ -38,6 +38,16 @@ class _Angle(ABC):
     def to_float(self) -> float:
         pass
 
+    def __lt__(self, other):
+        # if not isinstance(other, "_Angle"):
+        #     return NotImplemented
+        return self.to_float() < other.to_float()
+
+    def __gt__(self, other):
+        # if not isinstance(other, "_Angle"):
+        #     return NotImplemented
+        return self.to_float() > other.to_float()
+
     @abstractmethod
     def to_string(self) -> str:
         pass
@@ -53,17 +63,18 @@ class _Angle(ABC):
         return angle_to_cartesian(self.to_angle())
 
     def __eq__(self, other):
-        return self.__hash__() == other.__hash__()
+        return (self.to_float() - other.to_float()) < 0.000000002
 
     def __hash__(self):
-        return hash(floor(self.to_float() / 0.0000002))
+        return hash(floor(self.to_float() / 0.00002))
 
     def has_degree(self) -> bool:
         return True
 
     def siblings(self) -> Sequence["_Angle"]:
         ret = self.after_sigma().pre_images()
-        assert self in ret
+        if isinstance(self, NaryFraction):
+            assert self in ret
         return ret
 
     @abstractmethod
@@ -261,7 +272,7 @@ class LiftedAngle(_Angle, BaseModel):
         after.value *= self.degree
         return after
 
-    def centered(self, center: _Angle) -> "LiftedAngle":
+    def centered(self, center: "LiftedAngle") -> "LiftedAngle":
         # https://www.desmos.com/calculator/jrc4g7ljum
         x = self.value % 1
         a = center.to_float()
