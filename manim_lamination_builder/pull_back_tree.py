@@ -77,14 +77,13 @@ class PullBackTree(BaseModel):
                         G.add_edge(i, j)
         return (G, table)
 
-    def show_generation_graph(self, n: int):
+    def show_generation_graph(self, n: int, sf=1, trans=lambda x: x):
         (G, table) = self.nx_generation_graph(n)
         pos = nx.layout.kamada_kawai_layout(G.to_undirected(), scale=8)
         # pos = map(lambda p: np.array([p[0], p[1], 0]), pos)
-        sf = 1
         center = ORIGIN
         pos = {
-            v: (np.array([pos[v][0], pos[v][1], 0]) - center) * sf
+            v: trans((np.array([pos[v][0], pos[v][1], 0]) - center) * sf)
             for v in range(len(table))
         }
         graphMob = DiGraph(
