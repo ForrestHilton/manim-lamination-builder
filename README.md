@@ -8,6 +8,22 @@ pip install manim_lamination_builder
 ```
 
 # Example Uses:
+## generate the rabbit pullback tree through generation 5
+
+```
+from manim import config
+
+# import ligth_theme # (download from https://gist.github.com/abul4fia/353b9a2c3d000088a82175fa64e0ce24#file-ligth_theme-py)
+from manim_lamination_builder import PullBackTree, parse_lamination
+
+start = parse_lamination("""{polygons:[['_100','_010','_001']],degree:2}""")
+tree = PullBackTree.build(start, 5)
+
+lams = list(filter(lambda lam: lam.trapped_criticality() == 0, tree.flatten()[-1]))
+config.preview = True
+tree.show_pullback_tree()
+```
+
 ## render multiple laminations in one image
 ```
 python -m manim_lamination_builder file.json5
@@ -44,7 +60,7 @@ from manim_lamination_builder import generate_unicritical_lamination, Main
 with tempconfig({"quality": "high_quality", "preview": True}):
     Main(generate_unicritical_lamination(4, 3)).render()
 ```
-![please enable images](https://github.com/ForrestHilton/python-lamination-builder/blob/main/example.png "Example Output from my Reasearch")
+![please enable images](https://github.com/ForrestHilton/python-lamination-builder/blob/main/example.png "Example Output from my older Reasearch")
 
 Alternately, you might want to specify the rotational shape by hand:
 ```

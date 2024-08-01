@@ -237,6 +237,37 @@ class NaryFraction(_Angle, BaseModel):
     def to_float(self) -> float:
         return NaryFraction._cached_to_float(self.degree, self.exact, self.repeating)
 
+    def to_faction(self) -> str:
+        # Calculate numerator and denominator
+        numerator = 0
+        denominator = 1
+
+        # Handle the exact part
+        for i, digit in enumerate(self.exact):
+            numerator = numerator * self.degree + digit
+            denominator *= self.degree
+
+        # Handle the repeating part
+        if len(self.repeating) > 0:
+            repeat_numerator = 0
+            for digit in self.repeating:
+                repeat_numerator = repeat_numerator * self.degree + digit
+
+            repeat_denominator = self.degree ** len(self.repeating) - 1
+
+            # Combine exact and repeating parts
+            numerator = numerator * repeat_denominator + repeat_numerator
+            denominator *= repeat_denominator
+
+        # Simplify the fraction
+        from math import gcd
+
+        common_divisor = gcd(numerator, denominator)
+        numerator //= common_divisor
+        denominator //= common_divisor
+
+        return f"{numerator}/{denominator}"
+
     def pre_period(self) -> int:
         return len(self.exact)
 

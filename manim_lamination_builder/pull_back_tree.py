@@ -1,5 +1,5 @@
 from typing import List, cast
-from manim import DOWN, LEFT, ORIGIN, RIGHT, UP, DiGraph, Scene, Group, config, np
+from manim import DOWN, LEFT, ORIGIN, RIGHT, UP, DiGraph, Scene, Group, Text, config, np
 from manim.mobject.graph import LayoutFunction
 import networkx as nx
 from math import ceil, sqrt
@@ -77,8 +77,17 @@ class PullBackTree(BaseModel):
                         G.add_edge(i, j)
         return (G, table)
 
-    def show_generation_graph(self, n: int, sf=1, trans=lambda x: x):
+    def show_generation_graph(
+        self,
+        n: int,
+        sf=1,
+        radius=2,
+        show_numbers=False,
+        trans=lambda x: x,
+        permute=lambda x: x,
+    ):
         (G, table) = self.nx_generation_graph(n)
+        table = [table[permute(i)] for i in range(len(table))]
         pos = nx.layout.kamada_kawai_layout(G.to_undirected(), scale=8)
         # pos = map(lambda p: np.array([p[0], p[1], 0]), pos)
         center = ORIGIN
@@ -86,12 +95,16 @@ class PullBackTree(BaseModel):
             v: trans((np.array([pos[v][0], pos[v][1], 0]) - center) * sf)
             for v in range(len(table))
         }
+        if show_numbers:
+            mobs = dict(enumerate([Text(str(i)) for i in range(len(table))]))
+        else:
+            mobs = dict(enumerate(map(lambda lam: lam.build(2), table)))
         graphMob = DiGraph(
             G.nodes,  # type:ignore
             G.edges,  # type:ignore
             # layout="kamada_kawai",
             layout=pos,
-            vertex_mobjects=dict(enumerate(map(lambda lam: lam.build(1), table))),
+            vertex_mobjects=mobs,
             # layout_scale=1.5 * sqrt(len(table)),  # len(self.flatten()[-1]) * 2.4,
         )
 

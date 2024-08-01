@@ -234,6 +234,9 @@ class GapLamination(BaseModel, AbstractLamination):
                     return False
         return True
 
+    def rational_lamination(self) -> List[List[str]]:
+        return [[th.to_faction() for th in eq] for eq in self.polygons]
+
 
 class LeafLamination(BaseModel, AbstractLamination):
     points: List[Angle]
@@ -313,9 +316,13 @@ class LeafLamination(BaseModel, AbstractLamination):
         )
 
     def major(self) -> Chord:
-        return max(
-            self.leafs, key=lambda leaf: leaf.max.to_float() - leaf.min.to_float()
-        )
+        def length(leaf):
+            ret = leaf.max.to_float() - leaf.min.to_float()
+            if ret > 0.5:
+                ret = 1 - ret
+            return ret
+
+        return max(self.leafs, key=length)
 
     def minor(self) -> Chord:
         M = self.major()

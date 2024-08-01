@@ -44,3 +44,10 @@ def test_preimage():
     b = FloatWrapper(0.5, 4)
     assert all([sigma(p) == b for p in b.pre_images()])
     assert len(b.pre_images()) == len(a.pre_images()) == 4
+
+
+def test_to_frac():
+    assert NaryFraction.from_string(2, "_001").to_faction() == "1/7"
+    assert NaryFraction.from_string(2, "_010").to_faction() == "2/7"
+    assert NaryFraction.from_string(2, "0_001").to_faction() == "1/14"
+    assert NaryFraction.from_string(2, "001").to_faction() == "1/8"
