@@ -35,8 +35,8 @@ def psi(w):
     return inversef(psi(f0(w)), w)
 
 
-print(abs(psi(1 + 1e-15) - (1.280678851446479 - 0.482486064492154j)))
-exit()
+# print(abs(psi(1 + 1e-15) - (1.280678851446479 - 0.482486064492154j)))
+# exit()
 
 # import time
 # start = time.perf_counter_ns()

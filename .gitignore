@@ -4,6 +4,7 @@ dist/
 manim_lamination_builder.egg-info/
 media/
 illistrations
+quotient_pinching
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
