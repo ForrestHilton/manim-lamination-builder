@@ -1,4 +1,4 @@
-This was a re-implementation of [lamination-builder](https://csfalcione.github.io/lamination-builder/) that runs in python without dependencies on a browser and focusing on animations and convenient generation of figures. Instead it uses [Manim](https://github.com/ManimCommunity/manim/), and which has several dependencies. The scope of the project has expanded as my reaserch has pergressed, and it now contains allmost all the scripts used in my reaserch. 
+This was a re-implementation of [lamination-builder](https://csfalcione.github.io/lamination-builder/) that runs in python without dependencies on a browser and focusing on animations and convenient generation of figures. Instead it uses [Manim](https://github.com/ManimCommunity/manim/), and which has several dependencies. The scope of the project has expanded as my research has progressed, and it now contains almost all the scripts used in my research. 
 
 
 # Installation:
@@ -116,7 +116,7 @@ with tempconfig(
 Feature requests will be entertained, however this is intended to be used in combination with other tools like latex and your own python scripts. I hope this is a reasonable API.
 
 # License
-Licensed under the The AGPLv3 License (AGPLv3)
+Licensed under the AGPLv3 License (AGPLv3)
 Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
