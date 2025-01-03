@@ -2,14 +2,16 @@
 This file brings together methods that would be needed for describing certain finite laminations. Its methods are particularly un-trustworthy.
 """
 
+from typing import Iterable, List, TypeVar
+
+import scipy
+
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.custom_json import custom_dump
-from manim_lamination_builder.lamination import AbstractLamination, Polygon
+from manim_lamination_builder.lamination import (AbstractLamination,
+                                                 GapLamination, Polygon)
 from manim_lamination_builder.points import Angle, NaryFraction
-from manim_lamination_builder import GapLamination
-from typing import Iterable, List, TypeVar
-from manim_lamination_builder.visual_settings import get_color, VisualSettings
-import scipy
+from manim_lamination_builder.visual_settings import VisualSettings, get_color
 
 
 def uniquely_color(list: Polygon) -> Polygon:

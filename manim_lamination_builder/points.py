@@ -2,17 +2,15 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from abc import ABC, abstractmethod
 from functools import lru_cache
-
+from math import cos, floor, pi, sin
 from typing import Annotated, List, Optional, Sequence, Union
 
-from math import cos, pi, sin, floor
-
+import numpy as np
+from annotated_types import Gt
 from manim.animation.animation import deepcopy
 from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
-from annotated_types import Gt
-from abc import ABC, abstractmethod
-import numpy as np
 
 from manim_lamination_builder.visual_settings import VisualSettings
 
@@ -237,8 +235,7 @@ class NaryFraction(_Angle, BaseModel):
     def to_float(self) -> float:
         return NaryFraction._cached_to_float(self.degree, self.exact, self.repeating)
 
-    def to_faction(self) -> str:
-        # Calculate numerator and denominator
+    def to_fraction(self) -> str:
         numerator = 0
         denominator = 1
 

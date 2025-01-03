@@ -3,15 +3,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import bisect
 from abc import ABC, abstractmethod
 from itertools import combinations
-from typing import Generic, List, Sequence, Set, Callable, TypeVar, Union
-from manim import ORIGIN, BLACK, WHITE, Dot, Mobject, VMobject, Circle, config
-from pydantic import BaseModel, field_validator
-from manim_lamination_builder.points import Degree, Angle
-from manim_lamination_builder.chord import make_and_append_bezier, Chord
-import bisect
+from typing import Callable, Generic, List, Sequence, Set, TypeVar, Union
 
+from manim import BLACK, ORIGIN, WHITE, Circle, Dot, Mobject, VMobject, config
+from pydantic import BaseModel, field_validator
+
+from manim_lamination_builder.chord import Chord, make_and_append_bezier
+from manim_lamination_builder.points import Angle, Degree
 
 background = BLACK
 
@@ -235,7 +236,7 @@ class GapLamination(BaseModel, AbstractLamination):
         return True
 
     def rational_lamination(self) -> List[List[str]]:
-        return [[th.to_faction() for th in eq] for eq in self.polygons]
+        return [[th.to_fraction() for th in eq] for eq in self.polygons]
 
 
 class LeafLamination(BaseModel, AbstractLamination):
@@ -243,35 +244,40 @@ class LeafLamination(BaseModel, AbstractLamination):
     degree: Degree
     # dark_theme: bool = True
     leafs: Set[Chord]
+    as_q_lamination: bool = True
 
     def to_polygons(self) -> GapLamination:
-        "identifies finite gaps"
+        "identifies finite gaps unless it is meant to be a non-q-lamination"
         polygons: List[Set[Angle]] = []
-        for leaf in self.leafs:
-            used_leaf = False
-            for p, other in [(leaf.min, leaf.max), (leaf.max, leaf.min)]:
-                for polygon in polygons:
-                    if p in polygon:
-                        polygon_with_other = next(
-                            filter(
-                                lambda others_polygon: other in others_polygon
-                                and polygon is not others_polygon,
-                                polygons,
-                            ),
-                            None,
-                        )
-                        if polygon_with_other is None:
-                            polygon.add(other)
-                        else:
-                            polygon.update(
-                                polygons.pop(polygons.index(polygon_with_other))
-                            )
-                        used_leaf = True
-                        break
-                if used_leaf:
-                    break
-            if not used_leaf:
+        if not self.as_q_lamination:
+            for leaf in self.leafs:
                 polygons.append(set([leaf.min, leaf.max]))
+        else:
+            for leaf in self.leafs:
+                used_leaf = False
+                for p, other in [(leaf.min, leaf.max), (leaf.max, leaf.min)]:
+                    for polygon in polygons:
+                        if p in polygon:
+                            polygon_with_other = next(
+                                filter(
+                                    lambda others_polygon: other in others_polygon
+                                    and polygon is not others_polygon,
+                                    polygons,
+                                ),
+                                None,
+                            )
+                            if polygon_with_other is None:
+                                polygon.add(other)
+                            else:
+                                polygon.update(
+                                    polygons.pop(polygons.index(polygon_with_other))
+                                )
+                            used_leaf = True
+                            break
+                    if used_leaf:
+                        break
+                if not used_leaf:
+                    polygons.append(set([leaf.min, leaf.max]))
 
         polygons_ = list(
             map(lambda s: tuple(sorted(s, key=lambda p: p.to_float())), polygons)

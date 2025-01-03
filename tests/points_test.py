@@ -47,7 +47,7 @@ def test_preimage():
 
 
 def test_to_frac():
-    assert NaryFraction.from_string(2, "_001").to_faction() == "1/7"
-    assert NaryFraction.from_string(2, "_010").to_faction() == "2/7"
-    assert NaryFraction.from_string(2, "0_001").to_faction() == "1/14"
-    assert NaryFraction.from_string(2, "001").to_faction() == "1/8"
+    assert NaryFraction.from_string(2, "_001").to_fraction() == "1/7"
+    assert NaryFraction.from_string(2, "_010").to_fraction() == "2/7"
+    assert NaryFraction.from_string(2, "0_001").to_fraction() == "1/14"
+    assert NaryFraction.from_string(2, "001").to_fraction() == "1/8"
