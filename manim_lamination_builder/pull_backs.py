@@ -11,14 +11,15 @@ the point's degree).
 from typing import Callable, List, Optional
 
 from pydantic import BaseModel, field_validator, model_validator
-from manim_lamination_builder.custom_json import custom_dump
-from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction
+
 from manim_lamination_builder.constructions import unicritical_polygon
+from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.lamination import (
     AbstractLamination,
     GapLamination,
     LeafLamination,
 )
+from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction
 
 
 class CriticalTree(BaseModel):

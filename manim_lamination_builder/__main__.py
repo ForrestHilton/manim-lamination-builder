@@ -7,9 +7,12 @@ if __name__ == "__main__":
 
     from manim import tempconfig
 
-    from manim_lamination_builder import (Main, custom_dump,
-                                          read_file_to_laminations,
-                                          str_to_laminations)
+    from manim_lamination_builder import (
+        Main,
+        custom_dump,
+        read_file_to_laminations,
+        str_to_laminations,
+    )
 
     file = sys.argv[-1]
     if file == "repl":
