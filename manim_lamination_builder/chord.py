@@ -4,11 +4,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from math import pi, tan
+
 from manim import BLACK, TAU, Mobject, VMobject
 from pydantic import BaseModel
 
 from manim_lamination_builder.points import Angle
-from math import pi, tan
 
 
 class Chord(BaseModel):
@@ -41,6 +42,12 @@ class Chord(BaseModel):
         ):
             return True
         return False
+
+    def length(self) -> float:
+        theta1 = self.min.to_float() % 1
+        theta2 = self.max.to_float() % 1
+        assert theta2 - theta1 >= 0
+        return theta2 - theta1
 
     def handle_length(self) -> float:
         theta1 = self.min.to_angle()

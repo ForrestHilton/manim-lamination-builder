@@ -1,3 +1,5 @@
+from numpy.random import rand
+
 from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.points import *
 
@@ -51,3 +53,9 @@ def test_to_frac():
     assert NaryFraction.from_string(2, "_010").to_fraction() == "2/7"
     assert NaryFraction.from_string(2, "0_001").to_fraction() == "1/14"
     assert NaryFraction.from_string(2, "001").to_fraction() == "1/8"
+
+
+def test_rand_from_float():
+    for d in range(2, 10):
+        x = rand()
+        assert abs(NaryFraction.from_float(x, 2).to_float()) - x < 0.000001

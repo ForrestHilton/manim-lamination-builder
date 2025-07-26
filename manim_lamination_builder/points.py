@@ -4,7 +4,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from math import cos, floor, pi, sin
+from math import ceil, cos, floor, log, pi, sin
 from typing import Annotated, List, Optional, Sequence, Union
 
 import numpy as np
@@ -231,6 +231,24 @@ class NaryFraction(_Angle, BaseModel):
                 / (degree ** len(repeating) - 1)
             )
         return value
+
+    @lru_cache(maxsize=None)
+    @staticmethod
+    def _get_precizion(d: int) -> int:
+        return ceil(53 * log(2, d))
+
+    @staticmethod
+    def from_float(x: float, d: int) -> "NaryFraction":
+        x = x % 1
+        n = NaryFraction._get_precizion(d)
+
+        digits = []
+        for _ in range(n):
+            x *= d
+            digit = int(x)
+            digits.append(digit)
+            x -= digit
+        return NaryFraction(exact=tuple(digits), repeating=(), degree=d)
 
     def to_float(self) -> float:
         return NaryFraction._cached_to_float(self.degree, self.exact, self.repeating)
