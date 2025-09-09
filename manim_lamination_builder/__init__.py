@@ -32,3 +32,4 @@ from manim_lamination_builder.sibling_trees import (construct_nested_tuple,
                                                     first_polygon,
                                                     make_regions)
 from manim_lamination_builder.visual_settings import VisualSettings, get_color
+from manim_lamination_builder.orbits import goldbergOrbit

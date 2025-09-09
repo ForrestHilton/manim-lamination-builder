@@ -1,10 +1,10 @@
 import numpy as np
+from manim_lamination_builder.points import NaryFraction
 
-deploymentSequence = [3,6]
+deploymentSequence = [3,4]
 
 #rotation number p/q as [p,q]
-rotationNumber = [3,6]
-rotationFactor = np.gcd(rotationNumber[0],rotationNumber[1])
+rotationNumber = [2,4]
 
 
 #input list deployment sequence: depSeq
@@ -44,32 +44,30 @@ def getOrbitDigits(fpe,rn):
 
 #input list orbit digits: od, list rotation number: rn
 def getDNaryExpansion(od, rn):
-    factor = rotationFactor
+    assert rn[0] != 0 and rn[1] != 0, "Rotation number should not have 0 as either number."
+    factor = np.gcd(rn[0],rn[1])
     step = rn[0]
     base = rn[1]
-    dNaryExpansion = [1]
+    dNaryExpansion = []
     dneTemp = []
     for k in range(factor):
         for n in range(int(base/factor)):
             dneTemp.append(od[((n*step)+k)%base])
-        if k==0:
-            dNaryExpansion[0] = dneTemp
-        else:
-            dNaryExpansion.append(dneTemp)
+        dNaryExpansion.append(dneTemp)
         dneTemp = []
-    return dNaryExpansion
+    return dNaryExpansion[0]
 
-def main():
+def goldbergOrbit(deploymentSequence, rotationNumber):
     fps = getFixedPointSequence(deploymentSequence)
     fpe = getFixedPointExpansion(fps)
     od = getOrbitDigits(fpe, rotationNumber)
     de = getDNaryExpansion(od, rotationNumber)
+    return NaryFraction([], de, len(deploymentSequence)+1)
 
-    print(rotationFactor)
-    print(fps)
-    print(fpe)
-    print(od)
-    print(de)
+
+def main():
+    orbit = goldbergOrbit(deploymentSequence, rotationNumber)
+    print(orbit)
     return
 
 if __name__ == '__main__':
