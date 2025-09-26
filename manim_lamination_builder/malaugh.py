@@ -54,15 +54,15 @@ def phi(x, JLeftEnd: float, d):
     return sum
 
 
-d = 4
+d = 3
 
 
-def graph(a):
+def graph_phi(a):
     y = [phi(x, a, d) for x in x]
     plt.plot(x, y, label="phi(x)")
     plt.xlabel("x")
     plt.ylabel("phi(x)")
-    plt.title("Graph of phi(x)")
+    plt.title("Graph of phi(x) a = {}".format(a))
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -136,7 +136,6 @@ def psi(x, a, destination_degree, lesser=True):
     d = destination_degree
     iterate = x
     old_digits = lb.NaryFraction.from_float(x, d - 1).exact
-    # print(lb.NaryFraction.from_float(x, 3))
     digits = []
     for i, xi in enumerate(old_digits):
         # print(iterate)
@@ -150,16 +149,22 @@ def psi(x, a, destination_degree, lesser=True):
         else:
             digits.append(xi + 1)
         iterate = sigma(iterate, d - 1)
-    # print(lb.NaryFraction(exact=tuple(digits), repeating=(), degree=4))
     return lb.NaryFraction(exact=tuple(digits), repeating=(), degree=d).to_float()
 
 
-def graph_psi(a):
-    y = [psi(x, a, d) for x in x]
-    plt.plot(x, y, label="psi(x)")
+def graph_psi(a, lesser):
+    x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
+    x = x[0:-1]
+    y = [psi(x, a, d, lesser=lesser) for x in x]
+    pos = np.where(np.abs(np.diff(y)) >= 0.01)[0] + 1
+    x = np.insert(x, pos, np.nan)
+    y = np.insert(y, pos, np.nan)
+    plt.plot(x, y)
+    plt.xlim(-0.005, 1.005)
+    plt.ylim(-0.005, 1.005)
     plt.xlabel("x")
-    plt.ylabel("psi(x)")
-    plt.title("Graph of psi(x)")
+    # plt.ylabel("psi(x)")
+    plt.title("Graph of psi^{}(x) a = {}".format("-" if lesser else "+", a))
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -222,4 +227,10 @@ def graph_psi_diagonal():
 #     print(psi(sibling.to_float(), M_2.to_float(), 3, lesser=False))
 #
 
-print(psi(0.5, 0.1, 3, lesser=False))
+# graph_psi(0, lesser=True)
+# graph_psi(0, lesser=False)
+# graph_psi(1 / 12)
+# graph_phi(1 / 8)
+# graph_phi(1 / 3)
+# print(psi(0, 0, 3, lesser=True))
+# print(psi(0, 0, 3, lesser=False))
