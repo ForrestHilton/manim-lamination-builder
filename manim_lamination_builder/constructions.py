@@ -8,8 +8,11 @@ import scipy
 
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.custom_json import custom_dump
-from manim_lamination_builder.lamination import (AbstractLamination,
-                                                 GapLamination, Polygon)
+from manim_lamination_builder.lamination import (
+    AbstractLamination,
+    GapLamination,
+    Polygon,
+)
 from manim_lamination_builder.points import Angle, NaryFraction
 from manim_lamination_builder.visual_settings import VisualSettings, get_color
 
@@ -112,6 +115,7 @@ def fussCatalan(i, n):
 T = TypeVar("T", Angle, Chord, Polygon, AbstractLamination)  # TODO: rename
 
 
+# TODO: this should be defined somewhere else and should be just calling a class method in all cases.
 def sigma(input: T) -> T:
     if isinstance(input, Angle):
         return input.after_sigma()

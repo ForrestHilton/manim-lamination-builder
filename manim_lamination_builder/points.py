@@ -139,6 +139,7 @@ class NaryFraction(_Angle, BaseModel):
             )
         return v
 
+    # TODO: simplify more
     # https://github.com/csfalcione/laminations-lib/blob/master/src/fractions.ts
     @model_validator(mode="before")
     @classmethod
