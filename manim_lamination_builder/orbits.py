@@ -33,13 +33,11 @@ def getFixedPointExpansion(fps):
 def getOrbitDigits(fpe, rn):
     orbitDigits = []
     adv = rn[1] - rn[0]
-    i = 0
-    for n in fpe:
+    for i in range(len(fpe)):
         if i < adv:
             orbitDigits.append(fpe[i])
         else:
             orbitDigits.append(fpe[i] + 1)
-        i = i + 1
     return orbitDigits
 
 
