@@ -154,9 +154,24 @@ class NaryFraction(_Angle, BaseModel):
         degree = v["degree"]
         exact = v["exact"]
         repeating = v["repeating"]
+        #over-specified exact part
         while len(exact) > 0 and len(repeating) > 0 and exact[-1] == repeating[-1]:
             exact = exact[:-1]
             repeating = (repeating[-1],) + tuple(repeating[:-1])
+
+        #over-specified repeating
+        testStr = ''.join(map(str, repeating))
+        index = (testStr+testStr)[1:-1].find(testStr)
+        if index != -1:
+            repeating = repeating[:index+1]
+            
+        
+        #TODO: repeating d-1 in base d-1
+        #trailing zeros
+        if repeating == (0,):
+            repeating = ()
+        while (len(exact) > 1 and exact[-1] == 0 and repeating == ()):
+            exact = exact[:-1]
 
         return {
             "degree": degree,
