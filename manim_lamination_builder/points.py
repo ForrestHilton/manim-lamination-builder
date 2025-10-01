@@ -3,7 +3,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABC, abstractmethod
-from functools import lru_cache
+from functools import lru_cache, total_ordering
 from math import ceil, cos, floor, log, pi, sin
 from typing import Annotated, List, Optional, Sequence, Union
 
@@ -22,6 +22,7 @@ def angle_to_cartesian(angle: float):
 Degree = Annotated[int, Gt(1)]
 
 
+@total_ordering
 class _Angle(ABC):
     visual_settings: VisualSettings = VisualSettings()
     degree: Degree
@@ -53,10 +54,15 @@ class _Angle(ABC):
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()
 
-    def __hash__(self):
+    def __hash__(self):  # TODO: is there a better way to do this?
         return hash(floor(self.to_float() / 0.0000002))
 
-    def has_degree(self) -> bool:
+    def __lt__(self, other) -> bool:
+        if isinstance(other, _Angle):
+            return self.to_float() < other.to_float()
+        return NotImplemented
+
+    def has_degree(self) -> bool:  # TODO: remove
         return True
 
     def siblings(self) -> Sequence["_Angle"]:
