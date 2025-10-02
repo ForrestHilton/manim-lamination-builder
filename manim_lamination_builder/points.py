@@ -165,14 +165,20 @@ class NaryFraction(_Angle, BaseModel):
         if index != -1:
             repeating = repeating[:index+1]
             
-        
-        #TODO: repeating d-1 in base d-1
         #trailing zeros
         if repeating == (0,):
             repeating = ()
         while (len(exact) > 1 and exact[-1] == 0 and repeating == ()):
             exact = exact[:-1]
-
+         
+        #TODO: repeating d-1 in base d-1
+        if repeating == (degree-1,):
+            repeating = ()
+            if exact:
+                exact = exact[:-1]+(exact[-1]+1,)
+            else:
+                exact = (0,)
+ 
         return {
             "degree": degree,
             "exact": exact,
