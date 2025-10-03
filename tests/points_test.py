@@ -21,13 +21,16 @@ def test_original_point_operations():
         == NaryFraction.from_string(3, "1").to_float()
     )
 
-    assert NaryFraction.from_string(10, "_9").to_float() == 1.0
-
     a = NaryFraction.from_string(4, "_230")
     assert a.after_sigma().to_string() == "_302"
     assert a.to_string() == "_230"
 
     assert a.to_string() == "_230"
+
+
+def test_no_reapeating9s():
+    assert NaryFraction.from_string(10, "_9").to_float() == 0.0
+    assert NaryFraction.from_string(3, "_2").to_string() != "_2"
 
 
 def test_not_wraping1():
