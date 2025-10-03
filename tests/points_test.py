@@ -31,6 +31,7 @@ def test_original_point_operations():
 def test_no_reapeating9s():
     assert NaryFraction.from_string(10, "_9").to_float() == 0.0
     assert NaryFraction.from_string(3, "_2").to_string() != "_2"
+    assert NaryFraction.from_string(4, "1_3").to_string() == "2"
 
 
 def test_not_wraping1():
