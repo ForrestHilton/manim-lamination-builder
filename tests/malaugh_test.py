@@ -47,5 +47,5 @@ def test_monotone():
         for xi in x:
             yi = phi(xi, a)
             if yi != 0.0:
-                assert yi >= y
+                assert yi >= y, "{} doesn't work".format(a)
             y = yi
