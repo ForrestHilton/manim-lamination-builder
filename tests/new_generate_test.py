@@ -4,24 +4,33 @@ Most of the tests here were needed to diagnose an issue that is no longer presen
 
 from manim.animation.animation import config
 
+from manim_lamination_builder import custom_json
+
 config.preview = True
+import random
+
 from manim.utils.file_ops import config
-from manim_lamination_builder import parse_lamination
-from manim_lamination_builder import TreeRender, next_pull_back, PullBackTree
+
+from manim_lamination_builder import (
+    FloatWrapper,
+    NaryFraction,
+    PullBackTree,
+    TreeRender,
+    next_pull_back,
+    parse_lamination,
+    sigma,
+)
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.constructions import fussCatalan, pollygons_are_one_to_one
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from manim_lamination_builder.lamination import GapLamination, LeafLamination
 from manim_lamination_builder.main import Main
-from manim_lamination_builder import FloatWrapper, NaryFraction, sigma
 from manim_lamination_builder.new_generate import (
-    _sibling_collections_of_leaf_in_existing,
     _sibling_collections_of_leaf,
+    _sibling_collections_of_leaf_in_existing,
     pre_image_dictionary,
     sibling_portraits,
 )
-
-import random
 
 
 def test_chord_works_as_expected():
@@ -100,13 +109,25 @@ def test_polygons_unlinked():
 
 
 def test_polygons_coexist():
-    for numpoly in range(2, 4):
-        for sides in range(2, 4):
-            b = random_polygons(numpoly, sides)
-            a = random_polygons(numpoly, sides)
-            assert GapLamination(
-                polygons=a.polygons + b.polygons, points=[], degree=2
-            ).unlinked() == a.coexists(b)
+    a = custom_parse(
+        """{"points": [], "degree": 2, "polygons": [[0.05310929458218239, 0.6150710279856368], [0.10922703411711854, 0.8479865926668774]]}"""
+    )
+    b = custom_parse(
+        """{"points": [], "degree": 2, "polygons": [[0.1464253152363102, 0.5207268840907326], [0.1253695002398284, 0.5482237087008556]]}"""
+    )
+    both = GapLamination(polygons=a.polygons + b.polygons, points=[], degree=2)
+    assert both.unlinked() == a.coexists(b)
+    for _ in range(10):
+        for numpoly in range(2, 4):
+            for sides in range(2, 4):
+                b = random_polygons(numpoly, sides)
+                a = random_polygons(numpoly, sides)
+                both = GapLamination(
+                    polygons=a.polygons + b.polygons, points=[], degree=2
+                )
+                assert both.unlinked() == a.coexists(b), "fails for {},{}".format(
+                    custom_dump(a), custom_dump(b)
+                )
 
 
 def test_issolated_collections2():
@@ -126,9 +147,11 @@ def test_issolated_collections2():
 
 
 def test_preimage_dictionary():
-    start = parse_lamination("""
+    start = parse_lamination(
+        """
 {"leafs": [["1_010", "1_100"], ["0_010", "0_100"], ["0_001", "1_010"], ["0_010", "1_001"], ["0_001", "1_100"], ["0_100", "1_001"]], "points": [], "degree": 2}
-            """)
+            """
+    )
     dict = pre_image_dictionary(start.to_polygons())
     hist = [0, 0, 0]
     for poly, v in dict.items():

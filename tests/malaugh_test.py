@@ -13,6 +13,7 @@ x = [FloatWrapper(xi, degree) for xi in x]
 a_values = [FloatWrapper(random.random() % 0.66, degree) for _ in range(16)]
 
 
+# TODO: 0.2126636966021872 doesn't work
 def perameterized_test_semi_conjigacy(a: Angle):
     for xi in x:
         if xi < a or a + 1 / degree < xi:
@@ -27,6 +28,7 @@ def test_semi_conjigacy():
 # TODO: at least one test with NaryFraction that repeats
 
 
+# TODO: 0.2126636966021872 doesn't work
 def perameterized_test_constant_interval(a: Angle):
     image_of_J = set()
 
@@ -41,11 +43,15 @@ def test_constant_interval():
         perameterized_test_semi_conjigacy(a)
 
 
-def test_monotone():
+def test_monotone_degree_one():
     for a in a_values:
         y = FloatWrapper(0, degree)
+        components_of_zero_fiber = 1
         for xi in x:
             yi = phi(xi, a)
             if yi != 0.0:
                 assert yi >= y, "{} doesn't work".format(a)
+            if yi == 0 and y != 0:
+                components_of_zero_fiber += 1
             y = yi
+        assert components_of_zero_fiber < 3, "{} doesn't work".format(a)
