@@ -79,6 +79,13 @@ class _Angle(ABC):
             self.to_float(), self.degree, visual_settings=self.visual_settings
         )
 
+    def __add__(self, other):
+        if isinstance(other, _Angle):
+            return FloatWrapper(self.to_float() + other.to_float(), self.degree)
+        elif isinstance(other, (float, int)):
+            return FloatWrapper(self.to_float() + other, self.degree)
+        return NotImplemented
+
 
 class FloatWrapper(_Angle, BaseModel):
     value: float

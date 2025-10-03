@@ -1,92 +1,64 @@
 from functools import lru_cache
 from math import floor, pi
+from optparse import Option
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-import manim_lamination_builder as lb
+from manim_lamination_builder import Angle, NaryFraction, sigma
+from manim_lamination_builder.points import FloatWrapper
 
 
-# take the function described now in case 1 a=2 of the restricted to homomorphism statement.
-def sigma(x, d):
-    return d * x % 1
-
-
-x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
-x = x[0:-1]
-
-
-def digit_for_phi(x, JLeftEnd, d):
-    assert JLeftEnd * d + 1 <= d
+def digit_for_phi(x: Angle, JLeftEnd: Angle) -> Optional[int]:
+    assert isinstance(x, Angle) and isinstance(JLeftEnd, Angle)
+    d = x.degree
+    assert JLeftEnd.to_float() * d + 1 <= d
     if x <= JLeftEnd:
-        return floor(x * d) % (d - 1)
+        return floor(x.to_float() * d) % (d - 1)
     if x >= JLeftEnd + 1 / d:
-        return (floor(x * d) - 1) % (d - 1)
+        return (floor(x.to_float() * d) - 1) % (d - 1)
     return None
 
 
 @lru_cache(maxsize=None)  # maxsize=None means unlimited cache size
-def image_of_b(a, d) -> float:
+def image_of_b(a: Angle) -> NaryFraction:
+    assert isinstance(a, Angle)
+    d = a.degree
     iterate = a
     digits = []
     for _ in range(1000):
-        digit = digit_for_phi(iterate, a, d)
+        digit = digit_for_phi(iterate, a)
         if digit is None:
-            return lb.NaryFraction(
-                exact=(), repeating=tuple(digits), degree=d - 1
-            ).to_float()
+            return NaryFraction(exact=(), repeating=tuple(digits), degree=d - 1)
         digits.append(digit)
-        iterate = sigma(iterate, d)
+        iterate = sigma(iterate)
 
-    return lb.NaryFraction(exact=tuple(digits), repeating=(), degree=d - 1).to_float()
+    return NaryFraction(exact=tuple(digits), repeating=(), degree=d - 1)
 
 
-def phi(x, JLeftEnd: float, d):
-    added_stuff = image_of_b(JLeftEnd, d)
-    sum = 0
+def phi(x: Angle, JLeftEnd: Angle) -> NaryFraction:
+    assert isinstance(x, Angle) and isinstance(JLeftEnd, Angle)
+    assert x.degree == JLeftEnd.degree
+    d = x.degree
+    added_stuff = image_of_b(JLeftEnd)
+    sum = 0  # TODO: do this with NaryFraction
     iterate = x
     for i in range(1000):
-        digit = digit_for_phi(iterate, JLeftEnd, d)
+        digit = digit_for_phi(iterate, JLeftEnd)
         if digit is None:
-            return sum + added_stuff / (d - 1) ** (i)
+            return FloatWrapper(sum + added_stuff.to_float() / (d - 1) ** (i), d - 1)
         sum += digit / (d - 1) ** (i + 1)
-        iterate = sigma(iterate, d)
-    return sum
+        iterate = sigma(iterate)
+    return FloatWrapper(sum, d - 1)
 
 
-d = 3
-
-
-def graph_phi(a):
-    y = [phi(x, a, d) for x in x]
-    plt.plot(x, y, label="phi(x)")
+def graph_phi(a: Angle):
+    y = [phi(xi, a) for xi in x]
+    plt.plot([x.to_float() for x in x], [yi.to_float() for yi in y], label="phi(x)")
     plt.xlabel("x")
     plt.ylabel("phi(x)")
     plt.title("Graph of phi(x) a = {}".format(a))
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-
-def test_semi_conjigacy(a):
-    plt.plot(x, [phi(sigma(x, d), a, d) for x in x], label="phi(sigma_d(x))")
-    plt.plot(x, [sigma(phi(x, a, d), d) for x in x], label="sigma_{d-1}(phi(x))")
-    plt.xlabel("x")
-    plt.ylabel("phi(x)")
-    plt.title("Semi-Conjigate?")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-
-def compair(a1, a2):
-    y = [phi(x, a1, d) for x in x]
-    plt.plot(x, y, label="JLeftEnd={}".format(a1))
-    y = [phi(x, a2, d) for x in x]
-    plt.plot(x, y, label="JLeftEnd={}".format(a2))
-    plt.xlabel("x")
-    plt.ylabel("phi(x)")
-    plt.title("Graph of phi(x)")
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -135,7 +107,7 @@ def graph2d():
 def psi(x, a, destination_degree, lesser=True):
     d = destination_degree
     iterate = x
-    old_digits = lb.NaryFraction.from_float(x, d - 1).exact
+    old_digits = NaryFraction.from_float(x, d - 1).exact
     digits = []
     for i, xi in enumerate(old_digits):
         # print(iterate)
@@ -149,10 +121,10 @@ def psi(x, a, destination_degree, lesser=True):
         else:
             digits.append(xi + 1)
         iterate = sigma(iterate, d - 1)
-    return lb.NaryFraction(exact=tuple(digits), repeating=(), degree=d).to_float()
+    return NaryFraction(exact=tuple(digits), repeating=(), degree=d).to_float()
 
 
-def graph_psi(a, lesser):
+def graph_psi(a, lesser=True):
     x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
     x = x[0:-1]
     y = [psi(x, a, d, lesser=lesser) for x in x]
@@ -220,17 +192,23 @@ def graph_psi_diagonal():
 # graph_psi_diagonal()
 # test_left_inverse(pi % 1)
 
-# for M_2 in [lb.NaryFraction.from_string(2, "_0")]:
+# for M_2 in [NaryFraction.from_string(2, "_0")]:
 #     # M_2 becomes the major under \Psi
 #     siblings = M_2.siblings()
 #     sibling = M_2.siblings()[siblings[0] == M_2]
 #     print(psi(sibling.to_float(), M_2.to_float(), 3, lesser=False))
 #
+if __name__ == "__main__":
+    degree = 3
+    x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
+    x = x[0:-1]
+    x = [FloatWrapper(xi, degree) for xi in x]
+    # graph_psi(0, lesser=True)
+    # graph_psi(0, lesser=False)
 
-# graph_psi(0, lesser=True)
-# graph_psi(0, lesser=False)
-# graph_psi(1 / 12)
-# graph_phi(1 / 8)
-# graph_phi(1 / 3)
-# print(psi(0, 0, 3, lesser=True))
-# print(psi(0, 0, 3, lesser=False))
+    graph_phi(FloatWrapper(0.5312459873820576, degree))
+    # graph_psi(1 / 12)
+
+    # graph_phi(1 / 3)
+    # print(psi(0, 0, 3, lesser=True))
+    # print(psi(0, 0, 3, lesser=False))
