@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from manim_lamination_builder import Angle, NaryFraction, sigma
-from manim_lamination_builder.points import FloatWrapper
+from manim_lamination_builder.points import FloatWrapper, LiftedAngle
 
 
 def digit_for_phi(x: Angle, JLeftEnd: Angle) -> Optional[int]:
@@ -30,6 +30,8 @@ def image_of_b(a: Angle) -> NaryFraction:
     for _ in range(1000):
         digit = digit_for_phi(iterate, a)
         if digit is None:
+            if all([digit2 == d - 2 for digit2 in digits]):
+                return LiftedAngle(1, d - 1)
             return NaryFraction(exact=(), repeating=tuple(digits), degree=d - 1)
         digits.append(digit)
         iterate = sigma(iterate)
@@ -205,8 +207,15 @@ if __name__ == "__main__":
     x = [FloatWrapper(xi, degree) for xi in x]
     # graph_psi(0, lesser=True)
     # graph_psi(0, lesser=False)
+    print(image_of_b(FloatWrapper(0.6052287199698223, 3)))
+    # print(
+    #     phi(
+    #         FloatWrapper(0.7, degree),
+    #         FloatWrapper(0.6052287199698223, degree),
+    #     )
+    # )
 
-    graph_phi(FloatWrapper(0.5312459873820576, degree))
+    graph_phi(FloatWrapper(0.6052287199698223, degree))
     # graph_psi(1 / 12)
 
     # graph_phi(1 / 3)
