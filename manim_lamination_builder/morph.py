@@ -1,21 +1,17 @@
 from copy import deepcopy
+from typing import Union
+
 from manim import ORIGIN, RED, TAU, Arc, Mobject, VMobject
 from pydantic import BaseModel, field_validator
+
 from manim_lamination_builder.chord import make_and_append_bezier
-from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from manim_lamination_builder.lamination import (
     AbstractLamination,
     AgnosticLamination,
     GapLamination,
 )
-from manim_lamination_builder.points import (
-    Angle,
-    LiftedAngle,
-    FloatWrapper,
-    Angle,
-)
-from typing import Union
+from manim_lamination_builder.points import Angle, FloatWrapper, LiftedAngle, sigma
 
 
 class HalfOpenArc(BaseModel):

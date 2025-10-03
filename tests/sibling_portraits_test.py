@@ -3,12 +3,12 @@ from manim.utils.testing.frames_comparison import frames_comparison
 
 from manim_lamination_builder import (
     GapLamination,
-    fussCatalan,
-    unicritical_polygon,
     Main,
+    fussCatalan,
+    group,
     next_pull_back,
     parse_lamination,
-    group,
+    unicritical_polygon,
 )
 from manim_lamination_builder.constructions import pollygons_are_one_to_one
 

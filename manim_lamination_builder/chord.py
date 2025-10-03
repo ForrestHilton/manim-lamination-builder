@@ -65,6 +65,9 @@ class Chord(BaseModel):
             return self.min == other.min and self.max == other.max
         return False
 
+    def after_sigma(self):
+        return Chord(self.min.after_sigma(), self.max.after_sigma())
+
 
 def make_and_append_bezier(vmob: VMobject, theta1: Angle, theta2: Angle):
     """Add a cubic Bezier curve to a VMobject using given angles or NaryFractions."""

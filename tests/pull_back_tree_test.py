@@ -2,13 +2,13 @@
 Most of the tests here were needed to diagnose an issue that is no longer present in the code.
 """
 
+import networkx as nx
 from manim.animation.animation import config
 from manim.utils.file_ops import config
-from manim_lamination_builder import parse_lamination
-from manim_lamination_builder import TreeRender, PullBackTree
+
+from manim_lamination_builder import PullBackTree, TreeRender, parse_lamination
 from manim_lamination_builder.constructions import pollygons_are_one_to_one
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
-import networkx as nx
 
 
 def test_rabbit_tree():

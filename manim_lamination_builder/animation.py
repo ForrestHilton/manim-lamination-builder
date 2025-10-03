@@ -1,23 +1,24 @@
+from typing import Optional, Union
+
 from manim import (
     ORIGIN,
+    TAU,
     WHITE,
     Animation,
-    Scene,
-    tempconfig,
     Arc,
     Dot,
-    VMobject,
     Mobject,
-    TAU,
+    Scene,
+    VMobject,
+    tempconfig,
 )
 from manim.animation.animation import config
+
 from manim_lamination_builder.chord import make_and_append_bezier
-from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.custom_json import custom_dump, custom_parse
 from manim_lamination_builder.lamination import AbstractLamination, GapLamination
 from manim_lamination_builder.morph import HalfOpenArc, OccludedLamination
-from manim_lamination_builder.points import FloatWrapper, angle_to_cartesian
-from typing import Optional, Union
+from manim_lamination_builder.points import FloatWrapper, angle_to_cartesian, sigma
 
 
 def lerp(a: float, b: float, alpha: float) -> float:

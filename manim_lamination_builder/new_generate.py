@@ -1,9 +1,10 @@
 from copy import deepcopy
-from typing import Dict, Iterator, List, Sequence
 from itertools import combinations, combinations_with_replacement, permutations, product
-from manim_lamination_builder.lamination import GapLamination, LeafLamination, Polygon
+from typing import Dict, Iterator, List, Sequence
+
 from manim_lamination_builder.chord import Chord
-from manim_lamination_builder.points import PrincipalAngle
+from manim_lamination_builder.lamination import GapLamination, LeafLamination, Polygon
+from manim_lamination_builder.points import PrincipalAngle, sigma
 
 
 def valid_polygon_indices(degree, di, order):
@@ -135,8 +136,6 @@ def _sibling_collections_of_leaf_in_existing(
 
 def pre_image_dictionary(lam: GapLamination) -> Dict[Polygon, List[Polygon]]:
     "maps each cord to any preimages it might already have"
-
-    from manim_lamination_builder.constructions import sigma
 
     ret = {}
     for poly in lam.polygons:

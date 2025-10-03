@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache, total_ordering
 from math import ceil, cos, floor, log, pi, sin
-from typing import Annotated, List, Optional, Sequence, Union
+from typing import Annotated, Iterable, List, Optional, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
 from annotated_types import Gt
@@ -378,3 +378,16 @@ class LiftedAngle(_Angle, BaseModel):
 
 Angle = Union[NaryFraction, FloatWrapper, LiftedAngle]
 PrincipalAngle = Union[NaryFraction, FloatWrapper]
+
+T = TypeVar("T")
+
+
+def sigma(input: T) -> T:
+    if isinstance(input, Tuple):
+        return tuple(
+            sorted(set([p.after_sigma() for p in input]), key=lambda p: p.to_float())
+        )  # type: ignore
+    if isinstance(input, List):
+        return [x.after_sigma() for x in input]
+
+    return input.after_sigma()

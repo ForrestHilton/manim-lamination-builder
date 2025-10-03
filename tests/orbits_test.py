@@ -2,8 +2,7 @@ import itertools
 import random
 from math import gcd
 
-from manim_lamination_builder import goldbergOrbit
-from manim_lamination_builder.constructions import sigma
+from manim_lamination_builder import goldbergOrbit, sigma
 
 
 def test_deployment_sequence():

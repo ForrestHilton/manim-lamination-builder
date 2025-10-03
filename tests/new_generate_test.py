@@ -167,3 +167,6 @@ def test_new_sibling_portraits():
     ).to_polygons()
     portraits = next_pull_back(start)
     assert len(portraits) == 4
+
+
+test_preimage_dictionary()

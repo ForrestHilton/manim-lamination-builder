@@ -1,6 +1,5 @@
 from numpy.random import rand
 
-from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.points import *
 
 

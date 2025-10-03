@@ -12,7 +12,7 @@ from manim import BLACK, ORIGIN, WHITE, Circle, Dot, Mobject, VMobject, config
 from pydantic import BaseModel, field_validator
 
 from manim_lamination_builder.chord import Chord, make_and_append_bezier
-from manim_lamination_builder.points import Angle, Degree
+from manim_lamination_builder.points import Angle, Degree, sigma
 
 background = BLACK
 
@@ -40,7 +40,7 @@ class AbstractLamination(ABC, Generic[T]):
         pass
 
     @abstractmethod
-    def filtered(self, f: Callable[[Angle], bool]) -> T:
+    def filtered(self: T, f: Callable[[Angle], bool]) -> T:
         pass
 
     def lifted(self) -> T:
@@ -51,6 +51,9 @@ class AbstractLamination(ABC, Generic[T]):
 
     def to_leafs(self) -> "LeafLamination":
         return self  # type: ignore
+
+    def after_sigma(self: T) -> T:
+        return self.apply_function(lambda x: x.after_sigma())
 
 
 Polygon = tuple[
@@ -177,8 +180,6 @@ class GapLamination(BaseModel, AbstractLamination):
         return LeafLamination(leafs=set(leafs), points=self.points, degree=self.degree)
 
     def trapped_criticality(self) -> int:
-        from manim_lamination_builder.constructions import sigma
-
         def degree(p: Polygon) -> int:
             return int(len(p) / len(set(sigma(p))))
 

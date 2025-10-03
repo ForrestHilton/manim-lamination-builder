@@ -12,6 +12,7 @@ from manim_lamination_builder.lamination import (
     AbstractLamination,
     GapLamination,
     Polygon,
+    sigma,
 )
 from manim_lamination_builder.points import Angle, NaryFraction
 from manim_lamination_builder.visual_settings import VisualSettings, get_color
@@ -110,23 +111,6 @@ def add_points_preimages(lam: GapLamination) -> GapLamination:
 def fussCatalan(i, n):
     "Formula that appears in my poster."
     return scipy.special.binom(n * i, i) / ((n - 1) * i + 1)
-
-
-T = TypeVar("T", Angle, Chord, Polygon, AbstractLamination)  # TODO: rename
-
-
-# TODO: this should be defined somewhere else and should be just calling a class method in all cases.
-def sigma(input: T) -> T:
-    if isinstance(input, Angle):
-        return input.after_sigma()
-    elif isinstance(input, Chord):
-        return Chord(input.min.after_sigma(), input.max.after_sigma())  # type: ignore
-    elif isinstance(input, AbstractLamination):
-        return input.apply_function(sigma)
-    else:
-        return tuple(
-            sorted(set([p.after_sigma() for p in input]), key=lambda p: p.to_float())
-        )  # type: ignore
 
 
 def pollygons_are_one_to_one(lam: AbstractLamination) -> bool:

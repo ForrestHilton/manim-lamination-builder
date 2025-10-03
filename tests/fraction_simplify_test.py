@@ -1,4 +1,3 @@
-from manim_lamination_builder.constructions import sigma
 from manim_lamination_builder.points import *
 
 # this document is copied from https://github.com/csfalcione/laminations-lib
