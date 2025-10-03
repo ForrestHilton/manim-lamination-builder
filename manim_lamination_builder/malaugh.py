@@ -66,50 +66,15 @@ def graph_phi(a: Angle):
     plt.show()
 
 
-# import random
-#
-# for i in range(100):
-#     compair(random.random() * 0.75, random.random() * 0.75)
-
-
-# Make a grid; choose resolution as desired
-def graph2d():
-    n_x = 1000
-    n_y = 1000
-    x_vals = np.linspace(0, 1, n_x)[:-1]
-    y_vals = np.linspace(0, 0.75, n_y)[:-1]
-
-    # Evaluate function on the grid using iteration
-    Z = []
-    for y in y_vals:
-        row = []
-        for x in x_vals:
-            row.append(phi(x, y, d))
-        Z.append(row)
-
-    # Convert to NumPy arrays for plotting
-    X, Y = np.meshgrid(x_vals, y_vals)
-    Z = np.array(Z)
-
-    # Plotting
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_subplot(111, projection="3d")
-    surf = ax.plot_surface(X, Y, Z, cmap="flag")
-    fig.colorbar(surf)
-    ax.set_xlabel("x")
-    ax.set_ylabel("a")
-    ax.set_zlabel("phi(x)")
-    # plt.title("Surface plot of function over [0,1] x [0,0.75]")
-    plt.show()
-
-
-# graph2d()
-
-
-def psi(x, a, destination_degree, lesser=True):
-    d = destination_degree
+def psi(x: Angle, a: Angle, lesser=True) -> Angle:
+    assert isinstance(x, Angle) and isinstance(a, Angle)
+    assert x.degree == a.degree
+    d = a.degree + 1
     iterate = x
-    old_digits = NaryFraction.from_float(x, d - 1).exact
+    old_digits = x.to_nary_fraction().exact
+    assert x.to_nary_fraction().repeating == (), (
+        "it should be obvious how to change the implementation"
+    )
     digits = []
     for i, xi in enumerate(old_digits):
         # print(iterate)
@@ -122,14 +87,17 @@ def psi(x, a, destination_degree, lesser=True):
             digits.append(xi)
         else:
             digits.append(xi + 1)
-        iterate = sigma(iterate, d - 1)
-    return NaryFraction(exact=tuple(digits), repeating=(), degree=d).to_float()
+        iterate = sigma(iterate)
+    return NaryFraction(exact=tuple(digits), repeating=(), degree=d)
 
 
-def graph_psi(a, lesser=True):
+def graph_psi(a: Angle, lesser=True):
     x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
     x = x[0:-1]
-    y = [psi(x, a, d, lesser=lesser) for x in x]
+    x = [FloatWrapper(xi, degree) for xi in x]
+    y = [psi(x, a, lesser=lesser) for x in x]
+    x = [xi.to_float() for xi in x]
+    y = [yi.to_float() for yi in y]
     pos = np.where(np.abs(np.diff(y)) >= 0.01)[0] + 1
     x = np.insert(x, pos, np.nan)
     y = np.insert(y, pos, np.nan)
@@ -201,13 +169,12 @@ def graph_psi_diagonal():
 #     print(psi(sibling.to_float(), M_2.to_float(), 3, lesser=False))
 #
 if __name__ == "__main__":
-    degree = 3
+    degree = 2
     x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
     x = x[0:-1]
     x = [FloatWrapper(xi, degree) for xi in x]
     # graph_psi(0, lesser=True)
     # graph_psi(0, lesser=False)
-    print(image_of_b(FloatWrapper(0.6052287199698223, 3)))
     # print(
     #     phi(
     #         FloatWrapper(0.7, degree),
@@ -215,8 +182,8 @@ if __name__ == "__main__":
     #     )
     # )
 
-    graph_phi(FloatWrapper(0.6052287199698223, degree))
-    # graph_psi(1 / 12)
+    # graph_phi(FloatWrapper(0.6052287199698223, degree))
+    graph_psi(FloatWrapper(1 / 12, degree))
 
     # graph_phi(1 / 3)
     # print(psi(0, 0, 3, lesser=True))

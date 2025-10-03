@@ -86,6 +86,9 @@ class _Angle(ABC):
             return FloatWrapper(self.to_float() + other, self.degree)
         return NotImplemented
 
+    def to_nary_fraction(self) -> "NaryFraction":
+        return NaryFraction.from_float(self.to_float(), self.degree)
+
 
 class FloatWrapper(_Angle, BaseModel):
     value: float
@@ -161,31 +164,31 @@ class NaryFraction(_Angle, BaseModel):
         degree = v["degree"]
         exact = v["exact"]
         repeating = v["repeating"]
-        #over-specified exact part
+        # over-specified exact part
         while len(exact) > 0 and len(repeating) > 0 and exact[-1] == repeating[-1]:
             exact = exact[:-1]
             repeating = (repeating[-1],) + tuple(repeating[:-1])
 
-        #over-specified repeating
-        testStr = ''.join(map(str, repeating))
-        index = (testStr+testStr)[1:-1].find(testStr)
+        # over-specified repeating
+        testStr = "".join(map(str, repeating))
+        index = (testStr + testStr)[1:-1].find(testStr)
         if index != -1:
-            repeating = repeating[:index+1]
-            
-        #trailing zeros
+            repeating = repeating[: index + 1]
+
+        # trailing zeros
         if repeating == (0,):
             repeating = ()
-        while (len(exact) > 1 and exact[-1] == 0 and repeating == ()):
+        while len(exact) > 1 and exact[-1] == 0 and repeating == ():
             exact = exact[:-1]
-         
-        #TODO: repeating d-1 in base d-1
-        if repeating == (degree-1,):
+
+        # TODO: repeating d-1 in base d-1
+        if repeating == (degree - 1,):
             repeating = ()
             if exact:
-                exact = exact[:-1]+(exact[-1]+1,)
+                exact = exact[:-1] + (exact[-1] + 1,)
             else:
                 exact = (0,)
- 
+
         return {
             "degree": degree,
             "exact": exact,
@@ -320,6 +323,9 @@ class NaryFraction(_Angle, BaseModel):
 
     def pre_period(self) -> int:
         return len(self.exact)
+
+    def to_nary_fraction(self) -> "NaryFraction":
+        return self
 
 
 class LiftedAngle(_Angle, BaseModel):
