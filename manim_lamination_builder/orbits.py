@@ -2,8 +2,6 @@ import numpy as np
 
 from manim_lamination_builder.points import NaryFraction
 
-# rotation number p/q as [p,q]
-
 
 # input list deployment sequence: depSeq
 def getFixedPointSequence(depSeq):
@@ -67,13 +65,46 @@ def goldbergOrbit(deploymentSequence, rotationNumber):
     return NaryFraction([], de, len(deploymentSequence) + 1)
 
 
-def main():
-    deploymentSequence = [3, 4]
-    rotationNumber = [2, 4]
-    orbit = goldbergOrbit(deploymentSequence, rotationNumber)
-    print(orbit)
-    return
 
+
+class Orbit:
+
+    def __init__(self, point:NaryFraction):
+        self._temporalOrbit, self._spacialOrbit = self._fullOrbits(point) 
+
+        
+#returns a full orbit in spacial order
+    def _fullOrbits(self, point:NaryFraction):
+        p = point
+        fOrbit = []
+        sOrbit = []
+        tOrbit = []
+        for i in range(len(point.repeating)):
+            p = p.after_sigma()
+            fOrbit += [p]
+        sOrbit = sorted(fOrbit) 
+        startPoint = sOrbit[0]
+        startIndex = fOrbit.index(startPoint)
+        l = len(fOrbit)
+        for i in range(l):
+            tOrbit += [fOrbit[(startIndex+i)%l]]
+        return tOrbit, sOrbit
+    
+    def getTemporalOrbit(self):
+        return self._temporalOrbit
+    def getSpacialOrbit(self):
+        return self._spacialOrbit
+    
+def main():
+    #deploymentSequence = [3, 4]
+    #rotationNumber = [2, 4]
+    #orbit = goldbergOrbit(deploymentSequence, rotationNumber)
+    #print(orbit)
+    p = NaryFraction(exact=(),repeating=(0,1,1),degree=2)
+    o = Orbit(p) 
+    print(o.getTemporalOrbit())
+    print(o.getSpacialOrbit())
+    return
 
 if __name__ == "__main__":
     # sys.argv = ["programName.py","--input","test.txt","--output","tmp/test.txt"]
