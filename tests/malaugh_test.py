@@ -13,7 +13,6 @@ x = [FloatWrapper(xi, degree) for xi in x]
 a_values = [FloatWrapper(random.random() % 0.66, degree) for _ in range(16)]
 
 
-# TODO: 0.2126636966021872 doesn't work
 def perameterized_test_semi_conjigacy(a: Angle):
     for xi in x:
         if xi < a or a + 1 / degree < xi:
@@ -23,6 +22,10 @@ def perameterized_test_semi_conjigacy(a: Angle):
 def test_semi_conjigacy():
     for a in a_values:
         perameterized_test_semi_conjigacy(a)
+
+
+def test_one_semi_conjigacy():
+    perameterized_test_semi_conjigacy(FloatWrapper(0.2126636966021872, degree))
 
 
 # TODO: at least one test with NaryFraction that repeats
@@ -40,7 +43,11 @@ def perameterized_test_constant_interval(a: Angle):
 
 def test_constant_interval():
     for a in a_values:
-        perameterized_test_semi_conjigacy(a)
+        perameterized_test_constant_interval(a)
+
+
+def test_one_constant_interval():
+    perameterized_test_constant_interval(FloatWrapper(0.2126636966021872, degree))
 
 
 def test_monotone_degree_one():
@@ -55,3 +62,27 @@ def test_monotone_degree_one():
                 components_of_zero_fiber += 1
             y = yi
         assert components_of_zero_fiber < 3, "{} doesn't work".format(a)
+
+
+def perameterized_test_semi_conjigacy_psi(a: Angle):
+    for xi in x:
+        assert psi(sigma(xi), a) == sigma(psi(xi, a)), "{} doesn't work".format(a)
+
+
+def test_semi_conjigacy_psi():
+    for a in a_values:
+        perameterized_test_semi_conjigacy_psi(a)
+
+
+# import random
+#
+# for i in range(100):
+#     test_semi_conjigacy_psi(random.random())
+
+# print(psi(1 / 3, 1 / 4))
+
+
+def perameterized_test_left_inverse(a: Angle):
+    b = psi(a, a, lesser=True)
+    for xi in x:
+        assert phi(psi(xi, a), b) == xi

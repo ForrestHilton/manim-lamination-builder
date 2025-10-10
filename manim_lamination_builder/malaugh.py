@@ -6,8 +6,13 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 
-from manim_lamination_builder import Angle, NaryFraction, sigma
-from manim_lamination_builder.points import FloatWrapper, LiftedAngle
+from manim_lamination_builder.points import (
+    Angle,
+    FloatWrapper,
+    LiftedAngle,
+    NaryFraction,
+    sigma,
+)
 
 
 def digit_for_phi(x: Angle, JLeftEnd: Angle) -> Optional[int]:
@@ -71,24 +76,24 @@ def psi(x: Angle, a: Angle, lesser=True) -> Angle:
     assert x.degree == a.degree
     d = a.degree + 1
     iterate = x
-    old_digits = x.to_nary_fraction().exact
-    assert x.to_nary_fraction().repeating == (), (
-        "it should be obvious how to change the implementation"
-    )
-    digits = []
-    for i, xi in enumerate(old_digits):
-        # print(iterate)
-        criteria = None
-        if lesser:
-            criteria = iterate <= a
-        else:
-            criteria = iterate < a
-        if criteria:
-            digits.append(xi)
-        else:
-            digits.append(xi + 1)
-        iterate = sigma(iterate)
-    return NaryFraction(exact=tuple(digits), repeating=(), degree=d)
+    x = x.to_nary_fraction()
+    digits_parts = []
+    for old_digits in [x.exact, x.repeating]:
+        digits = []
+        for xi in old_digits:
+            # print(iterate)
+            criteria = None
+            if lesser:
+                criteria = iterate <= a
+            else:
+                criteria = iterate < a
+            if criteria:
+                digits.append(xi)
+            else:
+                digits.append(xi + 1)
+            iterate = sigma(iterate)
+        digits_parts.append(digits)
+    return NaryFraction(exact=digits_parts[0], repeating=digits_parts[1], degree=d)
 
 
 def graph_psi(a: Angle, lesser=True):
@@ -113,50 +118,6 @@ def graph_psi(a: Angle, lesser=True):
 
 
 # print(psi(0.5, 7.5))
-
-
-def test_semi_conjigacy_psi(a):
-    plt.plot(x, [psi(sigma(x, d - 1), a, d) for x in x], label="psi(sigma_{d-1}(x))")
-    plt.plot(x, [sigma(psi(x, a, d), d) for x in x], label="sigma_d(psi(x))")
-    plt.xlabel("x")
-    plt.title("Semi-Conjigate?")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-
-# import random
-#
-# for i in range(100):
-#     test_semi_conjigacy_psi(random.random())
-
-# print(psi(1 / 3, 1 / 4))
-
-
-def test_left_inverse(a):
-    b = psi(a, a, d, lesser=True)
-    # plt.plot(x, , label="psi(sigma_3(x))")
-    plt.plot(x, [phi(psi(x, a, d), b, d) for x in x], label="phi_b(psi_a(x))")
-    plt.xlabel("x")
-    plt.title("Left Inverse? b=psi_a(a)")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-
-# import random
-#
-# for i in range(5):
-#     test_left_inverse(random.random())
-
-
-def graph_psi_diagonal():
-    plt.plot(x, [psi(x, x, d) for x in x], label="psi_x(x)")
-    plt.xlabel("x")
-    plt.title("Monotone Diagonal?")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
 
 
 # graph_psi_diagonal()
