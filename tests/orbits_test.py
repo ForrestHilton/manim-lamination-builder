@@ -2,23 +2,23 @@ import itertools
 import random
 from math import gcd
 
-from manim_lamination_builder import goldbergOrbit, sigma
+from manim_lamination_builder import Orbit, sigma
 
 
 def test_deployment_sequence():
-    assert goldbergOrbit([3], [1, 3]).to_string() == "_001"
-    assert goldbergOrbit([2, 3], [1, 3]).to_string() == "_002"
-    assert goldbergOrbit([1, 3], [1, 3]).to_string() == "_012"
+    assert Orbit([3], [1, 3]).getSpacialOrbit()[0].to_string() == "_001"
+    assert Orbit([2, 3], [1, 3]).getSpacialOrbit()[0].to_string() == "_002"
+    assert Orbit([1, 3], [1, 3]).getSpacialOrbit()[0].to_string() == "_012"
 
 
 def test_rotation_number():
-    assert goldbergOrbit([2, 3], [1, 3]).to_string() == "_002"
-    assert goldbergOrbit([2, 3], [2, 3]).to_string() == "_021"
+    assert Orbit([2, 3], [1, 3]).getSpacialOrbit()[0].to_string() == "_002"
+    assert Orbit([2, 3], [2, 3]).getSpacialOrbit()[0].to_string() == "_021"
 
 
 def test_composite_rotation_number():
-    assert goldbergOrbit([2, 4], [2, 4]).to_string() == "_02"
-    assert goldbergOrbit([4, 4], [2, 4]).to_string() == "_01"
+    assert Orbit([2, 4], [2, 4]).getSpacialOrbit()[0].to_string() == "_02"
+    assert Orbit([4, 4], [2, 4]).getSpacialOrbit()[0].to_string() == "_01"
 
 
 def random_partition(total, slots):
@@ -35,7 +35,7 @@ def test_goldberg_random_is_correct():
             for d in range(2, 4):
                 rand_list = random_partition(den, d - 1)
                 deployment = list(itertools.accumulate(rand_list))
-                point = goldbergOrbit(deployment, [num, den])
+                point = Orbit(deployment, [num, den]).getSpacialOrbit()[0]
                 pair = "goldbergOrbit({},[{},{}]) -> {}".format(
                     deployment, num, den, point
                 )

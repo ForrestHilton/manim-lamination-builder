@@ -34,7 +34,7 @@ from manim_lamination_builder.morph import (
     interpolate_quotent_of_region_of_rotational_polygon,
 )
 from manim_lamination_builder.new_generate import next_pull_back
-from manim_lamination_builder.orbits import goldbergOrbit
+from manim_lamination_builder.orbits import Orbit 
 from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction, sigma
 from manim_lamination_builder.pull_back_tree import PullBackTree, TreeRender
 from manim_lamination_builder.pull_backs import FDL, CriticalTree, rabbit_nth_pullback

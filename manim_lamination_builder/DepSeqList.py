@@ -1,7 +1,5 @@
 import numpy as np
 
-from manim_lamination_builder.orbits import goldbergOrbit
-
 
 def incrementBaseN(inputNum, base):
     num = inputNum[:]
