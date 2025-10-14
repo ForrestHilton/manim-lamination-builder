@@ -1,4 +1,4 @@
-from manim import tempconfig
+from manim import Scene, tempconfig
 from numpy import binary_repr
 
 from manim_lamination_builder.chord import Chord
@@ -39,11 +39,26 @@ def build_quig(insertion_point: NaryFraction) -> LeafLamination:
     return LeafLamination(points=[], leafs=leaves, degree=3)
 
 
+class Quigs(Scene):
+    def construct(self):
+        # points = set()
+        for str in base_strings(5, 2):
+            point = NaryFraction(exact=(), repeating=tuple(str), degree=2)
+            if len(point.repeating) == 0:
+                continue
+            # if point in points:
+            #     continue
+            # points.update(point)
+            self.add(build_quig(point).build(2))
+            self.wait(0.1)
+            self.clear()
+
+
 insertion_point = NaryFraction.from_string(2, "_10")
 if __name__ == "__main__":
     with tempconfig(
         {"quality": "high_quality", "preview": True}  # , "background_color": WHITE
     ):
-        Main([build_quig(insertion_point)]).render()
+        Quigs().render()
 
 # first generate all
