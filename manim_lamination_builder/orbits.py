@@ -3,27 +3,24 @@ import numpy as np
 from manim_lamination_builder.points import NaryFraction
 
 
-
-
-
-
-
-
-
 class Orbit:
-
     def __init__(self, arg1, arg2=None):
         if isinstance(arg1, NaryFraction) and arg2 == None:
-            self._temporalOrbit, self._spacialOrbit = self._fullOrbits(arg1) 
+            self._temporalOrbit, self._spacialOrbit = self._fullOrbits(arg1)
         elif isinstance(arg1, list) and isinstance(arg2, list):
-            if all(isinstance(item,int) for item in arg1) and all(isinstance(item,int) for item in arg2):
-                self._temporalOrbit, self._spacialOrbit = self._fullOrbits(self._goldbergOrbit(arg1, arg2))
+            if all(isinstance(item, int) for item in arg1) and all(
+                isinstance(item, int) for item in arg2
+            ):
+                self._temporalOrbit, self._spacialOrbit = self._fullOrbits(
+                    self._goldbergOrbit(arg1, arg2)
+                )
         else:
-            raise TypeError("Invalid argument(s). Valid arguments are (NaryFraction) or (list[int],list[int])")
+            raise TypeError(
+                "Invalid argument(s). Valid arguments are (NaryFraction) or (list[int],list[int])"
+            )
 
-        
-    #returns a full orbit in spacial order
-    def _fullOrbits(self, point:NaryFraction):
+    # returns a full orbit in spacial order
+    def _fullOrbits(self, point: NaryFraction):
         p = point
         fOrbit = []
         sOrbit = []
@@ -31,19 +28,20 @@ class Orbit:
         for i in range(len(point.repeating)):
             p = p.after_sigma()
             fOrbit += [p]
-        sOrbit = sorted(fOrbit) 
+        sOrbit = sorted(fOrbit)
         startPoint = sOrbit[0]
         startIndex = fOrbit.index(startPoint)
         l = len(fOrbit)
         for i in range(l):
-            tOrbit += [fOrbit[(startIndex+i)%l]]
+            tOrbit += [fOrbit[(startIndex + i) % l]]
         return tOrbit, sOrbit
-    
+
     def getTemporalOrbit(self):
         return self._temporalOrbit
+
     def getSpacialOrbit(self):
         return self._spacialOrbit
-    
+
     def _goldbergOrbit(self, deploymentSequence, rotationNumber):
         fps = self._get_fixed_point_sequence(deploymentSequence)
         fpe = self._getFixedPointExpansion(fps)
@@ -86,9 +84,9 @@ class Orbit:
 
     # input list orbit digits: od, list rotation number: rn
     def _getDNaryExpansion(self, od, rn):
-        assert rn[0] != 0 and rn[1] != 0, (
-            "Rotation number should not have 0 as either number."
-        )
+        assert (
+            rn[0] != 0 and rn[1] != 0
+        ), "Rotation number should not have 0 as either number."
         factor = np.gcd(rn[0], rn[1])
         step = rn[0]
         base = rn[1]
@@ -101,8 +99,8 @@ class Orbit:
             dneTemp = []
         return dNaryExpansion[0]
 
-class AllOrbits:
 
+class AllOrbits:
     iter_index = 0
 
     def __init__(self, degree: int, length: int):
@@ -118,17 +116,19 @@ class AllOrbits:
         self.iter_index += 1
         if self.iter_index > len(self.orbits):
             raise StopIteration
-        return self.orbits[self.iter_index-1]
-    
+        return self.orbits[self.iter_index - 1]
+
     def _initOrbits(self):
         total = self.degree**self.length
         point = [0]
-        orbitList = [NaryFraction(exact=(),repeating=point,degree=self.degree)]
+        orbitList = [NaryFraction(exact=(), repeating=point, degree=self.degree)]
         for i in range(total - 1):
             point = self._incrementBaseN(point, self.degree)
             point = self._padWithZeros(point, self.length)
             if self._isNewOrbit(point, orbitList):
-                orbitList.append(NaryFraction(exact=(),repeating=point,degree=self.degree))
+                orbitList.append(
+                    NaryFraction(exact=(), repeating=point, degree=self.degree)
+                )
         return orbitList
 
     def _incrementBaseN(self, inputNum, base):
@@ -168,7 +168,9 @@ class AllOrbits:
         rotPoint = newPoint
         for i in range(orbitLength):
             rotPoint = self._rotatePoint(rotPoint)
-            newOrbit.append(NaryFraction(exact=(),repeating=rotPoint,degree=self.degree))
+            newOrbit.append(
+                NaryFraction(exact=(), repeating=rotPoint, degree=self.degree)
+            )
         for i in range(len(orbits)):
             if orbits[i] in newOrbit:
                 return False
@@ -180,17 +182,17 @@ class AllOrbits:
 
 
 def main():
-    #deploymentSequence = [3, 4]
-    #rotationNumber = [2, 4]
-    #orbit = goldbergOrbit(deploymentSequence, rotationNumber)
-    #print(orbit)
-    p = NaryFraction(exact=(),repeating=(0,1,2,1,2),degree=3)
-    o = Orbit(p) 
+    # deploymentSequence = [3, 4]
+    # rotationNumber = [2, 4]
+    # orbit = goldbergOrbit(deploymentSequence, rotationNumber)
+    # print(orbit)
+    p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
+    o = Orbit(p)
     print(o.getTemporalOrbit())
     print(o.getSpacialOrbit())
-    d = [1,5]
-    r = [2,5]
-    q = Orbit(d,r)
+    d = [1, 5]
+    r = [2, 5]
+    q = Orbit(d, r)
     print(q.getTemporalOrbit())
     print(q.getSpacialOrbit())
     # orbits = AllOrbits(3,5)
@@ -202,7 +204,7 @@ def main():
 
     return
 
+
 if __name__ == "__main__":
     # sys.argv = ["programName.py","--input","test.txt","--output","tmp/test.txt"]
     main()
-
