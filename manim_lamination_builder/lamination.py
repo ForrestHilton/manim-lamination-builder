@@ -220,6 +220,7 @@ class GapLamination(BaseModel, AbstractLamination):
         )
 
     def unlinked(self) -> bool:
+        "Checks the pairwise intersections to see if the set is unlinked"
         for i, j in combinations(range(len(self.polygons)), 2):
             if not GapLamination.polygons_unlinked(
                 list(self.polygons)[i], list(self.polygons)[j]
@@ -228,6 +229,7 @@ class GapLamination(BaseModel, AbstractLamination):
         return True
 
     def coexists(self, other: "GapLamination") -> bool:
+        "Checks weather any class of the first crosses a class of the latter"
         for i in range(len(self.polygons)):
             for j in range(len(other.polygons)):
                 if not GapLamination.polygons_unlinked(

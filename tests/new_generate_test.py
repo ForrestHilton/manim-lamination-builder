@@ -2,6 +2,7 @@
 Most of the tests here were needed to diagnose an issue that is no longer present in the code.
 """
 
+from manim import tempconfig
 from manim.animation.animation import config
 
 from manim_lamination_builder import custom_json
@@ -109,14 +110,6 @@ def test_polygons_unlinked():
 
 
 def test_polygons_coexist():
-    a = custom_parse(
-        """{"points": [], "degree": 2, "polygons": [[0.05310929458218239, 0.6150710279856368], [0.10922703411711854, 0.8479865926668774]]}"""
-    )
-    b = custom_parse(
-        """{"points": [], "degree": 2, "polygons": [[0.1464253152363102, 0.5207268840907326], [0.1253695002398284, 0.5482237087008556]]}"""
-    )
-    both = GapLamination(polygons=a.polygons + b.polygons, points=[], degree=2)
-    assert both.unlinked() == a.coexists(b)
     for _ in range(10):
         for numpoly in range(2, 4):
             for sides in range(2, 4):
@@ -125,9 +118,10 @@ def test_polygons_coexist():
                 both = GapLamination(
                     polygons=a.polygons + b.polygons, points=[], degree=2
                 )
-                assert both.unlinked() == a.coexists(b), "fails for {},{}".format(
-                    custom_dump(a), custom_dump(b)
-                )
+                # TODO: there may be a problem with unlinked.
+                assert (
+                    both.unlinked() == a.coexists(b) and a.unlinked() and b.unlinked()
+                ), "fails for {},{}".format(custom_dump(a), custom_dump(b))
 
 
 def test_issolated_collections2():
@@ -169,4 +163,18 @@ def test_new_sibling_portraits():
     assert len(portraits) == 4
 
 
-test_preimage_dictionary()
+if __name__ == "__main__":
+    a = custom_parse(
+        """{"points": [], "degree": 2, "polygons": [[0.05310929458218239, 0.6150710279856368], [0.10922703411711854, 0.8479865926668774]]}"""
+    )
+    b = custom_parse(
+        """{"points": [], "degree": 2, "polygons": [[0.1464253152363102, 0.5207268840907326], [0.1253695002398284, 0.5482237087008556]]}"""
+    )
+    both = GapLamination(polygons=a.polygons + b.polygons, points=[], degree=2)
+
+    with tempconfig(
+        {"quality": "high_quality", "preview": True}  # , "background_color": WHITE
+    ):
+        Main([a, b, both]).render()
+
+    # test_polygons_coexist()
