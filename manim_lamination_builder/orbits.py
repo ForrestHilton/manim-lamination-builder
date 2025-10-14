@@ -21,6 +21,9 @@ class Orbit:
 
     # returns a full orbit in spacial order
     def _fullOrbits(self, point: NaryFraction):
+        assert (
+            len(point.exact) == 0 and len(point.repeating) != 0
+        ), "must be periodic point"
         p = point
         fOrbit = []
         sOrbit = []
