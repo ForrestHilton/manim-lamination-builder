@@ -19,6 +19,18 @@ class Orbit:
                 "Invalid argument(s). Valid arguments are (NaryFraction) or (list[int],list[int])"
             )
 
+    def __str__(self):
+        return "[" + ", ".join(str(to) for to in self._temporalOrbit) + "]"
+
+    def __eq__(self, other):
+        if not isinstance(other, Orbit):
+            return NotImplemented
+        if len(self._temporalOrbit) != len(other.getTemporalOrbit()):
+            return False
+        if self._temporalOrbit[0] in other.getTemporalOrbit():
+            return True
+        return False
+
     # returns a full orbit in spacial order
     def _fullOrbits(self, point: NaryFraction):
         assert (
@@ -124,13 +136,13 @@ class AllOrbits:
     def _initOrbits(self):
         total = self.degree**self.length
         point = [0]
-        orbitList = [NaryFraction(exact=(), repeating=point, degree=self.degree)]
+        orbitList = [Orbit(NaryFraction(exact=(), repeating=point, degree=self.degree))]
         for i in range(total - 1):
             point = self._incrementBaseN(point, self.degree)
             point = self._padWithZeros(point, self.length)
             if self._isNewOrbit(point, orbitList):
                 orbitList.append(
-                    NaryFraction(exact=(), repeating=point, degree=self.degree)
+                    Orbit(NaryFraction(exact=(), repeating=point, degree=self.degree))
                 )
         return orbitList
 
@@ -172,9 +184,11 @@ class AllOrbits:
         for i in range(orbitLength):
             rotPoint = self._rotatePoint(rotPoint)
             newOrbit.append(
-                NaryFraction(exact=(), repeating=rotPoint, degree=self.degree)
+                Orbit(NaryFraction(exact=(), repeating=rotPoint, degree=self.degree))
             )
         for i in range(len(orbits)):
+            print(str(orbits[i]))
+            print(",".join(str(o) for o in newOrbit))
             if orbits[i] in newOrbit:
                 return False
         return True
