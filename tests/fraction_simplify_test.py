@@ -36,3 +36,9 @@ def test_trailing_zeroes():
     fraction = NaryFraction(degree=2, exact=(1,), repeating=(0,))
     assert fraction.exact == (1,)
     assert fraction.repeating == ()
+
+
+def test_form_of_zero():
+    # This special case means that periodic points should have
+    # a repeating part equal to their period
+    assert NaryFraction.from_string(2, "00").to_string() == "_0"
