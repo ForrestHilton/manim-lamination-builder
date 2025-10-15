@@ -3,13 +3,6 @@ import numpy as np
 from manim_lamination_builder.points import NaryFraction
 
 
-
-
-
-
-
-
-
 class Orbit:
 
     def __init__(self, arg1, arg2=None):
