@@ -1,5 +1,4 @@
 from manim import Scene, tempconfig
-from numpy import binary_repr
 
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.lamination import LeafLamination
@@ -20,7 +19,7 @@ def base_strings(length, radix):  # TODO: convert to an iteraitor of narryfracti
         for _ in range(length):
             chars.append(n % radix)
             n //= radix
-        yield reversed(chars)
+        yield tuple(reversed(chars))
 
 
 def build_quig(insertion_point: NaryFraction) -> LeafLamination:
@@ -37,16 +36,29 @@ def build_quig(insertion_point: NaryFraction) -> LeafLamination:
             Chord(psi(p, insertion_point), psi(p, insertion_point, lesser=False))
         )
     return LeafLamination(points=[], leafs=leaves, degree=3)
+    eventual_preimages = []
+    for exact in base_strings(9, 2):
+        eventual_preimages.append(
+            NaryFraction(
+                exact=exact + insertion_point.exact,
+                repeating=insertion_point.repeating,
+                degree=2,
+            )
+        )
+
+    leaves = []
+    for p in eventual_preimages:
+        leaves.append(
+            Chord(psi(p, insertion_point), psi(p, insertion_point, lesser=False))
+        )
+    return LeafLamination(points=[], leafs=leaves, degree=3)
 
 
 class Quigs(Scene):
     def construct(self):
         # points = set()
-        for str in base_strings(5, 2):
+        for str in base_strings(2, 2):
             point = NaryFraction(exact=(), repeating=tuple(str), degree=2)
-            # if point in points:
-            #     continue
-            # points.update(point)
             self.add(build_quig(point).build(2))
             self.wait(0.1)
             self.clear()
@@ -56,7 +68,7 @@ if __name__ == "__main__":
     with tempconfig(
         {"quality": "high_quality", "preview": True}  # , "background_color": WHITE
     ):
-        Main([build_quig(NaryFraction.from_string(2, "0"))]).render()
-        # Quigs().render()
+        # Main([build_quig(NaryFraction.from_string(2, "0"))]).render()
+        Quigs().render()
 
 # first generate all

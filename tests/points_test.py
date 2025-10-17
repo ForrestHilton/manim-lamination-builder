@@ -62,3 +62,9 @@ def test_rand_from_float():
     for d in range(2, 10):
         x = rand()
         assert abs(NaryFraction.from_float(x, 2).to_float()) - x < 0.000001
+
+
+def test_fraction_float_round_trip():
+    for string in ["_001", "_010", "0_001", "001", "_01"]:
+        point = NaryFraction.from_string(2, string)
+        assert NaryFraction.from_float(point.to_float(), 2) == point

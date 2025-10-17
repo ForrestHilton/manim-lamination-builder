@@ -44,6 +44,7 @@ class Chord(BaseModel):
         return False
 
     def length(self) -> float:
+        "length in rotations"
         theta1 = self.min.to_float() % 1
         theta2 = self.max.to_float() % 1
         assert theta2 - theta1 >= 0

@@ -4,6 +4,7 @@ import random
 import numpy as np
 
 from manim_lamination_builder import FloatWrapper, sigma
+from manim_lamination_builder.construct_quigs import build_quig
 from manim_lamination_builder.malaugh import phi, psi
 from manim_lamination_builder.points import Angle, NaryFraction
 
@@ -102,3 +103,25 @@ def test_psi_examples():
     assert psi(
         NaryFraction.from_string(2, "1"), NaryFraction.from_string(2, "0"), lesser=False
     ) == NaryFraction.from_string(3, "2_1")
+
+
+def test_quigs_period_shortens_major():
+    "tests that the length of the major of a quig decreases as the period increases"
+    len = 1
+    for period in range(1, 10):
+        point = NaryFraction.from_string(2, "_" + "0" * (period - 1) + "1")
+        quig = build_quig(point)
+        new_len = quig.major().length()
+        assert new_len > 1 / 3
+        assert new_len < len
+        len = new_len
+
+
+test_quigs_period_shortens_major()
+
+
+def test_reg_critical_quigs_have_correct_major_length():
+    for len in range(1, 10):
+        point = NaryFraction.from_string(2, "0" * (len - 1) + "1")
+        quig = build_quig(point)
+        assert math.isclose(quig.major().length(), 1 / 3)

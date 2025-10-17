@@ -56,6 +56,8 @@ class _Angle(ABC):
 
     def __hash__(self):  # TODO: is there a better way to do this?
         return hash(floor(self.to_float() / 0.0000002))
+        # rep = self.to_nary_fraction()
+        # return hash(hash(rep.exact) + hash(rep.repeating) + hash(rep.degree))
 
     def __lt__(self, other) -> bool:
         if isinstance(other, _Angle):
@@ -87,7 +89,9 @@ class _Angle(ABC):
         return NotImplemented
 
     def to_nary_fraction(self) -> "NaryFraction":
-        return NaryFraction.from_float(self.to_float(), self.degree)
+        return NaryFraction.from_float(
+            self.to_float(), self.degree, visual_settings=self.visual_settings
+        )
 
 
 class FloatWrapper(_Angle, BaseModel):
@@ -201,14 +205,21 @@ class NaryFraction(_Angle, BaseModel):
         }
 
     @staticmethod
-    def from_string(degree, string_representation):
+    def from_string(
+        degree: Degree, string_representation: str, visual_settings=VisualSettings()
+    ):
         assert "." not in string_representation
         parts = string_representation.split("_")
         exact = tuple([int(i) for i in parts[0]])
         repeating = ()
         if len(parts) > 1:
             repeating = tuple([int(i) for i in parts[1]])
-        return NaryFraction(degree=degree, exact=exact, repeating=repeating)
+        return NaryFraction(
+            degree=degree,
+            exact=exact,
+            repeating=repeating,
+            visual_settings=VisualSettings(),
+        )
 
     def to_string(self):
         overflow_string = ""
@@ -280,7 +291,11 @@ class NaryFraction(_Angle, BaseModel):
         return ceil(53 * log(2, d))
 
     @staticmethod
-    def from_float(x: float, d: int) -> "NaryFraction":
+    def from_float(
+        x: float, d: int, rounding_max_period=5, visual_settings=VisualSettings()
+    ) -> "NaryFraction":
+        """after finding the digits of the point up to the floating point precision,
+        an attempt is made to round this to a nearby periodic point"""
         x = x % 1
         n = NaryFraction._get_precizion(d)
 
@@ -290,7 +305,28 @@ class NaryFraction(_Angle, BaseModel):
             digit = int(x)
             digits.append(digit)
             x -= digit
-        return NaryFraction(exact=tuple(digits), repeating=(), degree=d)
+
+        best_approximation = NaryFraction(
+            exact=tuple(digits),
+            repeating=(),
+            degree=d,
+            visual_settings=visual_settings,
+        )
+        error = abs(x - best_approximation.to_float())
+        for p in range(1, rounding_max_period + 1):
+            if error == 0:
+                return best_approximation
+            point = NaryFraction(
+                exact=tuple(digits[:-p]),
+                repeating=tuple(digits[-p:]),
+                degree=d,
+                visual_settings=visual_settings,
+            )
+            new_error = abs(point.to_float() - x)
+            if new_error < error:
+                best_approximation = point
+
+        return best_approximation
 
     def to_float(self) -> float:
         return NaryFraction._cached_to_float(self.degree, self.exact, self.repeating)
@@ -327,6 +363,22 @@ class NaryFraction(_Angle, BaseModel):
 
     def pre_period(self) -> int:
         return len(self.exact)
+
+    def period(self) -> Optional[int]:
+        if self.periodic():
+            return len(self.repeating)
+        return None
+
+    def periodic(self) -> bool:
+        return self.pre_period() == 0
+
+    def periodic_iterate(self) -> "NaryFraction":
+        return NaryFraction(
+            exact=(),
+            repeating=self.repeating,
+            degree=self.degree,
+            visual_settings=self.visual_settings,
+        )
 
     def to_nary_fraction(self) -> "NaryFraction":
         return self
