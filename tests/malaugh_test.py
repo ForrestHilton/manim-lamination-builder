@@ -1,10 +1,11 @@
+import math
 import random
 
 import numpy as np
 
 from manim_lamination_builder import FloatWrapper, sigma
 from manim_lamination_builder.malaugh import phi, psi
-from manim_lamination_builder.points import Angle
+from manim_lamination_builder.points import Angle, NaryFraction
 
 degree = 3
 x = np.linspace(0, 1, 20)  # 400 points from 0 to 1
@@ -16,7 +17,9 @@ a_values = [FloatWrapper(random.random() % 0.66, degree) for _ in range(16)]
 def perameterized_test_semi_conjigacy(a: Angle):
     for xi in x:
         if xi < a or a + 1 / degree < xi:
-            assert phi(sigma(xi), a) == sigma(phi(xi, a)), "{} doesn't work".format(a)
+            assert math.isclose(
+                phi(sigma(xi), a).to_float(), sigma(phi(xi, a)).to_float()
+            ), "{} doesn't work".format(a)
 
 
 def test_semi_conjigacy():
@@ -28,10 +31,6 @@ def test_one_semi_conjigacy():
     perameterized_test_semi_conjigacy(FloatWrapper(0.2126636966021872, degree))
 
 
-# TODO: at least one test with NaryFraction that repeats
-
-
-# TODO: 0.2126636966021872 doesn't work
 def perameterized_test_constant_interval(a: Angle):
     image_of_J = set()
 
@@ -86,3 +85,20 @@ def perameterized_test_left_inverse(a: Angle):
     b = psi(a, a, lesser=True)
     for xi in x:
         assert phi(psi(xi, a), b) == xi
+
+
+def test_psi_examples():
+    assert psi(
+        NaryFraction.from_string(2, "0"), NaryFraction.from_string(2, "0")
+    ) == NaryFraction.from_string(3, "0")
+
+    assert psi(
+        NaryFraction.from_string(2, "0"), NaryFraction.from_string(2, "0"), lesser=False
+    ) == NaryFraction.from_string(3, "_1")
+
+    assert psi(
+        NaryFraction.from_string(2, "1"), NaryFraction.from_string(2, "0")
+    ) == NaryFraction.from_string(3, "2")
+    assert psi(
+        NaryFraction.from_string(2, "1"), NaryFraction.from_string(2, "0"), lesser=False
+    ) == NaryFraction.from_string(3, "2_1")

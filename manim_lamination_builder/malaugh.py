@@ -78,7 +78,7 @@ def psi(x: Angle, a: Angle, lesser=True) -> Angle:
     iterate = x
     x = x.to_nary_fraction()
     digits_parts = []
-    for old_digits in [x.exact, x.repeating]:
+    for old_digits in [x.exact, (x.repeating if x.repeating != () else (0,))]:
         digits = []
         for xi in old_digits:
             # print(iterate)

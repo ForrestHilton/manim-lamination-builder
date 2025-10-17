@@ -25,7 +25,7 @@ def base_strings(length, radix):  # TODO: convert to an iteraitor of narryfracti
 
 def build_quig(insertion_point: NaryFraction) -> LeafLamination:
     grand_orbit = []
-    for periodic in Orbit(insertion_point).getTemporalOrbit():  # TODO: compute orbit
+    for periodic in Orbit(insertion_point).getTemporalOrbit():
         for exact in base_strings(8, 2):
             grand_orbit.append(
                 NaryFraction(exact=tuple(exact), repeating=periodic.repeating, degree=2)
@@ -44,8 +44,6 @@ class Quigs(Scene):
         # points = set()
         for str in base_strings(5, 2):
             point = NaryFraction(exact=(), repeating=tuple(str), degree=2)
-            if len(point.repeating) == 0:
-                continue
             # if point in points:
             #     continue
             # points.update(point)
@@ -54,11 +52,11 @@ class Quigs(Scene):
             self.clear()
 
 
-insertion_point = NaryFraction.from_string(2, "_10")
 if __name__ == "__main__":
     with tempconfig(
         {"quality": "high_quality", "preview": True}  # , "background_color": WHITE
     ):
-        Quigs().render()
+        Main([build_quig(NaryFraction.from_string(2, "0"))]).render()
+        # Quigs().render()
 
 # first generate all
