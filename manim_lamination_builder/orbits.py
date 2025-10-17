@@ -177,19 +177,14 @@ class AllOrbits:
         inputList.reverse()
         return inputList
 
-    def _isNewOrbit(self, newPoint, orbits):
+    def _isNewOrbit(self, newPoint:list, orbits:list):
         orbitLength = len(newPoint)
-        newOrbit = []
         rotPoint = newPoint
-        for i in range(orbitLength):
-            rotPoint = self._rotatePoint(rotPoint)
-            newOrbit.append(
-                Orbit(NaryFraction(exact=(), repeating=rotPoint, degree=self.degree))
-            )
+        newOrbit = Orbit(NaryFraction(exact=(), repeating=rotPoint, degree=self.degree))
         for i in range(len(orbits)):
-            print(str(orbits[i]))
-            print(",".join(str(o) for o in newOrbit))
-            if orbits[i] in newOrbit:
+            #print(str(orbits[i]) + "; " + str(newOrbit))
+            #print()
+            if orbits[i] == newOrbit:
                 return False
         return True
 
@@ -199,25 +194,25 @@ class AllOrbits:
 
 
 def main():
-    # deploymentSequence = [3, 4]
-    # rotationNumber = [2, 4]
-    # orbit = goldbergOrbit(deploymentSequence, rotationNumber)
-    # print(orbit)
-    p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
-    o = Orbit(p)
-    print(o.getTemporalOrbit())
-    print(o.getSpacialOrbit())
-    d = [1, 5]
-    r = [2, 5]
-    q = Orbit(d, r)
-    print(q.getTemporalOrbit())
-    print(q.getSpacialOrbit())
-    # orbits = AllOrbits(3,5)
-    # ol = []
-    # for o in orbits:
-    #     ol.append(o)
-    # print(ol)
-    # print(len(ol))
+    #deploymentSequence = [3, 4]
+    #rotationNumber = [2, 4]
+    #orbit = goldbergOrbit(deploymentSequence, rotationNumber)
+    #print(orbit)
+    #p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
+    #o = Orbit(p)
+    #print(o.getTemporalOrbit())
+    #print(o.getSpacialOrbit())
+    #d = [1, 5]
+    #r = [2, 5]
+    #q = Orbit(d, r)
+    #print(q.getTemporalOrbit())
+    #print(q.getSpacialOrbit())
+    orbits = AllOrbits(3,5)
+    ol = []
+    for o in orbits:
+        ol.append(o)
+    print(", ".join(str(l) for l in ol))
+    print(len(ol))
 
     return
 
