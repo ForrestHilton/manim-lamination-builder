@@ -21,8 +21,8 @@ def test_over_specified_repeating_part():
 def test_repeating_d_minus_1_in_base_d():
     # Test case for repeating d-1 in base d
     fraction = NaryFraction(degree=3, exact=(), repeating=(2,))
-    assert fraction.exact == (0,)
-    assert fraction.repeating == ()
+    assert fraction.exact == ()
+    assert fraction.repeating == (0,)
     fraction = NaryFraction(degree=3, exact=(2, 1), repeating=(2,))
     assert fraction.exact == (2, 2)
     assert fraction.repeating == ()
@@ -42,3 +42,7 @@ def test_form_of_zero():
     # This special case means that periodic points should have
     # a repeating part equal to their period
     assert NaryFraction.from_string(2, "00").to_string() == "_0"
+
+
+# TODO: test if the period of a point always matches the length of reapeating part
+# using a test

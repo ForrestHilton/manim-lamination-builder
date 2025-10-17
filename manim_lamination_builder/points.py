@@ -189,6 +189,10 @@ class NaryFraction(_Angle, BaseModel):
             else:
                 exact = (0,)
 
+        if (exact == (0,) or exact == ()) and repeating == ():
+            exact = ()
+            repeating = (0,)
+
         return {
             "degree": degree,
             "exact": exact,

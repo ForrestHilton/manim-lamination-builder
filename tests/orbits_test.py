@@ -3,6 +3,7 @@ import random
 from math import gcd
 
 from manim_lamination_builder import Orbit, sigma
+from manim_lamination_builder.points import NaryFraction
 
 
 def test_deployment_sequence():
@@ -56,3 +57,7 @@ def test_goldberg_random_is_correct():
 # TODO: can the test above test if the rotation number is respected?
 # TODO: can the test above be extended for gcd != 1
 # TODO: Should orbits.py use the python convention for variable names?
+
+
+def test_orbits_zero():
+    assert len(Orbit(NaryFraction.from_string(2, "0")).getSpacialOrbit()) == 1
