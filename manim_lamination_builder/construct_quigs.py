@@ -1,13 +1,62 @@
-from typing import Callable, Iterable
+import colorsys
+import math
+from typing import Callable, Iterable, List
 
-from manim import Scene, tempconfig
+import numpy as np
+from manim import *
+from manim import ImageMobject, Scene, tempconfig
+from PIL import Image
 
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.lamination import LeafLamination
 from manim_lamination_builder.main import Main
 from manim_lamination_builder.malaugh import Psi, psi
 from manim_lamination_builder.orbits import Orbit
-from manim_lamination_builder.points import Angle, NaryFraction
+from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction
+from manim_lamination_builder.visual_settings import VisualSettings
+
+
+def angle_to_color(angle_rotations: Angle):
+    """
+    Convert an angle (in rotations, 0 to 1) to an RGB tuple scaled 0–255.
+    1 rotation = full hue sweep through the color wheel.
+    """
+    rgb = colorsys.hsv_to_rgb(angle_rotations.to_float(), 1, 1)
+    return ManimColor(tuple(int(round(c * 255.0)) for c in rgb))
+
+
+class ColorWheel(Scene):
+    def construct(self):
+        size = 400
+        im = Image.new("RGB", (size, size))
+        radius = size / 2
+        cx, cy = radius, radius
+        pix = im.load()
+
+        for x in range(size):
+            for y in range(size):
+                rx = x - cx
+                ry = y - cy
+                s = (rx**2 + ry**2) ** 0.5 / radius
+                if s < 0.95:
+                    pix[x, y] = (0, 0, 0)
+                elif s <= 1.0:
+                    # Convert angle from atan2 to rotations in [0, 1)
+                    angle_rotations = ((math.atan2(ry, rx) / math.pi) + 1.0) / 2.0
+                    pix[x, y] = angle_to_color(FloatWrapper(angle_rotations, 2))
+
+        wheel = ImageMobject(im).scale(2)
+        self.add(wheel)
+
+
+def color(v: Iterable[Angle]) -> List[Angle]:
+    for p in v:
+        color = angle_to_color(p)
+        settings = VisualSettings(
+            point_color=color, stroke_color=color, polygon_color=color
+        )
+        p.visual_settings = settings
+    return v
 
 
 class GenerateLams(Scene):
@@ -44,8 +93,8 @@ def periodic_points(max_period=6):
     return set([NaryFraction(exact=(), repeating=tuple(str), degree=2) for str in rets])
 
 
-def pre_iterates_of_zero():
-    strs = cumulative_base_strings(6, 2)
+def pre_iterates_of_zero(max_preperiod=6):
+    strs = cumulative_base_strings(max_preperiod, 2)
     return set([NaryFraction(exact=tuple(str), repeating=(), degree=2) for str in strs])
 
 
@@ -66,8 +115,12 @@ def duplicate_by_fixed_points(lam: LeafLamination) -> LeafLamination:
 
 
 def Psi_lam(
-    lam: LeafLamination, insertion_point: Angle, additional_leaves=False
+    lam: LeafLamination,
+    insertion_point: Angle,
+    additional_leaves=False,
+    added_pullbacks=6,
 ) -> LeafLamination:
+    assert insertion_point.degree == lam.degree
     leaves = []
     for leaf in lam.leafs:
         leaves.append(
@@ -76,25 +129,31 @@ def Psi_lam(
                 psi(leaf.max, insertion_point, lesser=False),
             )
         )
-    assert not additional_leaves
-    return LeafLamination(points=[], leafs=leaves, degree=lam.degree)
+
+    if additional_leaves:
+        d = lam.degree
+        eventual_preimages = []
+        for exact in cumulative_base_strings(added_pullbacks, d):
+            eventual_preimages.append(
+                NaryFraction(
+                    exact=exact + insertion_point.exact,
+                    repeating=insertion_point.repeating,
+                    degree=d,
+                )
+            )
+        zero = NaryFraction(exact=(), repeating=(0,), degree=d)
+        eventual_preimages = filter(
+            lambda x: not lam.crosses(Chord(x, zero)),
+            eventual_preimages,
+        )
+
+        for p in eventual_preimages:
+            leaves.append(Psi(p, insertion_point))
+    return LeafLamination(points=[], leafs=leaves, degree=lam.degree + 1)
 
 
 def build_quig(insertion_point: NaryFraction) -> LeafLamination:
-    eventual_preimages = []
-    for exact in cumulative_base_strings(8, 2):
-        eventual_preimages.append(
-            NaryFraction(
-                exact=exact + insertion_point.exact,
-                repeating=insertion_point.repeating,
-                degree=2,
-            )
-        )
-
-    leaves = []
-    for p in eventual_preimages:
-        leaves.append(Psi(p, insertion_point))
-    return LeafLamination(points=[], leafs=leaves, degree=3)
+    return Psi_lam(LeafLamination.empty(2), insertion_point, additional_leaves=True)
 
 
 def generable_co_majors() -> LeafLamination:
@@ -125,12 +184,21 @@ def long_quig(insertion_point: NaryFraction) -> LeafLamination:
 
 if __name__ == "__main__":
     with tempconfig({"quality": "high_quality", "preview": True}):
-        GenerateLams(periodic_points(5), long_quig).render()
+        # GenerateLams(periodic_points(6), build_quig).render()
+        # GenerateLams(periodic_points(6), short_quig).render()
+        # GenerateLams(periodic_points(5), long_quig).render()
+        # GenerateLams(pre_iterates_of_zero(5), long_quig).render()
+        pass
     with tempconfig(
         {"quality": "fourk_quality", "preview": True}  # , "background_color": WHITE
     ):
-        pass
-        # Main([build_quig(NaryFraction.from_string(2, "_01"))]).render()
+        # ColorWheel().render()
+        # Main(
+        #     [LeafLamination(points=color(periodic_points(7)), leafs=[], degree=2)]
+        # ).render()
+        Main([build_quig(NaryFraction.from_string(2, "_01"))]).render()
         # Main([duplicate_by_fixed_points(generable_co_majors())]).render()
         # Quigs(pre_iterates_of_zero).render()
         # Main([short_quig(NaryFraction.from_string(2, "_01"))]).render()
+
+        pass
