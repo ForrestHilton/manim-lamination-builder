@@ -4,7 +4,9 @@ import random
 import numpy as np
 
 from manim_lamination_builder import FloatWrapper, sigma
+from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.construct_quigs import build_quig
+from manim_lamination_builder.lamination import LeafLamination
 from manim_lamination_builder.malaugh import phi, psi
 from manim_lamination_builder.points import Angle, NaryFraction
 
@@ -125,3 +127,10 @@ def test_reg_critical_quigs_have_correct_major_length():
         point = NaryFraction.from_string(2, "0" * (len - 1) + "1")
         quig = build_quig(point)
         assert math.isclose(quig.major().length(), 1 / 3)
+
+
+def test_you_can_have_degenerate_leaves():
+    zero = NaryFraction.from_string(2, "0")
+    assert (
+        len(LeafLamination(points=[], leafs=[Chord(zero, zero)], degree=2).leafs) == 1
+    )

@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Forrest M. Hilton <forrestmhilton@gmail.com>
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import math
 from abc import ABC, abstractmethod
 from functools import lru_cache, total_ordering
 from math import ceil, cos, floor, log, pi, sin
@@ -13,6 +14,8 @@ from manim.animation.animation import deepcopy
 from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
 
 from manim_lamination_builder.visual_settings import VisualSettings
+
+T = TypeVar("T")
 
 
 def angle_to_cartesian(angle: float):
@@ -64,13 +67,20 @@ class _Angle(ABC):
             return self.to_float() < other.to_float()
         return NotImplemented
 
-    def has_degree(self) -> bool:  # TODO: remove
+    def has_degree(self) -> bool:
         return True
 
-    def siblings(self) -> Sequence["_Angle"]:
+    def siblings(self: T) -> Sequence[T]:
+        "includes self unless there is a floating point issue"
         ret = self.after_sigma().pre_images()
         # assert self in ret # floating point issue
         return ret
+
+    def other_sibling(self: T) -> Sequence[T]:
+        ret = self.siblings()
+        return list(
+            filter(lambda x: not math.isclose(x.to_float(), self.to_float()), ret)
+        )
 
     @abstractmethod
     def pre_images(self) -> Sequence["_Angle"]:

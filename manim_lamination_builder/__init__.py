@@ -28,7 +28,7 @@ from manim_lamination_builder.lamination import (
     Polygon,
 )
 from manim_lamination_builder.main import Main, group
-from manim_lamination_builder.malaugh import phi, psi
+from manim_lamination_builder.malaugh import Psi, phi, psi
 from manim_lamination_builder.morph import (
     HalfOpenArc,
     OccludedLamination,

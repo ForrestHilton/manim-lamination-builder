@@ -108,10 +108,11 @@ class GapLamination(BaseModel, AbstractLamination):
 
     def build(self, radius=1.0, center=ORIGIN) -> Mobject:
         ret = Mobject()
+        circle_stroke_width = 2
         unit_circle = Circle(
             color=self.edge_color(),
-            radius=radius,
-            stroke_width=2,
+            radius=radius + circle_stroke_width / 135 / 5.5,
+            stroke_width=circle_stroke_width,
             fill_color=BLACK if dark_theme() else WHITE,
             fill_opacity=1,
         )

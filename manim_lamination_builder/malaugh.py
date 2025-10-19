@@ -6,6 +6,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 
+from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.points import (
     Angle,
     FloatWrapper,
@@ -94,6 +95,10 @@ def psi(x: Angle, a: Angle, lesser=True) -> Angle:
             iterate = sigma(iterate)
         digits_parts.append(digits)
     return NaryFraction(exact=digits_parts[0], repeating=digits_parts[1], degree=d)
+
+
+def Psi(x: Angle, a: Angle) -> Chord:
+    return Chord(psi(x, a), psi(x, a, lesser=False))
 
 
 def graph_psi(a: Angle, lesser=True):
