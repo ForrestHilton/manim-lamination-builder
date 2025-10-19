@@ -4,19 +4,25 @@ from manim_lamination_builder.points import NaryFraction
 
 
 class Orbit:
-    def __init__(self, arg1, arg2=None):
-        if isinstance(arg1, NaryFraction) and arg2 == None:
-            self._temporalOrbit, self._spacialOrbit = self._fullOrbits(arg1)
-        elif isinstance(arg1, list) and isinstance(arg2, list):
-            if all(isinstance(item, int) for item in arg1) and all(
-                isinstance(item, int) for item in arg2
+    def __init__(self, point: NaryFraction = None , deployment_sequence: list = None, rotation_number: list = None, jump_over_sequence: list = None):
+        if point != None and deployment_sequence == None and rotation_number == None and jump_over_sequence == None:
+            self._temporalOrbit, self._spacialOrbit = self._fullOrbits(point)
+        elif point == None and deployment_sequence != None and rotation_number != None:
+            if all(isinstance(item, int) for item in deployment_sequence) and all(
+                isinstance(item, int) for item in rotation_number 
             ):
                 self._temporalOrbit, self._spacialOrbit = self._fullOrbits(
-                    self._goldbergOrbit(arg1, arg2)
+                    self._goldbergOrbit(deployment_sequence, rotation_number)
                 )
+        elif point == None and deployment_sequence != None and rotation_number == None and jump_over_sequence != None:
+            if all(isinstance(item, int) for item in deployment_sequence) and all(
+                isinstance(item, int) for item in jump_over_sequence 
+            ):
+                return
+            #TODO: initialize using depSeq and JOS
         else:
             raise TypeError(
-                "Invalid argument(s). Valid arguments are (NaryFraction) or (list[int],list[int])"
+                "Invalid argument(s)."
             )
 
     def __str__(self):
@@ -30,6 +36,12 @@ class Orbit:
         if self._temporalOrbit[0] in other.getTemporalOrbit():
             return True
         return False
+
+    def getTemporalOrbit(self):
+        return self._temporalOrbit
+
+    def getSpacialOrbit(self):
+        return self._spacialOrbit
 
     # returns a full orbit in spacial order
     def _fullOrbits(self, point: NaryFraction):
@@ -51,18 +63,17 @@ class Orbit:
             tOrbit += [fOrbit[(startIndex + i) % l]]
         return tOrbit, sOrbit
 
-    def getTemporalOrbit(self):
-        return self._temporalOrbit
-
-    def getSpacialOrbit(self):
-        return self._spacialOrbit
-
     def _goldbergOrbit(self, deploymentSequence, rotationNumber):
         fps = self._get_fixed_point_sequence(deploymentSequence)
         fpe = self._getFixedPointExpansion(fps)
         od = self._getOrbitDigits(fpe, rotationNumber)
         de = self._getDNaryExpansion(od, rotationNumber)
         return NaryFraction([], de, len(deploymentSequence) + 1)
+
+    def _jump_over_orbit(self, deployment_sequence, jump_over_sequence):
+        #TODO: finish this method
+        return
+
 
     # input list deployment sequence: depSeq
     def _get_fixed_point_sequence(self, depSeq):
@@ -194,25 +205,25 @@ class AllOrbits:
 
 
 def main():
-    #deploymentSequence = [3, 4]
-    #rotationNumber = [2, 4]
-    #orbit = goldbergOrbit(deploymentSequence, rotationNumber)
-    #print(orbit)
-    #p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
-    #o = Orbit(p)
-    #print(o.getTemporalOrbit())
-    #print(o.getSpacialOrbit())
+    ds = [3, 4]
+    rn = [2, 4]
+    orbit = Orbit(deployment_sequence = ds, rotation_number = rn)
+    print(orbit)
+    p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
+    o = Orbit(point = p)
+    print(o.getTemporalOrbit())
+    print(o.getSpacialOrbit())
     #d = [1, 5]
     #r = [2, 5]
     #q = Orbit(d, r)
     #print(q.getTemporalOrbit())
     #print(q.getSpacialOrbit())
-    orbits = AllOrbits(3,5)
-    ol = []
-    for o in orbits:
-        ol.append(o)
-    print(", ".join(str(l) for l in ol))
-    print(len(ol))
+    #orbits = AllOrbits(3,5)
+    #ol = []
+    #for o in orbits:
+    #    ol.append(o)
+    #print(", ".join(str(l) for l in ol))
+    #print(len(ol))
 
     return
 
