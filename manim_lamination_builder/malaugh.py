@@ -1,7 +1,7 @@
 from functools import lru_cache
 from math import floor, pi
 from optparse import Option
-from typing import Optional
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,10 +55,14 @@ def phi(x: Angle, JLeftEnd: Angle) -> NaryFraction:
     for i in range(1000):
         digit = digit_for_phi(iterate, JLeftEnd)
         if digit is None:
-            return FloatWrapper(sum + added_stuff.to_float() / (d - 1) ** (i), d - 1)
+            return FloatWrapper(
+                sum + added_stuff.to_float() / (d - 1) ** (i),
+                d - 1,
+                visual_settings=x.visual_settings,
+            )
         sum += digit / (d - 1) ** (i + 1)
         iterate = sigma(iterate)
-    return FloatWrapper(sum, d - 1)
+    return FloatWrapper(sum, d - 1, visual_settings=x.visual_settings)
 
 
 def graph_phi(a: Angle):
@@ -94,10 +98,17 @@ def psi(x: Angle, a: Angle, lesser=True) -> Angle:
                 digits.append(xi + 1)
             iterate = sigma(iterate)
         digits_parts.append(digits)
-    return NaryFraction(exact=digits_parts[0], repeating=digits_parts[1], degree=d)
+    return NaryFraction(
+        exact=digits_parts[0],
+        repeating=digits_parts[1],
+        degree=d,
+        visual_settings=x.visual_settings,
+    )
 
 
-def Psi(x: Angle, a: Angle) -> Chord:
+def Psi(x: Union[Chord, Angle], a: Angle) -> Chord:
+    if isinstance(x, Chord):
+        return Chord(psi(x.min, a), psi(x.max, a, lesser=False))
     return Chord(psi(x, a), psi(x, a, lesser=False))
 
 

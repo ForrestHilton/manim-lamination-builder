@@ -65,6 +65,8 @@ class _Angle(ABC):
     def __lt__(self, other) -> bool:
         if isinstance(other, _Angle):
             return self.to_float() < other.to_float()
+        if isinstance(other, float):
+            return self.to_float() < other
         return NotImplemented
 
     def has_degree(self) -> bool:

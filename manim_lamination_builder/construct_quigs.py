@@ -1,5 +1,6 @@
 import colorsys
 import math
+from operator import xor
 from typing import Callable, Iterable, List
 
 import numpy as np
@@ -12,7 +13,7 @@ from manim_lamination_builder.lamination import LeafLamination
 from manim_lamination_builder.main import Main
 from manim_lamination_builder.malaugh import Psi, psi
 from manim_lamination_builder.orbits import Orbit
-from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction
+from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction, sigma
 from manim_lamination_builder.visual_settings import VisualSettings
 
 
@@ -50,6 +51,7 @@ class ColorWheel(Scene):
 
 
 def color(v: Iterable[Angle]) -> List[Angle]:
+    v = list(v)
     for p in v:
         color = angle_to_color(p)
         settings = VisualSettings(
@@ -114,6 +116,20 @@ def duplicate_by_fixed_points(lam: LeafLamination) -> LeafLamination:
     return LeafLamination(points=[], leafs=leaves, degree=lam.degree)
 
 
+def _in_closed_hole_away_from_zero(lam: LeafLamination, x: Angle) -> bool:
+    "returns true if x is under a leaf with respect to zero, on any leaf endpoint"
+    for leaf in lam.leafs:
+        if x in [leaf.min, leaf.max]:
+            return True
+        length = leaf.max.to_float() - leaf.min.to_float()
+        if length == 0.5:
+            if x < 0.5:
+                return True
+        if (leaf.min < x and x < leaf.max) ^ (length > 0.5):
+            return True
+    return False
+
+
 def Psi_lam(
     lam: LeafLamination,
     insertion_point: Angle,
@@ -139,11 +155,11 @@ def Psi_lam(
                     exact=exact + insertion_point.exact,
                     repeating=insertion_point.repeating,
                     degree=d,
+                    visual_settings=insertion_point.visual_settings,
                 )
             )
-        zero = NaryFraction(exact=(), repeating=(0,), degree=d)
         eventual_preimages = filter(
-            lambda x: not lam.crosses(Chord(x, zero)),
+            lambda x: not _in_closed_hole_away_from_zero(lam, x),
             eventual_preimages,
         )
 
@@ -156,11 +172,25 @@ def build_quig(insertion_point: NaryFraction) -> LeafLamination:
     return Psi_lam(LeafLamination.empty(2), insertion_point, additional_leaves=True)
 
 
-def generable_co_majors() -> LeafLamination:
+def cubic_co_majors(insertion_points: List[Angle]) -> LeafLamination:
     leaves = []
-    for insertion_point in sorted(periodic_points(9)):
+    for insertion_point in insertion_points:
         sibling = insertion_point.other_sibling()[0]
         leaves.append(Psi(sibling, insertion_point))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
+
+
+def cubic_majors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        leaves.append(Psi(insertion_point, insertion_point))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
+
+
+def cubic_minors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        leaves.append(sigma(Psi(insertion_point, insertion_point)))
     return LeafLamination(points=[], leafs=leaves, degree=3)
 
 
@@ -172,21 +202,79 @@ def short_quig(insertion_point: NaryFraction) -> LeafLamination:
     return Psi_lam(cubic, new_insertion_point)
 
 
+def short_co_majors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        sibling = insertion_point.other_sibling()[0]
+        cubic_comaj = Psi(sibling, insertion_point)
+        new_insertion_point = psi(insertion_point, insertion_point)
+        leaves.append(Psi(cubic_comaj, new_insertion_point))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
+
+
+def short_majors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        cub_maj = Psi(insertion_point, insertion_point)
+        new_insertion_point = psi(insertion_point, insertion_point)
+        leaves.append(Psi(cub_maj, new_insertion_point))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
+
+
+def short_minors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        cub_maj = Psi(insertion_point, insertion_point)
+        new_insertion_point = psi(insertion_point, insertion_point)
+        leaves.append(sigma(Psi(cub_maj, new_insertion_point)))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
+
+
 def long_quig(insertion_point: NaryFraction) -> LeafLamination:
     "takes a quadratic insertion point and performs two insertions"
     assert insertion_point.degree == 2
     cubic = build_quig(insertion_point)
     new_insertion_point = psi(insertion_point.other_sibling()[0], insertion_point)
-    return Psi_lam(
-        cubic, new_insertion_point, additional_leaves=not insertion_point.periodic()
-    )
+    return Psi_lam(cubic, new_insertion_point, additional_leaves=True)
+
+
+def long_co_majors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        sibling = insertion_point.other_sibling()[0]
+        cubic_comaj = Psi(sibling, insertion_point)
+        new_insertion_point = psi(sibling, insertion_point)
+        leaves.append(Psi(cubic_comaj, new_insertion_point))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
+
+
+def long_majors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        sibling = insertion_point.other_sibling()[0]
+        cub_maj = Psi(insertion_point, insertion_point)
+        new_insertion_point = psi(sibling, insertion_point)
+        leaves.append(Psi(cub_maj, new_insertion_point))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
+
+
+def long_minors(insertion_points: List[Angle]) -> LeafLamination:
+    leaves = []
+    for insertion_point in insertion_points:
+        sibling = insertion_point.other_sibling()[0]
+        cub_maj = Psi(insertion_point, insertion_point)
+        new_insertion_point = psi(sibling, insertion_point)
+        leaves.append(sigma(Psi(cub_maj, new_insertion_point)))
+    return LeafLamination(points=[], leafs=leaves, degree=3)
 
 
 if __name__ == "__main__":
     with tempconfig({"quality": "high_quality", "preview": True}):
-        # GenerateLams(periodic_points(6), build_quig).render()
-        # GenerateLams(periodic_points(6), short_quig).render()
-        # GenerateLams(periodic_points(5), long_quig).render()
+        # GenerateLams(color(periodic_points(6)), build_quig).render()
+        # GenerateLams(color(periodic_points(6)), short_quig).render()
+        # GenerateLams(
+        #     color(filter(lambda x: x < 0.5, periodic_points(6))), long_quig
+        # ).render()
         # GenerateLams(pre_iterates_of_zero(5), long_quig).render()
         pass
     with tempconfig(
@@ -196,8 +284,19 @@ if __name__ == "__main__":
         # Main(
         #     [LeafLamination(points=color(periodic_points(7)), leafs=[], degree=2)]
         # ).render()
-        Main([build_quig(NaryFraction.from_string(2, "_01"))]).render()
-        # Main([duplicate_by_fixed_points(generable_co_majors())]).render()
+        # Main([build_quig(color([NaryFraction.from_string(2, "_01")])[0])]).render()
+        # Main([cubic_co_majors(color(periodic_points(9)))]).render()
+        # Main([cubic_majors(color(periodic_points(9)))]).render()
+        # Main([short_co_majors(color(periodic_points(9)))]).render()
+        # Main([short_majors(color(periodic_points(9)))]).render()
+        # Main([short_minors(color(periodic_points(9)))]).render()
+        # Main([long_co_majors(color(periodic_points(9)))]).render()
+        # Main([long_majors(color(periodic_points(9)))]).render()
+        Main([long_minors(color(periodic_points(9)))]).render()
+        reduced = color(filter(lambda x: x < 0.5, periodic_points(9)))
+        # Main([long_co_majors(reduced)]).render()
+        # Main([long_majors(reduced)]).render()
+        # Main([long_minors(reduced)]).render()
         # Quigs(pre_iterates_of_zero).render()
         # Main([short_quig(NaryFraction.from_string(2, "_01"))]).render()
 
