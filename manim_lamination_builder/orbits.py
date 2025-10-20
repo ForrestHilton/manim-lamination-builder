@@ -18,8 +18,7 @@ class Orbit:
             if all(isinstance(item, int) for item in deployment_sequence) and all(
                 isinstance(item, int) for item in jump_over_sequence 
             ):
-                return
-            #TODO: initialize using depSeq and JOS
+                self._temporalOrbit, self._spacialOrbit = self._fullOrbits(self._jump_over_orbit(deployment_sequence, jump_over_sequence))
         else:
             raise TypeError(
                 "Invalid argument(s)."
@@ -71,8 +70,36 @@ class Orbit:
         return NaryFraction([], de, len(deploymentSequence) + 1)
 
     def _jump_over_orbit(self, deployment_sequence, jump_over_sequence):
-        #TODO: finish this method
-        return
+        fps = self._get_fixed_point_sequence(deployment_sequence)
+        fpe = self._getFixedPointExpansion(fps)
+        #get temporal fpe
+        orbit_length = len(jump_over_sequence)
+        tfpe = [fpe[0]]
+        i = 0
+        for j in range(len(fpe)-1):
+            i = (i+jump_over_sequence[j])%orbit_length
+            tfpe += [fpe[i]]
+
+        #get temporal AR sequence
+        tar = []
+        i = 0
+        for j in range(len(fpe)):
+            i = i+jump_over_sequence[j]
+            if i >= orbit_length:
+                tar += ['-']
+                i %= orbit_length 
+            else:
+                tar += ['+']
+        print(tfpe)
+        print(tar)
+
+        #get final orbit
+        for i, ar in enumerate(tar):
+            if ar == '-':
+                tfpe[i] += 1
+        orbit = NaryFraction(exact = (), repeating = tfpe, degree = len(deployment_sequence)+1)
+
+        return orbit
 
 
     # input list deployment sequence: depSeq
@@ -205,14 +232,14 @@ class AllOrbits:
 
 
 def main():
-    ds = [3, 4]
-    rn = [2, 4]
-    orbit = Orbit(deployment_sequence = ds, rotation_number = rn)
-    print(orbit)
-    p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
-    o = Orbit(point = p)
-    print(o.getTemporalOrbit())
-    print(o.getSpacialOrbit())
+    ds = [4, 5]
+    #rn = [2, 4]
+    #orbit = Orbit(deployment_sequence = ds, rotation_number = rn)
+    #print(orbit)
+    #p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
+    #o = Orbit(point = p)
+    #print(o.getTemporalOrbit())
+    #print(o.getSpacialOrbit())
     #d = [1, 5]
     #r = [2, 5]
     #q = Orbit(d, r)
@@ -224,6 +251,9 @@ def main():
     #    ol.append(o)
     #print(", ".join(str(l) for l in ol))
     #print(len(ol))
+    jos = [2,2,2,2,2]
+    jo = Orbit(deployment_sequence = ds, jump_over_sequence = jos)
+    print(jo)
 
     return
 
