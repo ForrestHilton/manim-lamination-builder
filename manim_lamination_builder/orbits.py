@@ -42,6 +42,24 @@ class Orbit:
     def getSpacialOrbit(self):
         return self._spacialOrbit
 
+    def get_jump_over_sequence(self):
+        jos = []
+        length = len(self._temporalOrbit)
+        for ti, tp in enumerate(self._temporalOrbit):
+            if ti == 0:
+                prev_index = 0
+                continue
+            for si, sp in enumerate(self._spacialOrbit):
+                if sp == tp:
+                    if si > prev_index:
+                        jos += [si - prev_index]
+                    else:
+                        jos += [length - prev_index + si]
+                    prev_index = si
+        s = sum(jos)
+        jos += [length - (s%length)]
+        return jos
+
     # returns a full orbit in spacial order
     def _fullOrbits(self, point: NaryFraction):
         assert (
@@ -72,6 +90,7 @@ class Orbit:
     def _jump_over_orbit(self, deployment_sequence, jump_over_sequence):
         fps = self._get_fixed_point_sequence(deployment_sequence)
         fpe = self._getFixedPointExpansion(fps)
+
         #get temporal fpe
         orbit_length = len(jump_over_sequence)
         tfpe = [fpe[0]]
@@ -90,8 +109,6 @@ class Orbit:
                 i %= orbit_length 
             else:
                 tar += ['+']
-        print(tfpe)
-        print(tar)
 
         #get final orbit
         for i, ar in enumerate(tar):
@@ -232,28 +249,11 @@ class AllOrbits:
 
 
 def main():
-    ds = [4, 5]
-    #rn = [2, 4]
-    #orbit = Orbit(deployment_sequence = ds, rotation_number = rn)
-    #print(orbit)
-    #p = NaryFraction(exact=(), repeating=(0, 1, 2, 1, 2), degree=3)
-    #o = Orbit(point = p)
-    #print(o.getTemporalOrbit())
-    #print(o.getSpacialOrbit())
-    #d = [1, 5]
-    #r = [2, 5]
-    #q = Orbit(d, r)
-    #print(q.getTemporalOrbit())
-    #print(q.getSpacialOrbit())
-    #orbits = AllOrbits(3,5)
-    #ol = []
-    #for o in orbits:
-    #    ol.append(o)
-    #print(", ".join(str(l) for l in ol))
-    #print(len(ol))
-    jos = [2,2,2,2,2]
+    ds = [5, 5]
+    jos = [1,1,2,4,2]
     jo = Orbit(deployment_sequence = ds, jump_over_sequence = jos)
     print(jo)
+    print(jo.get_jump_over_sequence())
 
     return
 
