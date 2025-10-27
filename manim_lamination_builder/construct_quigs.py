@@ -292,11 +292,17 @@ if __name__ == "__main__":
         # Main([short_minors(color(periodic_points(9)))]).render()
         # Main([long_co_majors(color(periodic_points(9)))]).render()
         # Main([long_majors(color(periodic_points(9)))]).render()
-        Main([long_minors(color(periodic_points(9)))]).render()
-        reduced = color(filter(lambda x: x < 0.5, periodic_points(9)))
+        # Main([long_minors(color(periodic_points(9)))]).render()
+        reduced = color(
+            filter(
+                lambda x: x < 0.5,
+                list(periodic_points(9))
+                + [p.other_sibling()[0] for p in periodic_points(9)],
+            )
+        )
         # Main([long_co_majors(reduced)]).render()
         # Main([long_majors(reduced)]).render()
-        # Main([long_minors(reduced)]).render()
+        Main([long_minors(reduced)]).render()
         # Quigs(pre_iterates_of_zero).render()
         # Main([short_quig(NaryFraction.from_string(2, "_01"))]).render()
 
