@@ -110,17 +110,16 @@ def test_polygons_unlinked():
 
 
 def test_polygons_coexist():
-    for _ in range(10):
-        for numpoly in range(2, 4):
-            for sides in range(2, 4):
+    for _ in range(20):
+        for numpoly in range(2, 5):
+            for sides in range(2, 5):
                 b = random_polygons(numpoly, sides)
                 a = random_polygons(numpoly, sides)
                 both = GapLamination(
                     polygons=a.polygons + b.polygons, points=[], degree=2
                 )
-                # TODO: there may be a problem with unlinked.
-                assert (
-                    both.unlinked() == a.coexists(b) and a.unlinked() and b.unlinked()
+                assert both.unlinked() == (
+                    a.coexists(b) and a.unlinked() and b.unlinked()
                 ), "fails for {},{}".format(custom_dump(a), custom_dump(b))
 
 
