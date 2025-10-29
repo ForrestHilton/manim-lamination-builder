@@ -2,24 +2,24 @@ import itertools
 import random
 from math import gcd
 
-from manim_lamination_builder import Orbit, sigma
+from manim_lamination_builder import PeriodicOrbit, sigma
 from manim_lamination_builder.points import NaryFraction
 
 
 def test_deployment_sequence():
-    assert Orbit([3], [1, 3]).getSpacialOrbit()[0].to_string() == "_001"
-    assert Orbit([2, 3], [1, 3]).getSpacialOrbit()[0].to_string() == "_002"
-    assert Orbit([1, 3], [1, 3]).getSpacialOrbit()[0].to_string() == "_012"
+    assert PeriodicOrbit([3], [1, 3]).spacial_orbit[0].to_string() == "_001"
+    assert PeriodicOrbit([2, 3], [1, 3]).spacial_orbit[0].to_string() == "_002"
+    assert PeriodicOrbit([1, 3], [1, 3]).spacial_orbit[0].to_string() == "_012"
 
 
 def test_rotation_number():
-    assert Orbit([2, 3], [1, 3]).getSpacialOrbit()[0].to_string() == "_002"
-    assert Orbit([2, 3], [2, 3]).getSpacialOrbit()[0].to_string() == "_021"
+    assert PeriodicOrbit([2, 3], [1, 3]).spacial_orbit[0].to_string() == "_002"
+    assert PeriodicOrbit([2, 3], [2, 3]).spacial_orbit[0].to_string() == "_021"
 
 
 def test_composite_rotation_number():
-    assert Orbit([2, 4], [2, 4]).getSpacialOrbit()[0].to_string() == "_02"
-    assert Orbit([4, 4], [2, 4]).getSpacialOrbit()[0].to_string() == "_01"
+    assert PeriodicOrbit([2, 4], [2, 4]).spacial_orbit[0].to_string() == "_02"
+    assert PeriodicOrbit([4, 4], [2, 4]).spacial_orbit[0].to_string() == "_01"
 
 
 def random_partition(total, slots):
@@ -36,7 +36,7 @@ def test_goldberg_random_is_correct():
             for d in range(2, 4):
                 rand_list = random_partition(den, d - 1)
                 deployment = list(itertools.accumulate(rand_list))
-                point = Orbit(deployment, [num, den]).getSpacialOrbit()[0]
+                point = PeriodicOrbit(deployment, [num, den]).spacial_orbit[0]
                 pair = "goldbergOrbit({},[{},{}]) -> {}".format(
                     deployment, num, den, point
                 )
@@ -60,4 +60,4 @@ def test_goldberg_random_is_correct():
 
 
 def test_orbits_zero():
-    assert len(Orbit(NaryFraction.from_string(2, "0")).getSpacialOrbit()) == 1
+    assert len(PeriodicOrbit(NaryFraction.from_string(2, "0")).spacial_orbit) == 1

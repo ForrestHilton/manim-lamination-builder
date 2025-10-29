@@ -1,12 +1,12 @@
-from manim_lamination_builder.DepSeqList import (
-    countDeploymentSequences,
-    listDeploymentSequences,
-    listOrbits,
+from manim_lamination_builder.deployment_sequences import (
+    count_deployment_sequences,
+    list_deployment_sequences,
+    list_orbits,
 )
 
 
-def test_listDepSeq():
-    assert listDeploymentSequences(listOrbits(3, 5), 3) == [
+def test_list_dep_seq():
+    assert list_deployment_sequences(list_orbits(3, 5), 3) == [
         "fp",
         [5, 5],
         [4, 5],
@@ -62,7 +62,9 @@ def test_listDepSeq():
 
 
 def test_countDepSeq():
-    assert countDeploymentSequences(listDeploymentSequences(listOrbits(3, 5), 3)) == [
+    assert count_deployment_sequences(
+        list_deployment_sequences(list_orbits(3, 5), 3)
+    ) == [
         [[5, 5], 6],
         [[4, 5], 8],
         [[3, 5], 10],

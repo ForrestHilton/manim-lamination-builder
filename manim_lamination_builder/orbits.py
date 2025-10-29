@@ -3,7 +3,7 @@ import numpy as np
 from manim_lamination_builder.points import NaryFraction
 
 
-class Orbit:
+class PeriodicOrbit:
     def __init__(
         self,
         point: NaryFraction = None,
@@ -17,13 +17,13 @@ class Orbit:
             and rotation_number == None
             and jump_over_sequence == None
         ):
-            self._temporalOrbit, self._spacialOrbit = self._fullOrbits(point)
+            self.temporal_orbit, self.spacial_orbit = self._full_orbits(point)
         elif point == None and deployment_sequence != None and rotation_number != None:
             if all(isinstance(item, int) for item in deployment_sequence) and all(
                 isinstance(item, int) for item in rotation_number
             ):
-                self._temporalOrbit, self._spacialOrbit = self._fullOrbits(
-                    self._goldbergOrbit(deployment_sequence, rotation_number)
+                self.temporal_orbit, self.spacial_orbit = self._full_orbits(
+                    self._goldberg_orbit(deployment_sequence, rotation_number)
                 )
         elif (
             point == None
@@ -34,38 +34,39 @@ class Orbit:
             if all(isinstance(item, int) for item in deployment_sequence) and all(
                 isinstance(item, int) for item in jump_over_sequence
             ):
-                self._temporalOrbit, self._spacialOrbit = self._fullOrbits(
+                self.temporal_orbit, self.spacial_orbit = self._full_orbits(
                     self._jump_over_orbit(deployment_sequence, jump_over_sequence)
                 )
         else:
             raise TypeError("Invalid argument(s).")
 
     def __str__(self):
-        return "[" + ", ".join(str(to) for to in self._temporalOrbit) + "]"
+        return "[" + ", ".join(str(to) for to in self.temporal_orbit) + "]"
 
     def __eq__(self, other):
-        if not isinstance(other, Orbit):
+        if not isinstance(other, PeriodicOrbit):
             return NotImplemented
-        if len(self._temporalOrbit) != len(other.getTemporalOrbit()):
+        if len(self.temporal_orbit) != len(other.temporal_orbit):
             return False
-        if self._temporalOrbit[0] in other.getTemporalOrbit():
+        if self.temporal_orbit[0] in other.temporal_orbit:
             return True
         return False
 
-    def getTemporalOrbit(self):
-        return self._temporalOrbit
-
-    def getSpacialOrbit(self):
-        return self._spacialOrbit
+    #
+    # def getTemporalOrbit(self):
+    #     return self._temporalOrbit
+    #
+    # def getSpacialOrbit(self):
+    #     return self._spacialOrbit
 
     def get_jump_over_sequence(self):
         jos = []
-        length = len(self._temporalOrbit)
-        for ti, tp in enumerate(self._temporalOrbit):
+        length = len(self.temporal_orbit)
+        for ti, tp in enumerate(self.temporal_orbit):
             if ti == 0:
                 prev_index = 0
                 continue
-            for si, sp in enumerate(self._spacialOrbit):
+            for si, sp in enumerate(self.spacial_orbit):
                 if sp == tp:
                     if si > prev_index:
                         jos += [si - prev_index]
@@ -77,10 +78,10 @@ class Orbit:
         return jos
 
     # returns a full orbit in spacial order
-    def _fullOrbits(self, point: NaryFraction):
-        assert len(point.exact) == 0 and len(point.repeating) != 0, (
-            "must be periodic point"
-        )
+    def _full_orbits(self, point: NaryFraction):
+        assert (
+            len(point.exact) == 0 and len(point.repeating) != 0
+        ), "must be periodic point"
         p = point
         fOrbit = []
         sOrbit = []
@@ -96,16 +97,16 @@ class Orbit:
             tOrbit += [fOrbit[(startIndex + i) % l]]
         return tOrbit, sOrbit
 
-    def _goldbergOrbit(self, deploymentSequence, rotationNumber):
-        fps = self._get_fixed_point_sequence(deploymentSequence)
-        fpe = self._getFixedPointExpansion(fps)
-        od = self._getOrbitDigits(fpe, rotationNumber)
-        de = self._getDNaryExpansion(od, rotationNumber)
-        return NaryFraction([], de, len(deploymentSequence) + 1)
+    def _goldberg_orbit(self, deployment_sequence, rotation_number):
+        fps = self._make_fixed_point_sequence(deployment_sequence)
+        fpe = self._make_fixed_point_expansion(fps)
+        od = self._make_orbit_digits(fpe, rotation_number)
+        de = self._make_radix_expansion(od, rotation_number)
+        return NaryFraction([], de, len(deployment_sequence) + 1)
 
     def _jump_over_orbit(self, deployment_sequence, jump_over_sequence):
-        fps = self._get_fixed_point_sequence(deployment_sequence)
-        fpe = self._getFixedPointExpansion(fps)
+        fps = self._make_fixed_point_sequence(deployment_sequence)
+        fpe = self._make_fixed_point_expansion(fps)
 
         # get temporal fpe
         orbit_length = len(jump_over_sequence)
@@ -137,19 +138,19 @@ class Orbit:
         return orbit
 
     # input list deployment sequence: depSeq
-    def _get_fixed_point_sequence(self, depSeq):
+    def _make_fixed_point_sequence(self, dep_seq):
         fixed_point_sequence = []
         i = 0
-        for n in depSeq:
+        for n in dep_seq:
             if i == 0:
                 fixed_point_sequence.append(n)
             else:
-                fixed_point_sequence.append(n - depSeq[i - 1])
+                fixed_point_sequence.append(n - dep_seq[i - 1])
             i = i + 1
         return fixed_point_sequence
 
     # input list fixed point sequence: fps
-    def _getFixedPointExpansion(self, fps):
+    def _make_fixed_point_expansion(self, fps):
         fixedPointExpansion = []
         j = 0
         for n in fps:
@@ -159,7 +160,7 @@ class Orbit:
         return fixedPointExpansion
 
     # input list fixed point expansion: fpe, list rotation number: rn
-    def _getOrbitDigits(self, fpe, rn):
+    def _make_orbit_digits(self, fpe, rn):
         orbitDigits = []
         adv = rn[1] - rn[0]
         for i in range(len(fpe)):
@@ -170,10 +171,10 @@ class Orbit:
         return orbitDigits
 
     # input list orbit digits: od, list rotation number: rn
-    def _getDNaryExpansion(self, od, rn):
-        assert rn[0] != 0 and rn[1] != 0, (
-            "Rotation number should not have 0 as either number."
-        )
+    def _make_radix_expansion(self, od, rn):
+        assert (
+            rn[0] != 0 and rn[1] != 0
+        ), "Rotation number should not have 0 as either number."
         factor = np.gcd(rn[0], rn[1])
         step = rn[0]
         base = rn[1]
@@ -193,7 +194,7 @@ class AllOrbits:
     def __init__(self, degree: int, length: int):
         self.degree = degree
         self.length = length
-        self.orbits = self._initOrbits()
+        self.orbits = self._init_orbits()
 
     def __iter__(self):
         self.iter_index = 0
@@ -205,21 +206,25 @@ class AllOrbits:
             raise StopIteration
         return self.orbits[self.iter_index - 1]
 
-    def _initOrbits(self):
+    def _init_orbits(self):
         total = self.degree**self.length
         point = [0]
-        orbitList = [Orbit(NaryFraction(exact=(), repeating=point, degree=self.degree))]
+        orbitList = [
+            PeriodicOrbit(NaryFraction(exact=(), repeating=point, degree=self.degree))
+        ]
         for i in range(total - 1):
-            point = self._incrementBaseN(point, self.degree)
-            point = self._padWithZeros(point, self.length)
-            if self._isNewOrbit(point, orbitList):
+            point = self._increment_baseN(point, self.degree)
+            point = self._pad_with_zeros(point, self.length)
+            if self._is_new_orbit(point, orbitList):
                 orbitList.append(
-                    Orbit(NaryFraction(exact=(), repeating=point, degree=self.degree))
+                    PeriodicOrbit(
+                        NaryFraction(exact=(), repeating=point, degree=self.degree)
+                    )
                 )
         return orbitList
 
-    def _incrementBaseN(self, inputNum, base):
-        num = inputNum[:]
+    def _increment_baseN(self, input_num, base):
+        num = input_num[:]
         num.reverse()
         outputNum = []
         tempNum = 0
@@ -240,19 +245,21 @@ class AllOrbits:
         outputNum.reverse()
         return outputNum
 
-    def _padWithZeros(self, inputList, totalLength):
-        inputList.reverse()
-        numZeros = totalLength - len(inputList)
+    def _pad_with_zeros(self, input_list, total_length):
+        input_list.reverse()
+        numZeros = total_length - len(input_list)
         numZeros = numZeros if numZeros >= 0 else 0
         for i in range(numZeros):
-            inputList.append(0)
-        inputList.reverse()
-        return inputList
+            input_list.append(0)
+        input_list.reverse()
+        return input_list
 
-    def _isNewOrbit(self, newPoint: list, orbits: list):
-        orbitLength = len(newPoint)
-        rotPoint = newPoint
-        newOrbit = Orbit(NaryFraction(exact=(), repeating=rotPoint, degree=self.degree))
+    def _is_new_orbit(self, new_point: list, orbits: list):
+        orbitLength = len(new_point)
+        rotPoint = new_point
+        newOrbit = PeriodicOrbit(
+            NaryFraction(exact=(), repeating=rotPoint, degree=self.degree)
+        )
         for i in range(len(orbits)):
             # print(str(orbits[i]) + "; " + str(newOrbit))
             # print()
@@ -260,7 +267,7 @@ class AllOrbits:
                 return False
         return True
 
-    def _rotatePoint(self, point):
+    def _rotate_point(self, point):
         newPoint = point[1:] + point[:1]
         return newPoint
 
@@ -268,7 +275,7 @@ class AllOrbits:
 def main():
     ds = [5, 5]
     jos = [1, 1, 2, 4, 2]
-    jo = Orbit(deployment_sequence=ds, jump_over_sequence=jos)
+    jo = PeriodicOrbit(deployment_sequence=ds, jump_over_sequence=jos)
     print(jo)
     print(jo.get_jump_over_sequence())
 

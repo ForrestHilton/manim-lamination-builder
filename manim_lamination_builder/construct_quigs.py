@@ -12,7 +12,6 @@ from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.lamination import LeafLamination
 from manim_lamination_builder.main import Main
 from manim_lamination_builder.malaugh import Psi, psi
-from manim_lamination_builder.orbits import Orbit
 from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction, sigma
 from manim_lamination_builder.visual_settings import VisualSettings
 

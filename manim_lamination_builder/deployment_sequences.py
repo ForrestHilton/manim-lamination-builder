@@ -1,7 +1,8 @@
 import numpy as np
 
 
-def incrementBaseN(inputNum, base):
+# TODO: review for code duplication
+def increment_baseN(inputNum, base):
     num = inputNum[:]
     num.reverse()
     outputNum = []
@@ -24,35 +25,35 @@ def incrementBaseN(inputNum, base):
     return outputNum
 
 
-def padWithZeros(inputList, totalLength):
-    inputList.reverse()
-    numZeros = totalLength - len(inputList)
+def pad_with_zeros(input_list, total_length):
+    input_list.reverse()
+    numZeros = total_length - len(input_list)
     numZeros = numZeros if numZeros >= 0 else 0
     for i in range(numZeros):
-        inputList.append(0)
-    inputList.reverse()
-    return inputList
+        input_list.append(0)
+    input_list.reverse()
+    return input_list
 
 
-def listOrbits(base, length):
+def list_orbits(base, length):
     total = base**length
     point = [0]
-    orbitList = [padWithZeros(point, length)]
+    orbitList = [pad_with_zeros(point, length)]
     for i in range(total - 1):
-        point = incrementBaseN(point, base)
-        point = padWithZeros(point, length)
-        if isNewOrbit(point, orbitList):
+        point = increment_baseN(point, base)
+        point = pad_with_zeros(point, length)
+        if is_new_orbit(point, orbitList):
             orbitList.append(point)
 
     return orbitList
 
 
-def isNewOrbit(newPoint, orbits):
+def is_new_orbit(newPoint, orbits):
     orbitLength = len(orbits[0])
     newOrbit = []
     rotPoint = newPoint
     for i in range(orbitLength):
-        rotPoint = rotatePoint(rotPoint)
+        rotPoint = rotate_point(rotPoint)
         newOrbit.append(rotPoint)
     for i in range(len(orbits)):
         if orbits[i] in newOrbit:
@@ -60,12 +61,12 @@ def isNewOrbit(newPoint, orbits):
     return True
 
 
-def rotatePoint(point):
+def rotate_point(point):
     newPoint = point[1:] + point[:1]
     return newPoint
 
 
-def flattenPoint(point: list):
+def flatten_point(point: list):
     fp = 0
     l = len(point)
     for j in range(l):
@@ -73,28 +74,28 @@ def flattenPoint(point: list):
     return fp
 
 
-def expandPoint(point: int):
+def expand_point(point: int):
     ep = [int(digit) for digit in str(point)]
     return ep
 
 
-def getFixedPoints(base, length):
+def get_fixed_points(base, length):
     fixedPoints = []
     for i in range(base - 1):
         fp = []
         for j in range(length):
             fp.append(i + 1)
-        fixedPoints.append(flattenPoint(fp))
+        fixedPoints.append(flatten_point(fp))
     return fixedPoints
 
 
-def deploymentSequence(inputPoint, base):
+def deployment_sequence(input_point, base):
     depSeq = [0] * (base - 1)
-    point = inputPoint[:]
-    fixedPoints = getFixedPoints(base, len(point))
+    point = input_point[:]
+    fixedPoints = get_fixed_points(base, len(point))
 
     for i in range(len(point)):
-        pointNum = flattenPoint(point)
+        pointNum = flatten_point(point)
 
         for f in fixedPoints:
             if pointNum == f or pointNum == 0:
@@ -103,15 +104,16 @@ def deploymentSequence(inputPoint, base):
         for f in range(len(fixedPoints)):
             if pointNum < fixedPoints[f]:
                 depSeq[f] += 1
-        point = rotatePoint(point)
+        point = rotate_point(point)
 
     return depSeq
 
 
-def countDeploymentSequences(deploymentSequences):
+# TODO: maybe provide a doc string
+def count_deployment_sequences(deployment_sequences):
     depSeqCount = []
 
-    for ds in deploymentSequences:
+    for ds in deployment_sequences:
         new = 1
         if ds != "fp":
             for sc in depSeqCount:
@@ -124,27 +126,27 @@ def countDeploymentSequences(deploymentSequences):
     return depSeqCount
 
 
-def listDeploymentSequences(orbits, base):
+def list_deployment_sequences(orbits, base):
     depSeqs = []
     for i in range(len(orbits)):
-        depSeqs.append(deploymentSequence(orbits[i], base))
+        depSeqs.append(deployment_sequence(orbits[i], base))
     return depSeqs
 
 
 # returns a full orbit in spacial order
-def fullOrbits(point):
+def full_orbits(point):
     p = point[:]
     fOrbit = []
     sOrbit = []
     tOrbit = []
     for i in range(len(point)):
-        p = rotatePoint(p)
+        p = rotate_point(p)
         fOrbit += [p]
-    flOrbit = [flattenPoint(fo) for fo in fOrbit]
+    flOrbit = [flatten_point(fo) for fo in fOrbit]
     flOrbit = quicksort(flOrbit)
     for fl in flOrbit:
         for f in fOrbit:
-            if fl == flattenPoint(f):
+            if fl == flatten_point(f):
                 sOrbit += [f]
     startPoint = flOrbit[0]
     startIndex = flOrbit.index(startPoint)
@@ -164,8 +166,8 @@ def quicksort(arr):
         return quicksort(less) + [pivot] + quicksort(greater)
 
 
-def isRotational(Point: list):
-    fullOrbit = fullOrbits(Point)
+def is_rotational(Point: list) -> bool:
+    fullOrbit = full_orbits(Point)
     tOrbit = fullOrbit[:1]
     sOrbit = fullOrbit[1:]
     l = len(Point)
@@ -193,6 +195,7 @@ def isRotational(Point: list):
     return True
 
 
+# TODO:remove
 def main():
     D = 3
     Q = 3
@@ -202,8 +205,8 @@ def main():
     # print(orbits)
     # print(len(orbits))
     o = [0, 0, 0, 0, 1]
-    print(fullOrbits(o))
-    print(isRotational(o))
+    print(full_orbits(o))
+    print(is_rotational(o))
     return
 
 
