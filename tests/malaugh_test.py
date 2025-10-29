@@ -7,7 +7,7 @@ from manim_lamination_builder import FloatWrapper, sigma
 from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.construct_quigs import build_quig
 from manim_lamination_builder.lamination import LeafLamination
-from manim_lamination_builder.malaugh import phi, psi
+from manim_lamination_builder.malaugh import Psi, phi, psi
 from manim_lamination_builder.points import Angle, NaryFraction
 
 degree = 3
@@ -133,4 +133,17 @@ def test_you_can_have_degenerate_leaves():
     zero = NaryFraction.from_string(2, "0")
     assert (
         len(LeafLamination(points=[], leafs=[Chord(zero, zero)], degree=2).leafs) == 1
+    )
+
+
+def test_manual_examples():
+    # first test the examples worked in Dr Mayer's office on Oct 27
+    assert psi(
+        NaryFraction.from_string(2, "_0011"), NaryFraction.from_string(2, "_100")
+    ) == NaryFraction.from_string(3, "_0022")
+
+    assert Psi(
+        NaryFraction.from_string(3, "_0022"), NaryFraction.from_string(3, "_2002")
+    ) == Chord(
+        NaryFraction.from_string(4, "_0032"), NaryFraction.from_string(4, "_0033")
     )

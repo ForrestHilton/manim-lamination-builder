@@ -146,10 +146,8 @@ def graph_psi(a: Angle, lesser=True):
 #     print(psi(sibling.to_float(), M_2.to_float(), 3, lesser=False))
 #
 if __name__ == "__main__":
-    degree = 2
-    x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
-    x = x[0:-1]
-    x = [FloatWrapper(xi, degree) for xi in x]
+    pass
+    # degree = 2
     # graph_psi(0, lesser=True)
     # graph_psi(0, lesser=False)
     # print(
@@ -160,7 +158,7 @@ if __name__ == "__main__":
     # )
 
     # graph_phi(FloatWrapper(0.6052287199698223, degree))
-    graph_psi(FloatWrapper(1 / 12, degree))
+    # graph_psi(FloatWrapper(1 / 12, degree))
 
     # graph_phi(1 / 3)
     # print(psi(0, 0, 3, lesser=True))
