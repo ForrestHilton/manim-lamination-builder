@@ -22,9 +22,9 @@ class PeriodicOrbit:
             return True
         return False
 
-    #TODO: Is this superfluous?
     @classmethod
     def from_point(cls, point:NaryFraction):
+        "Superfluous"
         return PeriodicOrbit(point)
 
     @classmethod
