@@ -1,8 +1,25 @@
-from manim_lamination_builder.deployment_sequences import (
-    count_deployment_sequences,
-    list_deployment_sequences,
-    list_orbits,
-)
+# TODO: maybe provide a doc string
+def count_deployment_sequences(deployment_sequences):
+    depSeqCount = []
+
+    for ds in deployment_sequences:
+        new = 1
+        if ds != "fp":
+            for sc in depSeqCount:
+                if ds == sc[0]:
+                    sc[1] += 1
+                    new = 0
+            if new:
+                depSeqCount.append([ds, 1])
+
+    return depSeqCount
+
+
+def list_deployment_sequences(orbits):
+    depSeqs = []
+    for orbit in orbits:
+        depSeqs.append(orbit.deployment_sequence())
+    return depSeqs
 
 
 def test_list_dep_seq():
