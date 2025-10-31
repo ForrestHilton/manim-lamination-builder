@@ -35,6 +35,27 @@ class PeriodicOrbit:
     def from_dep_seq_and_jump_over_seq(cls, deployment_sequence: list, jump_over_sequence: list):
         return PeriodicOrbit(cls._jump_over_orbit(deployment_sequence, jump_over_sequence))
 
+
+    def deployment_sequence(self):
+        base = self.spacial_orbit[0].degree
+        depSeq = [0] * (base - 1)
+        
+        fixedPoints = []
+        for i in range(base):
+            fixedPoints += [i/(base-1)]
+
+        for point in self.spacial_orbit:
+            for f in fixedPoints:
+                if point.to_float() == f:
+                    return "fp"
+
+            for f in range(len(fixedPoints)):
+                if point.to_float() < fixedPoints[f]:
+                    depSeq[f-1] += 1
+            point = point.after_sigma()
+
+        return depSeq
+
     def get_jump_over_sequence(self):
         jos = []
         length = len(self.temporal_orbit)
@@ -168,6 +189,38 @@ class PeriodicOrbit:
         return dNaryExpansion[0]
 
 
+    def is_rotational(self) -> bool:
+        tOrbit = self.temporal_orbit
+        sOrbit = self.spacial_orbit
+        l = self.temporal_orbit[0].period()
+        prevDiff = 0
+        prevIndex = 0
+        currentDiff = 0
+        for to in tOrbit:
+            for index, so in enumerate(sOrbit):
+                if index == 0:
+                    continue
+                if so == to:
+                    if prevIndex == 0:
+                        prevDiff = index
+                        prevIndex = index
+                        break
+                    else:
+                        if index < prevIndex:
+                            currentDiff = (l + index) - prevIndex
+                        else:
+                            currentDiff = index - prevIndex
+                        print("ci:{}, cd:{}, pi:{}, pd:{}".format(index, currentDiff, prevIndex, prevDiff))
+                        if currentDiff != prevDiff:
+                            return False
+                        else:
+                            prevIndex = index
+                            prevDiff = currentDiff
+                            break
+                
+        return True
+
+
 class AllOrbits:
     iter_index = 0
 
@@ -253,16 +306,21 @@ class AllOrbits:
 
 
 def main():
-    ds = [5, 5]
-    jos = [2,2,2,2,2]
-    rn = [2,5]
+    ds = [0, 5]
+    jos = [3,3,3,3,3]
+    #rn = [2,5]
     jo = PeriodicOrbit.from_dep_seq_and_jump_over_seq(ds,jos)
     print(jo)
-    print(jo.get_jump_over_sequence())
-    ro = PeriodicOrbit.from_dep_seq_and_rot_num(ds,rn)
-    print(ro)
-    po = PeriodicOrbit.from_point(NaryFraction(exact=(),repeating=(1,0,1,0,0),degree=3))
-    print(po)
+    print(jo.spacial_orbit)
+    #print(jo.get_jump_over_sequence())
+    #ro = PeriodicOrbit.from_dep_seq_and_rot_num(ds,rn)
+    #print(ro)
+    #po = PeriodicOrbit.from_point(NaryFraction(exact=(),repeating=(1,0,1,0,0),degree=3))
+    #print(po)
+    gds = jo.deployment_sequence()
+    print(gds)
+    print(jo.is_rotational())
+
 
     return
 
