@@ -7,19 +7,52 @@ from manim_lamination_builder.points import NaryFraction
 
 
 def test_deployment_sequence():
-    assert PeriodicOrbit([3], [1, 3]).spacial_orbit[0].to_string() == "_001"
-    assert PeriodicOrbit([2, 3], [1, 3]).spacial_orbit[0].to_string() == "_002"
-    assert PeriodicOrbit([1, 3], [1, 3]).spacial_orbit[0].to_string() == "_012"
+    assert (
+        PeriodicOrbit.from_dep_seq_and_rot_num([3], [1, 3]).spacial_orbit[0].to_string()
+        == "_001"
+    )
+    assert (
+        PeriodicOrbit.from_dep_seq_and_rot_num([2, 3], [1, 3])
+        .spacial_orbit[0]
+        .to_string()
+        == "_002"
+    )
+    assert (
+        PeriodicOrbit.from_dep_seq_and_rot_num([1, 3], [1, 3])
+        .spacial_orbit[0]
+        .to_string()
+        == "_012"
+    )
 
 
 def test_rotation_number():
-    assert PeriodicOrbit([2, 3], [1, 3]).spacial_orbit[0].to_string() == "_002"
-    assert PeriodicOrbit([2, 3], [2, 3]).spacial_orbit[0].to_string() == "_021"
+    assert (
+        PeriodicOrbit.from_dep_seq_and_rot_num([2, 3], [1, 3])
+        .spacial_orbit[0]
+        .to_string()
+        == "_002"
+    )
+    assert (
+        PeriodicOrbit.from_dep_seq_and_rot_num([2, 3], [2, 3])
+        .spacial_orbit[0]
+        .to_string()
+        == "_021"
+    )
 
 
 def test_composite_rotation_number():
-    assert PeriodicOrbit([2, 4], [2, 4]).spacial_orbit[0].to_string() == "_02"
-    assert PeriodicOrbit([4, 4], [2, 4]).spacial_orbit[0].to_string() == "_01"
+    assert (
+        PeriodicOrbit.from_dep_seq_and_rot_num([2, 4], [2, 4])
+        .spacial_orbit[0]
+        .to_string()
+        == "_02"
+    )
+    assert (
+        PeriodicOrbit.from_dep_seq_and_rot_num([4, 4], [2, 4])
+        .spacial_orbit[0]
+        .to_string()
+        == "_01"
+    )
 
 
 def random_partition(total, slots):
@@ -36,7 +69,9 @@ def test_goldberg_random_is_correct():
             for d in range(2, 4):
                 rand_list = random_partition(den, d - 1)
                 deployment = list(itertools.accumulate(rand_list))
-                point = PeriodicOrbit(deployment, [num, den]).spacial_orbit[0]
+                point = PeriodicOrbit.from_dep_seq_and_rot_num(
+                    deployment, [num, den]
+                ).spacial_orbit[0]
                 pair = "goldbergOrbit({},[{},{}]) -> {}".format(
                     deployment, num, den, point
                 )
@@ -52,11 +87,19 @@ def test_goldberg_random_is_correct():
                         pair
                     )
 
+    def test_goldberg_random_is_correct():
+        for den in range(1, 5):
+            for num in range(1, den):
+                if gcd(num, den) != 1:
+                    break
+                for d in range(2, 4):
+                    rand_list = random_partition(den, d - 1)
+                    deployment = list(itertools.accumulate(rand_list))
+
 
 # TODO: Should the goldberg orbit return the least moment of the orbit?
 # TODO: can the test above test if the rotation number is respected?
 # TODO: can the test above be extended for gcd != 1
-# TODO: Should orbits.py use the python convention for variable names?
 
 
 def test_orbits_zero():
