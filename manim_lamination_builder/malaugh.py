@@ -66,6 +66,9 @@ def phi(x: Angle, JLeftEnd: Angle) -> NaryFraction:
 
 
 def graph_phi(a: Angle):
+    x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
+    x = x[0:-1]
+    x = [FloatWrapper(xi, a.degree) for xi in x]
     y = [phi(xi, a) for xi in x]
     plt.plot([x.to_float() for x in x], [yi.to_float() for yi in y], label="phi(x)")
     plt.xlabel("x")
@@ -115,7 +118,7 @@ def Psi(x: Union[Chord, Angle], a: Angle) -> Chord:
 def graph_psi(a: Angle, lesser=True):
     x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
     x = x[0:-1]
-    x = [FloatWrapper(xi, degree) for xi in x]
+    x = [FloatWrapper(xi, a.degree) for xi in x]
     y = [psi(x, a, lesser=lesser) for x in x]
     x = [xi.to_float() for xi in x]
     y = [yi.to_float() for yi in y]
@@ -128,6 +131,28 @@ def graph_psi(a: Angle, lesser=True):
     plt.xlabel("x")
     # plt.ylabel("psi(x)")
     plt.title("Graph of psi^{}(x) a = {}".format("-" if lesser else "+", a))
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+def graph_phi_semi_conjigacy(a: Angle):
+    x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
+    x = x[0:-1]
+    x = [FloatWrapper(xi, a.degree) for xi in x]
+    plt.plot(
+        [x.to_float() for x in x],
+        [sigma(phi(xi, a)).to_float() for xi in x],
+        label="sigma(phi(x))",
+    )
+    plt.plot(
+        [x.to_float() for x in x],
+        [phi(sigma(xi), a).to_float() for xi in x],
+        label="phi(sigma(x))",
+    )
+    plt.xlabel("x")
+    plt.ylabel("phi(x)")
+    plt.title("Graph of phi(x) a = {}".format(a))
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -160,6 +185,6 @@ if __name__ == "__main__":
     # graph_phi(FloatWrapper(0.6052287199698223, degree))
     # graph_psi(FloatWrapper(1 / 12, degree))
 
-    # graph_phi(1 / 3)
+    graph_phi(FloatWrapper(1 / 3, 3))
     # print(psi(0, 0, 3, lesser=True))
     # print(psi(0, 0, 3, lesser=False))
