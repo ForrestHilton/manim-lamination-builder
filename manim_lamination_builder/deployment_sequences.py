@@ -29,7 +29,7 @@ def pad_with_zeros(input_list, total_length):
     input_list.reverse()
     numZeros = total_length - len(input_list)
     numZeros = numZeros if numZeros >= 0 else 0
-    for i in range(numZeros):
+    for _ in range(numZeros):
         input_list.append(0)
     input_list.reverse()
     return input_list
@@ -39,7 +39,7 @@ def list_orbits(base, length):
     total = base**length
     point = [0]
     orbitList = [pad_with_zeros(point, length)]
-    for i in range(total - 1):
+    for _ in range(total - 1):
         point = increment_baseN(point, base)
         point = pad_with_zeros(point, length)
         if is_new_orbit(point, orbitList):
@@ -83,7 +83,7 @@ def get_fixed_points(base, length):
     fixedPoints = []
     for i in range(base - 1):
         fp = []
-        for j in range(length):
+        for _ in range(length):
             fp.append(i + 1)
         fixedPoints.append(flatten_point(fp))
     return fixedPoints
@@ -94,7 +94,7 @@ def deployment_sequence(input_point, base):
     point = input_point[:]
     fixedPoints = get_fixed_points(base, len(point))
 
-    for i in range(len(point)):
+    for _ in range(len(point)):
         pointNum = flatten_point(point)
 
         for f in fixedPoints:
@@ -143,27 +143,16 @@ def full_orbits(point):
         p = rotate_point(p)
         fOrbit += [p]
     flOrbit = [flatten_point(fo) for fo in fOrbit]
-    flOrbit = quicksort(flOrbit)
+    flOrbit = sorted(flOrbit)
     for fl in flOrbit:
         for f in fOrbit:
             if fl == flatten_point(f):
                 sOrbit += [f]
     startPoint = flOrbit[0]
-    startIndex = flOrbit.index(startPoint)
     l = len(flOrbit)
     for i in range(l):
         tOrbit += [fOrbit[(startPoint + i) % l]]
     return (tOrbit, sOrbit)
-
-
-def quicksort(arr):
-    if len(arr) <= 1:
-        return arr
-    else:
-        pivot = arr[0]
-        less = [i for i in arr[1:] if i <= pivot]
-        greater = [i for i in arr[1:] if i > pivot]
-        return quicksort(less) + [pivot] + quicksort(greater)
 
 
 def is_rotational(Point: list) -> bool:
