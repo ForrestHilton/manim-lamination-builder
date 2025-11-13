@@ -1,15 +1,15 @@
 import colorsys
 import math
+from copy import deepcopy
 from operator import xor
 from typing import Callable, Iterable, List
 
 import numpy as np
-from manim import *
-from manim import ImageMobject, Scene, tempconfig
+from manim import RED, ImageMobject, ManimColor, Scene, tempconfig
 from PIL import Image
 
 from manim_lamination_builder.chord import Chord
-from manim_lamination_builder.lamination import LeafLamination
+from manim_lamination_builder.lamination import AbstractLamination, LeafLamination
 from manim_lamination_builder.main import Main
 from manim_lamination_builder.malaugh import Psi, psi
 from manim_lamination_builder.points import Angle, FloatWrapper, NaryFraction, sigma
@@ -267,6 +267,16 @@ def long_minors(insertion_points: List[Angle]) -> LeafLamination:
     return LeafLamination(points=[], leafs=leaves, degree=3)
 
 
+def color_periodic(lam: AbstractLamination) -> AbstractLamination:
+    def f(x: Angle):
+        ret = deepcopy(x.to_nary_fraction())
+        if x.periodic():
+            ret.visual_settings.stroke_color = RED
+        return ret
+
+    return lam.apply_function(f)
+
+
 if __name__ == "__main__":
     with tempconfig({"quality": "high_quality", "preview": True}):
         # GenerateLams(color(periodic_points(6)), build_quig).render()
@@ -279,6 +289,12 @@ if __name__ == "__main__":
     with tempconfig(
         {"quality": "fourk_quality", "preview": True}  # , "background_color": WHITE
     ):
+        Main(
+            [
+                color_periodic(build_quig(NaryFraction.from_string(2, "_0"))),
+                color_periodic(build_quig(NaryFraction.from_string(2, "_0001"))),
+            ]
+        ).render()
         # ColorWheel().render()
         # Main(
         #     [LeafLamination(points=color(periodic_points(7)), leafs=[], degree=2)]
@@ -301,7 +317,7 @@ if __name__ == "__main__":
         )
         # Main([long_co_majors(reduced)]).render()
         # Main([long_majors(reduced)]).render()
-        Main([long_minors(reduced)]).render()
+        # Main([long_minors(reduced)]).render()
         # Quigs(pre_iterates_of_zero).render()
         # Main([short_quig(NaryFraction.from_string(2, "_01"))]).render()
 

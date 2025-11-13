@@ -174,7 +174,9 @@ if __name__ == "__main__":
     pass
     # degree = 2
     # graph_psi(0, lesser=True)
-    # graph_psi(0, lesser=False)
+    # graph_psi(NaryFraction.from_string(2, "_0001"), lesser=False)
+    a = NaryFraction.from_string(2, "_0001")
+    print(Psi(a, a))
     # print(
     #     phi(
     #         FloatWrapper(0.7, degree),
@@ -185,6 +187,6 @@ if __name__ == "__main__":
     # graph_phi(FloatWrapper(0.6052287199698223, degree))
     # graph_psi(FloatWrapper(1 / 12, degree))
 
-    graph_phi(FloatWrapper(1 / 3, 3))
+    # graph_phi(FloatWrapper(1 / 3, 3))
     # print(psi(0, 0, 3, lesser=True))
     # print(psi(0, 0, 3, lesser=False))
