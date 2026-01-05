@@ -284,17 +284,17 @@ if __name__ == "__main__":
         # GenerateLams(
         #     color(filter(lambda x: x < 0.5, periodic_points(6))), long_quig
         # ).render()
-        # GenerateLams(pre_iterates_of_zero(5), long_quig).render()
+        GenerateLams(pre_iterates_of_zero(5), long_quig).render()
         pass
     with tempconfig(
         {"quality": "fourk_quality", "preview": True}  # , "background_color": WHITE
     ):
-        Main(
-            [
-                color_periodic(build_quig(NaryFraction.from_string(2, "_0"))),
-                color_periodic(build_quig(NaryFraction.from_string(2, "_0001"))),
-            ]
-        ).render()
+        # Main(
+        #     [
+        #         # color_periodic(build_quig(NaryFraction.from_string(2, "_0"))),
+        #         color_periodic(build_quig(NaryFraction.from_string(2, "_010"))),
+        #     ]
+        # ).render()
         # ColorWheel().render()
         # Main(
         #     [LeafLamination(points=color(periodic_points(7)), leafs=[], degree=2)]
@@ -308,13 +308,13 @@ if __name__ == "__main__":
         # Main([long_co_majors(color(periodic_points(9)))]).render()
         # Main([long_majors(color(periodic_points(9)))]).render()
         # Main([long_minors(color(periodic_points(9)))]).render()
-        reduced = color(
-            filter(
-                lambda x: x < 0.5,
-                list(periodic_points(9))
-                + [p.other_sibling()[0] for p in periodic_points(9)],
-            )
-        )
+        # reduced = color(
+        #     filter(
+        #         lambda x: x < 0.5,
+        #         list(periodic_points(9))
+        #         + [p.other_sibling()[0] for p in periodic_points(9)],
+        #     )
+        # )
         # Main([long_co_majors(reduced)]).render()
         # Main([long_majors(reduced)]).render()
         # Main([long_minors(reduced)]).render()
