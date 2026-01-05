@@ -27,46 +27,34 @@ def digit_for_phi(x: Angle, JLeftEnd: Angle) -> Optional[int]:
     return None
 
 
-@lru_cache(maxsize=None)  # maxsize=None means unlimited cache size
-def image_of_b(a: Angle) -> NaryFraction:
-    assert isinstance(a, Angle)
-    d = a.degree
-    iterate = a
-    digits = []
-    for _ in range(1000):
-        digit = digit_for_phi(iterate, a)
-        if digit is None:
-            if all([digit2 == d - 2 for digit2 in digits]):
-                return LiftedAngle(1, d - 1)
-            return NaryFraction(exact=(), repeating=tuple(digits), degree=d - 1)
-        digits.append(digit)
-        iterate = sigma(iterate)
-
-    return NaryFraction(exact=tuple(digits), repeating=(), degree=d - 1)
-
-
 def phi(x: Angle, JLeftEnd: Angle) -> NaryFraction:
     assert isinstance(x, Angle) and isinstance(JLeftEnd, Angle)
     assert x.degree == JLeftEnd.degree
     d = x.degree
-    added_stuff = image_of_b(JLeftEnd)
-    sum = 0  # TODO: do this with NaryFraction
+
+    def overline_sigma(x: Angle):
+        if x >= JLeftEnd and x <= JLeftEnd + 1 / d:
+            return sigma(JLeftEnd)
+        return sigma(x)
+
     iterate = x
+    digits = []
     for i in range(1000):
         digit = digit_for_phi(iterate, JLeftEnd)
         if digit is None:
-            return FloatWrapper(
-                sum + added_stuff.to_float() / (d - 1) ** (i),
-                d - 1,
-                visual_settings=x.visual_settings,
-            )
-        sum += digit / (d - 1) ** (i + 1)
-        iterate = sigma(iterate)
-    return FloatWrapper(sum, d - 1, visual_settings=x.visual_settings)
+            digit = JLeftEnd.to_nary_fraction().digit(1)
+        digits.append(digit)
+        iterate = overline_sigma(iterate)
+    return NaryFraction(
+        exact=tuple(digits),
+        repeating=(),  # TODO: do more with this
+        degree=d - 1,
+        visual_settings=x.visual_settings,
+    )
 
 
 def graph_phi(a: Angle):
-    x = np.linspace(0, 1, 1000)  # 400 points from 0 to 1
+    x = np.linspace(0, 1, 200)  # 400 points from 0 to 1
     x = x[0:-1]
     x = [FloatWrapper(xi, a.degree) for xi in x]
     y = [phi(xi, a) for xi in x]
@@ -171,12 +159,12 @@ def graph_phi_semi_conjigacy(a: Angle):
 #     print(psi(sibling.to_float(), M_2.to_float(), 3, lesser=False))
 #
 if __name__ == "__main__":
-    pass
-    # degree = 2
+    # pass
+    degree = 2
     # graph_psi(0, lesser=True)
     # graph_psi(NaryFraction.from_string(2, "_0001"), lesser=False)
-    a = NaryFraction.from_string(2, "_0001")
-    print(Psi(a, a))
+    # a = NaryFraction.from_string(2, "_0001")
+    # print(Psi(a, a))
     # print(
     #     phi(
     #         FloatWrapper(0.7, degree),
@@ -184,9 +172,16 @@ if __name__ == "__main__":
     #     )
     # )
 
-    # graph_phi(FloatWrapper(0.6052287199698223, degree))
+    # b = 0.5
+    # print(psi(FloatWrapper(b, degree), FloatWrapper(b, degree)).to_float())
+    # for m in range(1, 40):
+    #     M = 2**m
+    #     a = b - 1 / M
+    #     print(psi(FloatWrapper(a, degree), FloatWrapper(b, degree)).to_float())
+
+    # graph_phi(FloatWrapper(0.6052287199698223, 3))
     # graph_psi(FloatWrapper(1 / 12, degree))
 
-    # graph_phi(FloatWrapper(1 / 3, 3))
+    graph_phi(FloatWrapper(1 / 3, 3))
     # print(psi(0, 0, 3, lesser=True))
     # print(psi(0, 0, 3, lesser=False))

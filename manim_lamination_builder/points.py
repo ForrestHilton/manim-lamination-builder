@@ -395,6 +395,14 @@ class NaryFraction(_Angle, BaseModel):
     def to_nary_fraction(self) -> "NaryFraction":
         return self
 
+    def digit(self, n):
+        "the nth digit where the digit one gives the first digit after the radix point"
+        m = n - 1 - len(self.exact)
+        if m < 0:
+            return self.exact[m]
+        else:
+            return self.repeating[m % len(self.repeating)]
+
 
 class LiftedAngle(_Angle, BaseModel):
     """like FloatWrapper, but keeps track of the most recent overflowed digit,
