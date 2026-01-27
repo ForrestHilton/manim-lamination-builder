@@ -98,7 +98,10 @@ class AnimateLamination(Animation):
                             alpha,
                         )
                         make_and_append_bezier(
-                            submobject, FloatWrapper(a), FloatWrapper(b)
+                            submobject,
+                            FloatWrapper(a, 2),
+                            FloatWrapper(b, 2),
+                            # irrelevant degree
                         )
                 else:  # occlusion
                     assert self.initial_occlusion is not None
@@ -109,7 +112,9 @@ class AnimateLamination(Animation):
                     a = lerp(self.initial_occlusion.a.to_float(), midpoint, alpha)
                     b = lerp(self.initial_occlusion.b.to_float(), midpoint, alpha)
                     submobject.reset_points()
-                    make_and_append_bezier(submobject, FloatWrapper(a), FloatWrapper(b))
+                    make_and_append_bezier(
+                        submobject, FloatWrapper(a, 2), FloatWrapper(b, 2)
+                    )  # irrelevant degree
                     circle.start_angle = b * TAU
                     circle.angle = ((a - b) % 1) * TAU
                     if circle.angle == 0:
