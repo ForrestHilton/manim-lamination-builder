@@ -27,6 +27,26 @@ def digit_for_phi(x: Angle, JLeftEnd: Angle) -> Optional[int]:
     return None
 
 
+@lru_cache(maxsize=None)
+def image_of_b(a: Angle) -> NaryFraction:
+    assert isinstance(a, Angle)
+    d = a.degree
+    iterate = a
+    digits = []
+    for _ in range(1000):
+        digit = digit_for_phi(iterate, a)
+        if digit is None:
+            digit = a.to_nary_fraction().digit(1)
+            digits.append(digit)
+            if all([digit2 == d - 2 for digit2 in digits]):
+                return LiftedAngle(1, d - 1)
+            return NaryFraction(exact=(), repeating=tuple(digits), degree=d - 1)
+        digits.append(digit)
+        iterate = sigma(iterate)
+
+    return NaryFraction(exact=tuple(digits), repeating=(), degree=d - 1)
+
+
 def phi(x: Angle, JLeftEnd: Angle) -> NaryFraction:
     assert isinstance(x, Angle) and isinstance(JLeftEnd, Angle)
     assert x.degree == JLeftEnd.degree
@@ -47,7 +67,7 @@ def phi(x: Angle, JLeftEnd: Angle) -> NaryFraction:
         iterate = overline_sigma(iterate)
     return NaryFraction(
         exact=tuple(digits),
-        repeating=(),  # TODO: do more with this
+        repeating=(),
         degree=d - 1,
         visual_settings=x.visual_settings,
     )
