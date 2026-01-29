@@ -78,7 +78,7 @@ class _Angle(ABC):
         # assert self in ret # floating point issue
         return ret
 
-    def other_sibling(self: T) -> Sequence[T]:
+    def other_siblings(self: T) -> Sequence[T]:
         ret = self.siblings()
         return list(
             filter(lambda x: not math.isclose(x.to_float(), self.to_float()), ret)

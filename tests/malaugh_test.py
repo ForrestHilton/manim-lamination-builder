@@ -147,3 +147,23 @@ def test_manual_examples():
     ) == Chord(
         NaryFraction.from_string(4, "_0032"), NaryFraction.from_string(4, "_0033")
     )
+
+
+# when running:
+#
+# Main(
+#     [
+#         Psi_lam(
+#             LeafLamination.empty(2),
+#             NaryFraction.from_string(
+#                 2, "01101101101101101101101101101101101101101101101_10110"
+#             ),
+#             additional_leaves=True,
+#         )
+#     ]
+# ).render()
+#
+# the insertions points:
+# 01101101101101101101101101101101101101101101101_10110
+# 01101101101101101101101101101101101101101101101101_10110
+# have a problem and it forms two nested majors

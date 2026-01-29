@@ -174,7 +174,7 @@ def build_quig(insertion_point: NaryFraction) -> LeafLamination:
 def cubic_co_majors(insertion_points: List[Angle]) -> LeafLamination:
     leaves = []
     for insertion_point in insertion_points:
-        sibling = insertion_point.other_sibling()[0]
+        sibling = insertion_point.other_siblings()[0]
         leaves.append(Psi(sibling, insertion_point))
     return LeafLamination(points=[], leafs=leaves, degree=3)
 
@@ -197,14 +197,26 @@ def short_quig(insertion_point: NaryFraction) -> LeafLamination:
     "takes a quadratic insertion point and performs two insertions"
     assert insertion_point.degree == 2
     cubic = build_quig(insertion_point)
-    new_insertion_point = psi(insertion_point, insertion_point)
+    new_insertion_point = psi(insertion_point, insertion_point) + 1 / 6
     return Psi_lam(cubic, new_insertion_point)
+
+
+def Short_quig(a: Angle) -> LeafLamination:
+    "takes a quadratic insertion point and performs two insertions"
+    _a = a.to_float()
+    insertion_point = FloatWrapper(
+        3 * _a % 1, 2, visual_settings=a.visual_settings
+    ).to_nary_fraction()
+    fixed_point_index = math.floor(3 * _a)
+
+    quig = short_quig(insertion_point)
+    return quig.apply_function(lambda x: x + fixed_point_index / 3)
 
 
 def short_co_majors(insertion_points: List[Angle]) -> LeafLamination:
     leaves = []
     for insertion_point in insertion_points:
-        sibling = insertion_point.other_sibling()[0]
+        sibling = insertion_point.other_siblings()[0]
         cubic_comaj = Psi(sibling, insertion_point)
         new_insertion_point = psi(insertion_point, insertion_point)
         leaves.append(Psi(cubic_comaj, new_insertion_point))
@@ -233,14 +245,24 @@ def long_quig(insertion_point: NaryFraction) -> LeafLamination:
     "takes a quadratic insertion point and performs two insertions"
     assert insertion_point.degree == 2
     cubic = build_quig(insertion_point)
-    new_insertion_point = psi(insertion_point.other_sibling()[0], insertion_point)
+    new_insertion_point = psi(insertion_point.other_siblings()[0], insertion_point)
     return Psi_lam(cubic, new_insertion_point, additional_leaves=True)
+
+
+def Long_quig(a: Angle) -> LeafLamination:
+    _a = a.to_float()
+    insertion_point = FloatWrapper(
+        (3 * _a % 1) / 2, 2, visual_settings=a.visual_settings
+    ).to_nary_fraction()
+    fixed_point_index = 3 - math.floor(3 * _a)
+    quig = long_quig(insertion_point)
+    return quig.apply_function(lambda x: x + fixed_point_index / 3)
 
 
 def long_co_majors(insertion_points: List[Angle]) -> LeafLamination:
     leaves = []
     for insertion_point in insertion_points:
-        sibling = insertion_point.other_sibling()[0]
+        sibling = insertion_point.other_siblings()[0]
         cubic_comaj = Psi(sibling, insertion_point)
         new_insertion_point = psi(sibling, insertion_point)
         leaves.append(Psi(cubic_comaj, new_insertion_point))
@@ -250,7 +272,7 @@ def long_co_majors(insertion_points: List[Angle]) -> LeafLamination:
 def long_majors(insertion_points: List[Angle]) -> LeafLamination:
     leaves = []
     for insertion_point in insertion_points:
-        sibling = insertion_point.other_sibling()[0]
+        sibling = insertion_point.other_siblings()[0]
         cub_maj = Psi(insertion_point, insertion_point)
         new_insertion_point = psi(sibling, insertion_point)
         leaves.append(Psi(cub_maj, new_insertion_point))
@@ -260,7 +282,7 @@ def long_majors(insertion_points: List[Angle]) -> LeafLamination:
 def long_minors(insertion_points: List[Angle]) -> LeafLamination:
     leaves = []
     for insertion_point in insertion_points:
-        sibling = insertion_point.other_sibling()[0]
+        sibling = insertion_point.other_siblings()[0]
         cub_maj = Psi(insertion_point, insertion_point)
         new_insertion_point = psi(sibling, insertion_point)
         leaves.append(sigma(Psi(cub_maj, new_insertion_point)))
@@ -284,8 +306,14 @@ if __name__ == "__main__":
         # GenerateLams(
         #     color(filter(lambda x: x < 0.5, periodic_points(6))), long_quig
         # ).render()
-        GenerateLams(pre_iterates_of_zero(5), long_quig).render()
-        pass
+        # GenerateLams(pre_iterates_of_zero(5), long_quig).render()
+        points = (
+            pre_iterates_of_zero(6)
+            .union(periodic_points(5))
+            .union({x.other_siblings()[0] for x in periodic_points(5)})
+        )
+        points = color(points)
+        GenerateLams(points, Short_quig).render()
     with tempconfig(
         {"quality": "fourk_quality", "preview": True}  # , "background_color": WHITE
     ):
