@@ -192,16 +192,16 @@ if __name__ == "__main__":
     #     )
     # )
 
-    # b = 0.5
-    # print(psi(FloatWrapper(b, degree), FloatWrapper(b, degree)).to_float())
-    # for m in range(1, 40):
-    #     M = 2**m
-    #     a = b - 1 / M
-    #     print(psi(FloatWrapper(a, degree), FloatWrapper(b, degree)).to_float())
+    b = 0.5
+    print(psi(FloatWrapper(b, degree), FloatWrapper(b, degree)))
+    for m in range(1, 40):
+        M = 2**m
+        a = b - 1 / M
+        print(psi(FloatWrapper(a, degree), FloatWrapper(b, degree)))
 
     # graph_phi(FloatWrapper(0.6052287199698223, 3))
-    # graph_psi(FloatWrapper(1 / 12, degree))
+    # graph_psi(FloatWrapper(1 / 2, degree))
 
-    graph_phi(FloatWrapper(1 / 3, 3))
+    # graph_phi(FloatWrapper(1 / 3, 3))
     # print(psi(0, 0, 3, lesser=True))
     # print(psi(0, 0, 3, lesser=False))
