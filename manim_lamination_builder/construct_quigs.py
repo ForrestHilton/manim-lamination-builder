@@ -306,14 +306,25 @@ if __name__ == "__main__":
         # GenerateLams(
         #     color(filter(lambda x: x < 0.5, periodic_points(6))), long_quig
         # ).render()
-        # GenerateLams(pre_iterates_of_zero(5), long_quig).render()
-        points = (
-            pre_iterates_of_zero(6)
-            .union(periodic_points(5))
-            .union({x.other_siblings()[0] for x in periodic_points(5)})
-        )
-        points = color(points)
-        GenerateLams(points, Short_quig).render()
+
+        # reduced = color(
+        #     filter(
+        #         lambda x: x < 0.5,
+        #         list(periodic_points(6))
+        #         + [p.other_siblings()[0] for p in periodic_points(6)],
+        #     )
+        # )
+        # GenerateLams(reduced, long_quig).render()
+
+        # points = (
+        #     pre_iterates_of_zero(6)
+        #     .union(periodic_points(5))
+        #     .union({x.other_siblings()[0] for x in periodic_points(5)})
+        # )
+
+        # points = color(points)
+        # GenerateLams(points, Short_quig).render()
+        pass
     with tempconfig(
         {"quality": "fourk_quality", "preview": True}  # , "background_color": WHITE
     ):
@@ -333,19 +344,31 @@ if __name__ == "__main__":
         # Main([short_co_majors(color(periodic_points(9)))]).render()
         # Main([short_majors(color(periodic_points(9)))]).render()
         # Main([short_minors(color(periodic_points(9)))]).render()
+        # exit()
         # Main([long_co_majors(color(periodic_points(9)))]).render()
         # Main([long_majors(color(periodic_points(9)))]).render()
         # Main([long_minors(color(periodic_points(9)))]).render()
-        # reduced = color(
-        #     filter(
-        #         lambda x: x < 0.5,
-        #         list(periodic_points(9))
-        #         + [p.other_sibling()[0] for p in periodic_points(9)],
-        #     )
-        # )
+
+        reduced = color(
+            filter(
+                lambda x: x < 0.5,
+                list(periodic_points(9))
+                + [p.other_siblings()[0] for p in periodic_points(9)],
+            )
+        )
         # Main([long_co_majors(reduced)]).render()
         # Main([long_majors(reduced)]).render()
         # Main([long_minors(reduced)]).render()
+
+        # proposed model
+        third = NaryFraction.from_string(4, "_1")
+        twothirds = NaryFraction.from_string(4, "_2")
+        lam = long_minors(reduced)
+        lam.leafs.update(short_minors(color(periodic_points(9))).leafs)
+        lam = lam.filtered(lambda x: x not in [third, twothirds])
+        lam.leafs.update([Chord(third, twothirds)])
+        Main([lam]).render()
+
         # Quigs(pre_iterates_of_zero).render()
         # Main([short_quig(NaryFraction.from_string(2, "_01"))]).render()
 
