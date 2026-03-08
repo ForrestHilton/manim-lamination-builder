@@ -8,10 +8,12 @@ it. Moreover, it does so in a degree aware way. (It gets the degree from
 the point's degree).
 """
 
+from functools import lru_cache
 from typing import Callable, List, Optional
 
 from pydantic import BaseModel, field_validator, model_validator
 
+from manim_lamination_builder.chord import Chord
 from manim_lamination_builder.constructions import unicritical_polygon
 from manim_lamination_builder.custom_json import custom_dump
 from manim_lamination_builder.lamination import (
@@ -33,6 +35,20 @@ class CriticalTree(BaseModel):
     def _filter(cls, first_ccw_end_point):
         assert first_ccw_end_point.to_float() <= 0.5
         return first_ccw_end_point
+
+    @model_validator(mode="after")
+    def _check_nesting(self) -> "CriticalTree":
+        if self.inside is not None:
+            if not self.is_inside(self.inside.first_ccw_end_point):
+                raise ValueError("lesser end outside")
+            if not self.is_inside(self.inside.opposite_end()):
+                raise ValueError("greater end outside")
+        if self.outside is not None:
+            if self.is_inside(self.outside.first_ccw_end_point):
+                raise ValueError("lesser end inside")
+            if self.is_inside(self.outside.opposite_end()):
+                raise ValueError("greater end inside")
+        return self
 
     @staticmethod
     def default():
@@ -56,12 +72,24 @@ class CriticalTree(BaseModel):
             ret += self.outside.recursive_degree()
         return ret
 
+    def inside_degree(self):
+        ret = 1
+        if self.inside is not None:
+            ret += self.inside.recursive_degree()
+        return ret
+
     def opposite_end(self):
-        degree = self.actual_degree()
-        return FloatWrapper(
-            self.recursive_degree() / degree + self.first_ccw_end_point.to_float(),
-            degree,
+        return self.first_ccw_end_point + NaryFraction(
+            exact=[self.inside_degree()], repeating=(), degree=self.actual_degree()
         )
+
+    def as_lamintion(self) -> LeafLamination:
+        leaves = {Chord(self.first_ccw_end_point, self.opposite_end())}
+        if self.inside is not None:
+            leaves.update(self.inside.as_lamintion().leafs)
+        if self.outside is not None:
+            leaves.update(self.outside.as_lamintion().leafs)
+        return LeafLamination(points=[], degree=self.actual_degree(), leafs=leaves)
 
     def is_inside(self, a: Angle) -> bool:
         if self.first_end_point_on_inside:
@@ -78,9 +106,9 @@ class CriticalTree(BaseModel):
     def depth_first_traversal(self) -> List["CriticalTree"]:
         ret: List["CriticalTree"] = [self]
         if self.inside is not None:
-            ret.append(self.inside)
+            ret.extend(self.inside.depth_first_traversal())
         if self.outside is not None:
-            ret.append(self.outside)
+            ret.extend(self.outside.depth_first_traversal())
         return ret
 
     def is_in_top_branch(self, a: Angle):
@@ -96,7 +124,14 @@ class CriticalTree(BaseModel):
         alternat_branches = list(
             map(lambda tree: tree.is_in_top_branch, self.depth_first_traversal())
         )
-        return alternat_branches + [lambda x: not self.is_inside(x)]
+
+        def extra(x):
+            if self.outside is not None:
+                if self.outside.is_inside(x):
+                    return False
+            return not self.is_inside(x)
+
+        return alternat_branches + [extra]
 
     def all_branches(self) -> List[Callable[[Angle], Angle]]:
         def create_branch(identifyer):

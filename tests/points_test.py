@@ -68,3 +68,18 @@ def test_fraction_float_round_trip():
     for string in ["_001", "_010", "0_001", "001", "_01"]:
         point = NaryFraction.from_string(2, string)
         assert NaryFraction.from_float(point.to_float(), 2) == point
+
+
+def test_add1():
+    assert (
+        NaryFraction.from_string(2, "_001") + NaryFraction.from_string(2, "_010")
+    ).to_fraction() == "3/7"
+
+
+def test_add():
+    assert NaryFraction.from_string(4, "_1") + NaryFraction.from_string(
+        4, "2"
+    ) == NaryFraction.from_string(4, "3_1")
+
+
+test_add()

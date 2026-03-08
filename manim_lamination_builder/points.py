@@ -94,6 +94,9 @@ class _Angle(ABC):
         )
 
     def __add__(self, other):
+        if isinstance(self, NaryFraction) and isinstance(other, NaryFraction):
+            if self.degree == other.degree:
+                return self.add(other)
         if isinstance(other, _Angle):
             return FloatWrapper(self.to_float() + other.to_float(), self.degree)
         elif isinstance(other, (float, int)):
@@ -400,8 +403,38 @@ class NaryFraction(_Angle, BaseModel):
         m = n - 1 - len(self.exact)
         if m < 0:
             return self.exact[m]
+        elif len(self.repeating) == 0:
+            return 0
         else:
             return self.repeating[m % len(self.repeating)]
+
+    def add(self, other):
+        assert self.degree == other.degree
+        n = max(len(self.exact), len(other.exact))
+        m = math.lcm(len(self.repeating), len(self.repeating))
+        repeating = []
+        cary = 0
+        for i in range(m):
+            j = n + m - i
+            digit = self.digit(j) + other.digit(j) + cary
+            cary = digit // self.degree
+            digit = digit % self.degree
+            repeating.append(digit)
+        repeating.reverse()
+        if cary:
+            repeating[-1] += cary
+        exact = []
+        for i in range(n):
+            j = n - i
+            digit = self.digit(j) + other.digit(j) + cary
+            cary = digit // self.degree
+            digit = digit % self.degree
+            exact.append(digit)
+        exact.reverse()
+
+        return NaryFraction(
+            exact=tuple(exact), repeating=tuple(repeating), degree=self.degree
+        )
 
 
 class LiftedAngle(_Angle, BaseModel):
