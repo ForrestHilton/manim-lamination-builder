@@ -55,6 +55,12 @@ class AbstractLamination(ABC, Generic[T]):
     def after_sigma(self: T) -> T:
         return self.apply_function(lambda x: x.after_sigma())
 
+    def totaly_conglomerate(self) -> "GapLamination":
+        basis = []
+        for poly in self.to_polygons().polygons:
+            basis.extend(poly)
+        return GapLamination(points=[], polygons=[basis], degree=self.degree)
+
 
 Polygon = tuple[
     Angle, ...
@@ -289,7 +295,7 @@ class LeafLamination(BaseModel, AbstractLamination):
         return GapLamination(
             polygons=polygons_,
             points=self.points,
-            degree=self.degree,  # type:ignore
+            degree=self.degree,  # type: ignore
         )
 
     def crosses(self, target: Chord) -> bool:

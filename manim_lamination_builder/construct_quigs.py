@@ -5,7 +5,7 @@ from operator import xor
 from typing import Callable, Iterable, List
 
 import numpy as np
-from manim import RED, ImageMobject, ManimColor, Scene, tempconfig
+from manim import ORANGE, RED, WHITE, ImageMobject, ManimColor, Scene, tempconfig
 from PIL import Image
 
 from manim_lamination_builder.chord import Chord
@@ -349,6 +349,8 @@ if __name__ == "__main__":
         # Main([long_majors(color(periodic_points(9)))]).render()
         # Main([long_minors(color(periodic_points(9)))]).render()
 
+        pass
+
         reduced = color(
             filter(
                 lambda x: x < 0.5,
@@ -363,8 +365,13 @@ if __name__ == "__main__":
         # proposed model
         third = NaryFraction.from_string(4, "_1")
         twothirds = NaryFraction.from_string(4, "_2")
+        for p in reduced:
+            p.visual_settings.stroke_color = RED
         lam = long_minors(reduced)
-        lam.leafs.update(short_minors(color(periodic_points(9))).leafs)
+        points = periodic_points(9)
+        for p in points:
+            p.visual_settings.stroke_color = ORANGE
+        lam.leafs.update(short_minors(points).leafs)
         lam = lam.filtered(lambda x: x not in [third, twothirds])
         lam.leafs.update([Chord(third, twothirds)])
         Main([lam]).render()
@@ -372,4 +379,28 @@ if __name__ == "__main__":
         # Quigs(pre_iterates_of_zero).render()
         # Main([short_quig(NaryFraction.from_string(2, "_01"))]).render()
 
-        pass
+    with tempconfig(
+        {
+            "preview": True,
+            "background_color": WHITE,
+            "frame_width": 3,
+            "frame_height": 3,
+            "pixel_width": 1000,
+            "pixel_height": 1000,
+        }
+    ):
+        third = NaryFraction.from_string(4, "_1")
+        twothirds = NaryFraction.from_string(4, "_2")
+        for p in reduced:
+            p.visual_settings.stroke_color = RED
+        lam = long_minors(reduced)
+        points = periodic_points(9)
+        for p in points:
+            p.visual_settings.stroke_color = ORANGE
+        lam.leafs.update(short_minors(points).leafs)
+        lam = lam.filtered(lambda x: x not in [third, twothirds])
+        lam.leafs.update([Chord(third, twothirds)])
+        Main([lam]).render()
+        # Main(
+        #     [build_quig(NaryFraction.from_string(2, "0")).totaly_conglomerate()]
+        # ).render()
